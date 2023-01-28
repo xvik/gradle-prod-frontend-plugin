@@ -22,7 +22,7 @@ public class ProdFrontendExtension {
     /**
      * Minimize html files
      */
-    private boolean minimizeHtml = true;
+    private boolean minifyHtml = true;
     /**
      * Download rest and css, declared as cdn links.
      */
@@ -77,12 +77,12 @@ public class ProdFrontendExtension {
         this.cssFolder = cssFolder;
     }
 
-    public boolean isMinimizeHtml() {
-        return minimizeHtml;
+    public boolean isMinifyHtml() {
+        return minifyHtml;
     }
 
-    public void setMinimizeHtml(boolean minimizeHtml) {
-        this.minimizeHtml = minimizeHtml;
+    public void setMinifyHtml(boolean minifyHtml) {
+        this.minifyHtml = minifyHtml;
     }
 
     public boolean isDownloadResources() {

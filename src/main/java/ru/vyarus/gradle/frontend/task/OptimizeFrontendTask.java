@@ -49,6 +49,9 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
     @Input
     public abstract Property<String> getCssDir();
 
+    @Input
+    public abstract Property<Boolean> getMinifyHtml();
+
 
     @TaskAction
     public void run() {
@@ -140,13 +143,24 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
             }
 
 
-//            Configuration cfg = new Configuration.Builder()
-//                    .setKeepHtmlAndHeadOpeningTags(true)
-//                    .setMinifyCss(true)
-//                    .setMinifyJs(true)
-//                    .build();
-//
-//            String minified = MinifyHtml.minify("<p>  Hello, world!  </p>", cfg);
+            if (getMinifyHtml().get()) {
+                Configuration cfg = new Configuration.Builder()
+                        .setKeepHtmlAndHeadOpeningTags(true)
+                        .setDoNotMinifyDoctype(true)
+                        .setEnsureSpecCompliantUnquotedAttributeValues(true)
+                        .setKeepSpacesBetweenAttributes(true)
+                        .setMinifyCss(true)
+                        .setMinifyJs(true)
+                        .build();
+
+                try {
+                    String minified = MinifyHtml.minify(FileUtils.readFileToString(html, StandardCharsets.UTF_8), cfg);
+                    // overwrite file
+                    FileUtils.writeStringToFile(html, minified, StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    getLogger().error("Failed to minimize file: " + html.getAbsolutePath(), e);
+                }
+            }
         }
     }
 

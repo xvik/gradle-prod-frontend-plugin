@@ -1,0 +1,106 @@
+package ru.vyarus.gradle.frontend.util;
+
+import org.apache.commons.io.FileUtils;
+import ru.vyarus.gradle.frontend.model.HtmlModel;
+import ru.vyarus.gradle.frontend.model.OptimizationModel;
+import ru.vyarus.gradle.frontend.model.OptimizedItem;
+import ru.vyarus.gradle.frontend.model.file.CssFileModel;
+import ru.vyarus.gradle.frontend.model.file.JsFileModel;
+import ru.vyarus.gradle.frontend.model.stat.Stat;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Map;
+
+/**
+ * @author Vyacheslav Rusakov
+ * @since 02.02.2023
+ */
+public final class StatsPrinter {
+
+    private StatsPrinter() {
+    }
+
+    public static String print(final OptimizationModel model) {
+        final File baseDir = model.getBaseDir();
+        final String basePath = baseDir.getAbsolutePath() + "/";
+        final String line = repeat('-', 50 + 15 * 3 + 1) + "\n";
+        final String sumLine = repeat('-', 15 * 3) + "\n";
+        final StringBuilder res = new StringBuilder();
+        if (!model.getHtmls().isEmpty()) {
+            res.append(String.format("%-50s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
+            res.append(line);
+        }
+        for (HtmlModel html : model.getHtmls()) {
+            if (!html.isChanged()) {
+                continue;
+            }
+            res.append(String.format("%-50s %s%n",
+                    html.getFile().getAbsolutePath().replace(basePath, ""), formatSizes(html)));
+            String htmlPath = html.getFile().getParentFile().getAbsolutePath() + "/";
+            for (JsFileModel js : html.getJs()) {
+                res.append(String.format("%-50s %s%n",
+                        "  " + js.getFile().getAbsolutePath().replace(htmlPath, ""), formatSizes(js)));
+            }
+            for (CssFileModel css : html.getCss()) {
+                res.append(String.format("%-50s %s%n",
+                        "  " + css.getFile().getAbsolutePath().replace(htmlPath, ""), formatSizes(css)));
+            }
+
+            if (!html.getCss().isEmpty() || html.getJs().isEmpty()) {
+                res.append(String.format("%-50s %s", "", sumLine));
+                res.append(String.format("%-50s %-15s%-15s%-15s%n", "",
+                        sum(html, Stat.ORIGINAL), sum(html, Stat.MODIFIED), sum(html, Stat.GZIP)));
+            }
+        }
+        return res.toString();
+    }
+
+    private static String formatSizes(final OptimizedItem file) {
+        return formatSizes(file.getStats(), Stat.ORIGINAL, Stat.MODIFIED, Stat.GZIP);
+    }
+
+    private static String formatSizes(final Map<Stat, Long> stats, final Stat... sequence) {
+        StringBuilder res = new StringBuilder();
+        for (Stat stat : sequence) {
+            // use whitespace to keep table columns for files without minifiction
+            res.append(String.format("%-15s", stats.containsKey(stat)
+                    ? FileUtils.byteCountToDisplaySize(stats.get(stat)) : ""));
+        }
+        return res.toString();
+    }
+
+    private static String sum(final HtmlModel html, final Stat stat) {
+        long res = getStat(html, stat);
+        for (CssFileModel css : html.getCss()) {
+            res += getStat(css, stat);
+        }
+        for (JsFileModel js : html.getJs()) {
+            res += getStat(js, stat);
+        }
+        return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));
+    }
+
+    private static long getStat(OptimizedItem item, final Stat stat) {
+        Stat target = stat;
+        // going backward for stats because something might be missing (e.g. minification if file already minimized)
+        while (!item.getStats().containsKey(target)) {
+            target = Stat.values()[target.ordinal() - 1];
+        }
+        return item.getStats().get(target);
+    }
+
+    /**
+     * @param length number of whitespace characters to aggregate
+     * @return string with specified number of whitespace characters
+     */
+    private static String repeat(final char what, final int length) {
+        String res = "";
+        if (length > 0) {
+            final char[] dash = new char[length];
+            Arrays.fill(dash, what);
+            res = String.valueOf(dash);
+        }
+        return res;
+    }
+}

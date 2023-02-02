@@ -13,7 +13,8 @@ plugins {
     id "pl.droidsonroids.jacoco.testkit" version "1.0.9"
 }
 
-sourceCompatibility = 1.8
+// because of closure-stylesheets compiled for 11
+sourceCompatibility = '11'
 
 wrapper {
     gradleVersion = '6.9'
@@ -24,6 +25,9 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.10.7'
     implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-compress:1.22'
+    implementation 'org.padler:closure-stylesheets:1.6.5'
+    implementation 'com.google.javascript:closure-compiler:v20230103'
 
     testImplementation 'org.spockframework:spock-core:2.0-groovy-2.5'
 }
@@ -78,7 +82,7 @@ gradlePlugin {
 }
 pluginBundle {
     description = 'Optimize static resources for production'
-    tags = ['html', 'js', 'css', 'frontend']
+    tags = ['html', 'js', 'css', 'frontend', 'minify']
 
     mavenCoordinates {
         groupId = project.group

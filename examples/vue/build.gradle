@@ -1,0 +1,11 @@
+plugins {
+    id 'java'
+    id 'ru.vyarus.prod-frontend' version '1.0.0-SNAPSHOT'
+}
+
+tasks.register('buildWebapp', Copy) {
+    from('src/main/webapp')
+    into 'build/webapp'
+}
+
+tasks.findByName('prodFrontend').dependsOn('buildWebapp')

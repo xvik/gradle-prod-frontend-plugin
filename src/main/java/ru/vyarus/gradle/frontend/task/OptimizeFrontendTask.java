@@ -1,35 +1,18 @@
 package ru.vyarus.gradle.frontend.task;
 
 
-import in.wilsonl.minifyhtml.Configuration;
-import in.wilsonl.minifyhtml.MinifyHtml;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import ru.vyarus.gradle.frontend.model.OptimizationModel;
+import ru.vyarus.gradle.frontend.util.StatsPrinter;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Vyacheslav Rusakov
@@ -62,126 +45,25 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
         }
 
         // search htmls
-        final List<File> htmls;
-        try {
-            htmls = Files.walk(root.toPath(), 100).filter(path -> {
-                File fl = path.toFile();
-                if (fl.isDirectory()) {
-                    return false;
-                }
-                final String name = fl.getName().toLowerCase();
-                return name.endsWith(".html") || name.endsWith(".htm");
-            }).map(Path::toFile).collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new GradleException("Error searching for html files in " + root.getAbsolutePath(), e);
-        }
-        if (getDebug().get()) {
-            getLogger().lifecycle("Found html files in {}:\n{}", getProject().relativePath(root), htmls.stream()
-                    .map(file -> "\t" + getProject().relativePath(file))
-                    .sorted()
-                    .collect(Collectors.joining("\n")));
-        }
+        OptimizationModel optimizationModel = new OptimizationModel(
+                root,
+                new File(root, getJsDir().get()),
+                new File(root, getCssDir().get()));
 
-        File jsDir = new File(root, getJsDir().get());
-        File cssDir = new File(root, getCssDir().get());
+        optimizationModel.minifyCss(true);
+        optimizationModel.minifyJs(true);
+        optimizationModel.applyAntiCache();
 
+        optimizationModel.updateHtml(getMinifyHtml().get());
+        optimizationModel.generateGzip();
 
-        // inspect htmls
-        for (File html : htmls) {
+//        if (getDebug().get()) {
+//            getLogger().lifecycle("Found html files in {}:\n{}", getProject().relativePath(root), htmls.stream()
+//                    .map(file -> "\t" + getProject().relativePath(file))
+//                    .sorted()
+//                    .collect(Collectors.joining("\n")));
+//        }
 
-            System.out.println("Processing: " + getProject().relativePath(html));
-
-            try {
-                final Document doc = Jsoup.parse(html);
-                final Elements css = doc.select("link[href]");
-                final Elements jss = doc.select("script[src]");
-                boolean changed = false;
-
-                for (Element cs : css) {
-                    String target = cs.attr("href");
-                    if (target.toLowerCase().startsWith("http")) {
-                        // url - just downloading it to local directory here (as-is)
-                        String name = getFileName(target);
-                        // todo check existence
-                        File path = new File(cssDir, name);
-                        path.getParentFile().mkdirs();
-                        download(target, path.getAbsolutePath());
-
-                        final String localTarget = html.getParentFile().toPath().relativize(path.toPath()).toString();
-                        cs.attr("href", localTarget);
-                        System.out.println(target + " loaded as " + localTarget);
-
-                        changed = true;
-                    }
-                }
-
-                for (Element js : jss) {
-                    String target = js.attr("src");
-                    if (target.toLowerCase().startsWith("http")) {
-                        // url - just downloading it to local directory here (as-is)
-                        String name = getFileName(target);
-                        // todo check existence
-                        File path = new File(jsDir, name);
-                        path.getParentFile().mkdirs();
-                        download(target, path.getAbsolutePath());
-
-                        final String localTarget = html.getParentFile().toPath().relativize(path.toPath()).toString();
-                        js.attr("src", localTarget);
-                        System.out.println(target + " loaded as " + localTarget);
-
-                        changed = true;
-                    }
-                }
-
-                if (changed) {
-                    // overwrite file
-                    FileUtils.writeStringToFile(html, doc.outerHtml(), StandardCharsets.UTF_8);
-                }
-
-            } catch (IOException e) {
-                throw new GradleException("Error parsing html file: " + html.getAbsolutePath(), e);
-            }
-
-
-            if (getMinifyHtml().get()) {
-                Configuration cfg = new Configuration.Builder()
-                        .setKeepHtmlAndHeadOpeningTags(true)
-                        .setDoNotMinifyDoctype(true)
-                        .setEnsureSpecCompliantUnquotedAttributeValues(true)
-                        .setKeepSpacesBetweenAttributes(true)
-                        .setMinifyCss(true)
-                        .setMinifyJs(true)
-                        .build();
-
-                try {
-                    String minified = MinifyHtml.minify(FileUtils.readFileToString(html, StandardCharsets.UTF_8), cfg);
-                    // overwrite file
-                    FileUtils.writeStringToFile(html, minified, StandardCharsets.UTF_8);
-                } catch (Exception e) {
-                    getLogger().error("Failed to minimize file: " + html.getAbsolutePath(), e);
-                }
-            }
-        }
-    }
-
-    private String getFileName(String url) {
-        int idx = url.lastIndexOf('/');
-        if (idx == 0) {
-            idx = url.lastIndexOf('\\');
-        }
-        if (idx > 0) {
-            return url.substring(idx + 1);
-        }
-        // better then nothing
-        return url.replaceAll("[\\/]", "_");
-    }
-
-    private static void download(String urlStr, String file) throws IOException {
-        URL url = new URL(urlStr);
-        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        fos.close();
-        rbc.close();
+        System.out.println(StatsPrinter.print(optimizationModel));
     }
 }

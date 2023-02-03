@@ -30,8 +30,7 @@ public final class JsMinifier {
         String name = file.getName();
         if (sourceMaps) {
             // if source maps used preserving original file
-            name = file.getName().substring(0, file.getName().lastIndexOf('.'));
-            name += ".min.js";
+            name = FileUtils.getMinName(name);
         }
         final File target = new File(file.getParentFile(), name);
         final File sourceMap = new File(target.getAbsolutePath() + ".map");

@@ -1,14 +1,11 @@
 package ru.vyarus.gradle.frontend.model;
 
 import org.gradle.api.GradleException;
+import ru.vyarus.gradle.frontend.util.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Why no bundle: https://webspeedtools.com/should-i-combine-css-js/
@@ -68,20 +65,7 @@ public class OptimizationModel {
     }
 
     private void registerFiles() throws GradleException {
-        final List<File> files;
-        try {
-            files = Files.walk(baseDir.toPath(), 100).filter(path -> {
-                File fl = path.toFile();
-                if (fl.isDirectory()) {
-                    return false;
-                }
-                final String name = fl.getName().toLowerCase();
-                return name.endsWith(".html") || name.endsWith(".htm");
-            }).map(Path::toFile).collect(Collectors.toList());
-        } catch (IOException ex) {
-            throw new GradleException("Error searching for html files in " + baseDir.getAbsolutePath(), ex);
-        }
-
+        final List<File> files = FileUtils.findHtmls(baseDir);
         for (File file : files) {
             try {
                 htmls.add(new HtmlModel(jsDir, cssDir, file));

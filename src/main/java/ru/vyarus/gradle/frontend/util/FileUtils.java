@@ -5,12 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -22,26 +22,34 @@ public final class FileUtils {
     private FileUtils() {
     }
 
-    public static String getFileName(final String url) {
-        int idx = url.lastIndexOf('/');
-        if (idx == 0) {
-            idx = url.lastIndexOf('\\');
+    public static List<File> findHtmls(final File baseDir) {
+        try {
+            return Files.walk(baseDir.toPath(), 100).filter(path -> {
+                File fl = path.toFile();
+                if (fl.isDirectory()) {
+                    return false;
+                }
+                final String name = fl.getName().toLowerCase();
+                return name.endsWith(".html") || name.endsWith(".htm");
+            }).map(Path::toFile).collect(Collectors.toList());
+        } catch (IOException ex) {
+            throw new IllegalStateException("Error searching for html files in " + baseDir.getAbsolutePath(), ex);
         }
-        if (idx > 0) {
-            return url.substring(idx + 1);
-        }
-        // better then nothing
-        return url.replaceAll("[\\/]", "_");
     }
 
-    public static void download(String urlStr, File file) throws IOException {
-        final URL url = new URL(urlStr);
-        final ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-        file.getParentFile().mkdirs();
-        final FileOutputStream fos = new FileOutputStream(file);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        fos.close();
-        rbc.close();
+    public static String getMinName(final String name) {
+        if (name.contains(".min.")) {
+            return name;
+        }
+        return appendBeforeExtension(name, ".min");
+    }
+
+    public static String appendBeforeExtension(final String name, final String append) {
+        final int dotIdx = name.lastIndexOf('.');
+        if (dotIdx <= 0) {
+            throw new IllegalStateException("Can't find extension in file name: " + name);
+        }
+        return name.substring(0, dotIdx) + append + name.substring(dotIdx);
     }
 
     public static void writeFile(final File target, final String content) {

@@ -9,10 +9,10 @@ import ru.vyarus.gradle.frontend.model.file.FileModel;
 import ru.vyarus.gradle.frontend.model.file.JsFileModel;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
+import ru.vyarus.gradle.frontend.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.util.minify.HtmlMinifier;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -133,15 +133,8 @@ public class HtmlModel extends OptimizedItem {
             String changedUrl = null;
             if (target.toLowerCase().startsWith("http")) {
                 // url - just downloading it to local directory here (as-is)
-                // TODO try to download min version
-                String name = FileUtils.getFileName(target);
-                // todo check existence
-                file = new File(targetDir, name);
-                try {
-                    FileUtils.download(target, file);
-                } catch (IOException ex) {
-                    System.out.println("ERROR: failed to load url '" + target + "': skipping");
-                    ex.printStackTrace();
+                file = ResourceLoader.download(target, true, targetDir);
+                if (file == null) {
                     continue;
                 }
                 changedUrl = this.file.getParentFile().toPath().relativize(file.toPath()).toString();

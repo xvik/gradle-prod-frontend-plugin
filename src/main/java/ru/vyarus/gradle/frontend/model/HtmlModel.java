@@ -4,9 +4,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import ru.vyarus.gradle.frontend.model.file.CssFileModel;
+import ru.vyarus.gradle.frontend.model.file.CssModel;
 import ru.vyarus.gradle.frontend.model.file.FileModel;
-import ru.vyarus.gradle.frontend.model.file.JsFileModel;
+import ru.vyarus.gradle.frontend.model.file.JsModel;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.ResourceLoader;
@@ -27,8 +27,8 @@ public class HtmlModel extends OptimizedItem {
     private final File file;
     private File gzip;
     private Document doc;
-    private final List<JsFileModel> js = new ArrayList<>();
-    private final List<CssFileModel> css = new ArrayList<>();
+    private final List<JsModel> js = new ArrayList<>();
+    private final List<CssModel> css = new ArrayList<>();
 
     public HtmlModel(File jsDir, File cssDir, File file) throws Exception {
         this.jsDir = jsDir;
@@ -42,11 +42,11 @@ public class HtmlModel extends OptimizedItem {
         return doc;
     }
 
-    public List<JsFileModel> getJs() {
+    public List<JsModel> getJs() {
         return js;
     }
 
-    public List<CssFileModel> getCss() {
+    public List<CssModel> getCss() {
         return css;
     }
 
@@ -116,8 +116,8 @@ public class HtmlModel extends OptimizedItem {
         final Elements css = doc.select("link[href]");
         final Elements jss = doc.select("script[src]");
 
-        resolveFiles(css, CssFileModel.ATTR, cssDir, getCss(), CssFileModel::new);
-        resolveFiles(jss, JsFileModel.ATTR, jsDir, getJs(), JsFileModel::new);
+        resolveFiles(css, CssModel.ATTR, cssDir, getCss(), CssModel::new);
+        resolveFiles(jss, JsModel.ATTR, jsDir, getJs(), JsModel::new);
     }
 
     private <T extends FileModel> void resolveFiles(final Elements elements,

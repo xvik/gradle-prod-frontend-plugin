@@ -9,6 +9,7 @@ import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
+import ru.vyarus.gradle.frontend.model.Context;
 import ru.vyarus.gradle.frontend.model.OptimizationModel;
 import ru.vyarus.gradle.frontend.util.StatsPrinter;
 

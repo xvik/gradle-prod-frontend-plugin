@@ -1,20 +1,19 @@
 package ru.vyarus.gradle.frontend.model.file;
 
 import org.jsoup.nodes.Element;
-import ru.vyarus.gradle.frontend.util.minify.JsMinifier;
+import ru.vyarus.gradle.frontend.util.minify.CssMinifier;
 
 import java.io.File;
 
 /**
- *
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public class JsFileModel extends FileModel {
+public class CssModel extends FileModel {
 
-    public static final String ATTR = "src";
+    public static final String ATTR = "href";
 
-    public JsFileModel(final Element element, final File file) {
+    public CssModel(Element element, File file) {
         super(element, file, ATTR);
     }
 
@@ -22,9 +21,10 @@ public class JsFileModel extends FileModel {
     public void minify(boolean generateSourceMaps) {
         if (file.getName().toLowerCase().contains(".min.")) {
             // already minified
+            // todo try to only remove comments
             return;
         }
-        minified(JsMinifier.minify(file, generateSourceMaps));
+        // todo check if resulted file is LARGER
+        minified(CssMinifier.minify(file, generateSourceMaps));
     }
 }
-

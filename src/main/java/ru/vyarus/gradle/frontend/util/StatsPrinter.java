@@ -4,8 +4,8 @@ import org.apache.commons.io.FileUtils;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.model.OptimizationModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.model.file.CssFileModel;
-import ru.vyarus.gradle.frontend.model.file.JsFileModel;
+import ru.vyarus.gradle.frontend.model.file.CssModel;
+import ru.vyarus.gradle.frontend.model.file.JsModel;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 
 import java.io.File;
@@ -38,11 +38,11 @@ public final class StatsPrinter {
             res.append(String.format("%-50s %s%n",
                     html.getFile().getAbsolutePath().replace(basePath, ""), formatSizes(html)));
             String htmlPath = html.getFile().getParentFile().getAbsolutePath() + "/";
-            for (JsFileModel js : html.getJs()) {
+            for (JsModel js : html.getJs()) {
                 res.append(String.format("%-50s %s%n",
                         "  " + js.getFile().getAbsolutePath().replace(htmlPath, ""), formatSizes(js)));
             }
-            for (CssFileModel css : html.getCss()) {
+            for (CssModel css : html.getCss()) {
                 res.append(String.format("%-50s %s%n",
                         "  " + css.getFile().getAbsolutePath().replace(htmlPath, ""), formatSizes(css)));
             }
@@ -72,10 +72,10 @@ public final class StatsPrinter {
 
     private static String sum(final HtmlModel html, final Stat stat) {
         long res = getStat(html, stat);
-        for (CssFileModel css : html.getCss()) {
+        for (CssModel css : html.getCss()) {
             res += getStat(css, stat);
         }
-        for (JsFileModel js : html.getJs()) {
+        for (JsModel js : html.getJs()) {
             res += getStat(js, stat);
         }
         return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));

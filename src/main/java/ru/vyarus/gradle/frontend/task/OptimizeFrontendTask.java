@@ -9,7 +9,6 @@ import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
-import ru.vyarus.gradle.frontend.model.Context;
 import ru.vyarus.gradle.frontend.model.OptimizationModel;
 import ru.vyarus.gradle.frontend.util.StatsPrinter;
 
@@ -46,17 +45,21 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
         }
 
         // search htmls
-        OptimizationModel optimizationModel = new OptimizationModel(
+        OptimizationModel model = new OptimizationModel(
                 root,
                 new File(root, getJsDir().get()),
                 new File(root, getCssDir().get()));
 
-        optimizationModel.minifyCss(true);
-        optimizationModel.minifyJs(true);
-        optimizationModel.applyAntiCache();
+        // todo exclusions applied here
+        model.findFiles();
+        model.resolveResources(true, true, true);
 
-        optimizationModel.updateHtml(getMinifyHtml().get());
-        optimizationModel.generateGzip();
+        model.minifyCss(true);
+        model.minifyJs(true);
+        model.applyAntiCache();
+
+        model.updateHtml(getMinifyHtml().get());
+        model.generateGzip();
 
 //        if (getDebug().get()) {
 //            getLogger().lifecycle("Found html files in {}:\n{}", getProject().relativePath(root), htmls.stream()
@@ -65,6 +68,6 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
 //                    .collect(Collectors.joining("\n")));
 //        }
 
-        System.out.println(StatsPrinter.print(optimizationModel));
+        System.out.println(StatsPrinter.print(model));
     }
 }

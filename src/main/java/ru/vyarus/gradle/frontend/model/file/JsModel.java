@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.frontend.model.file;
 
 import org.jsoup.nodes.Element;
+import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.util.minify.JsMinifier;
 
 import java.io.File;
@@ -14,12 +15,12 @@ public class JsModel extends FileModel {
 
     public static final String ATTR = "src";
 
-    public JsModel(final Element element, final File file) {
-        super(element, file, ATTR);
+    public JsModel(final HtmlModel html, final Element element) {
+        super(html, element, ATTR, html.getJsDir());
     }
 
     @Override
-    public void minify(boolean generateSourceMaps) {
+    public void minify(final boolean generateSourceMaps) {
         if (file.getName().toLowerCase().contains(".min.")) {
             // already minified
             return;

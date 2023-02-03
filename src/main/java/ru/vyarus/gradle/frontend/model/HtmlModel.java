@@ -2,14 +2,11 @@ package ru.vyarus.gradle.frontend.model;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import ru.vyarus.gradle.frontend.model.file.CssModel;
 import ru.vyarus.gradle.frontend.model.file.FileModel;
 import ru.vyarus.gradle.frontend.model.file.JsModel;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.util.minify.HtmlMinifier;
 
 import java.io.File;
@@ -30,12 +27,19 @@ public class HtmlModel extends OptimizedItem {
     private final List<JsModel> js = new ArrayList<>();
     private final List<CssModel> css = new ArrayList<>();
 
-    public HtmlModel(File jsDir, File cssDir, File file) throws Exception {
+    public HtmlModel(final File jsDir, final File cssDir, final File file) throws Exception {
         this.jsDir = jsDir;
         this.cssDir = cssDir;
         this.file = file;
         recordStat(Stat.ORIGINAL, file.length());
-        parse();
+    }
+
+    public File getJsDir() {
+        return jsDir;
+    }
+
+    public File getCssDir() {
+        return cssDir;
     }
 
     public Document getDoc() {
@@ -111,52 +115,20 @@ public class HtmlModel extends OptimizedItem {
         }
     }
 
-    private void parse() throws Exception {
+    public void findResources() throws Exception {
         doc = Jsoup.parse(file);
-        final Elements css = doc.select("link[href]");
-        final Elements jss = doc.select("script[src]");
-
-        resolveFiles(css, CssModel.ATTR, cssDir, getCss(), CssModel::new);
-        resolveFiles(jss, JsModel.ATTR, jsDir, getJs(), JsModel::new);
+        doc.select("link[href]").forEach(element -> css.add(new CssModel(this, element)));
+        doc.select("script[src]").forEach(element -> js.add(new JsModel(this, element)));
     }
 
-    private <T extends FileModel> void resolveFiles(final Elements elements,
-                                                    final String attr,
-                                                    final File targetDir,
-                                                    final List<T> models,
-                                                    final ResourceFactory<T> factory) {
-
-        for (Element el : elements) {
-            final String target = el.attr(attr);
-
-            File file;
-            String changedUrl = null;
-            if (target.toLowerCase().startsWith("http")) {
-                // url - just downloading it to local directory here (as-is)
-                file = ResourceLoader.download(target, true, targetDir);
-                if (file == null) {
-                    continue;
-                }
-                changedUrl = this.file.getParentFile().toPath().relativize(file.toPath()).toString();
-            } else {
-                // local file
-                file = new File(this.file.getParentFile(), target);
-                if (!file.exists()) {
-                    System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from " + this.file.getAbsolutePath()
-                            + " not found: no optimizations would be applied");
-                    continue;
-                }
-            }
-            T model = factory.create(el, file);
-            if (changedUrl != null) {
-                model.changeTarget(changedUrl);
-            }
-            models.add(model);
-        }
+    public void resolveResources(final boolean download,
+                                 final boolean preferMinified,
+                                 final boolean sourceMaps) {
+        js.forEach(js -> js.resolve(download, preferMinified, sourceMaps));
+        css.forEach(css -> css.resolve(download, preferMinified, sourceMaps));
     }
 
-    @FunctionalInterface
-    private interface ResourceFactory<T extends FileModel> {
-        T create(Element element, File file);
+    public String relativize(final File resource) {
+        return this.file.getParentFile().toPath().relativize(resource.toPath()).toString();
     }
 }

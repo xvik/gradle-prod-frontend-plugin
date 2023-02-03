@@ -1,7 +1,9 @@
 package ru.vyarus.gradle.frontend.model.file;
 
 import org.jsoup.nodes.Element;
+import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
+import ru.vyarus.gradle.frontend.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
@@ -14,17 +16,65 @@ import java.io.File;
  */
 public abstract class FileModel extends OptimizedItem {
 
+    protected final HtmlModel html;
     protected final Element element;
     protected File file;
     protected File sourceMap;
     protected File gzip;
     protected final String attr;
+    protected final File dir;
+    protected boolean ignored;
+    protected boolean remote;
 
-    public FileModel(final Element element, final File file, final String attr) {
+    public FileModel(final HtmlModel html, final Element element, final String attr, final File dir) {
+        this.html = html;
         this.element = element;
-        this.file = file;
         this.attr = attr;
-        recordStat(Stat.ORIGINAL, file.length());
+        this.dir = dir;
+//        recordStat(Stat.ORIGINAL, file.length());
+    }
+
+    public boolean isIgnored() {
+        return ignored;
+    }
+
+    public void setIgnored(final boolean ignored) {
+        this.ignored = ignored;
+    }
+
+    public void resolve(final boolean download, final boolean preferMinified, final boolean sourceMaps) {
+        final String target = getTarget();
+
+        if (target.toLowerCase().startsWith("http")) {
+            remote = true;
+            if (download) {
+                // url - just downloading it to local directory here (as-is)
+                file = ResourceLoader.download(target, true, dir);
+                if (file == null) {
+                    // leave link as is - no optimizations
+                    System.out.println("WARNING: failed to download resource " + target);
+                    ignored = true;
+                } else {
+                    // update target
+                    changeTarget(html.relativize(file));
+                }
+            } else {
+                ignored = true;
+            }
+        } else {
+            // local file
+            file = new File(file.getParentFile(), target);
+            if (!file.exists()) {
+                System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from " + file.getAbsolutePath()
+                        + " not found: no optimizations would be applied");
+
+                ignored = true;
+            }
+        }
+
+        if (file != null && file.exists()) {
+            recordStat(Stat.ORIGINAL, file.length());
+        }
     }
 
     public File getFile() {

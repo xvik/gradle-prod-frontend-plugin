@@ -9,10 +9,13 @@ import in.wilsonl.minifyhtml.MinifyHtml;
  * @author Vyacheslav Rusakov
  * @since 01.02.2023
  */
-public class HtmlMinifier {
+public final class HtmlMinifier {
 
-    public static String minify(String html) {
-        Configuration cfg = new Configuration.Builder()
+    private HtmlMinifier() {
+    }
+
+    public static String minify(final String html) {
+        final Configuration cfg = new Configuration.Builder()
                 .setKeepHtmlAndHeadOpeningTags(true)
                 .setDoNotMinifyDoctype(true)
                 .setEnsureSpecCompliantUnquotedAttributeValues(true)

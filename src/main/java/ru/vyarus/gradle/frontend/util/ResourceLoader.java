@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Arrays;
 
 /**
  * @author Vyacheslav Rusakov
@@ -54,7 +55,15 @@ public final class ResourceLoader {
             idx = url.lastIndexOf('\\');
         }
         if (idx > 0) {
-            return url.substring(idx + 1);
+            String res =  url.substring(idx + 1);
+            // cut off possible redundant parts (maybe default anti-cache)
+            for(char sep: Arrays.asList('?', '#')) {
+                int i = res.indexOf(sep);
+                if (i > 0) {
+                    res = res.substring(0, i);
+                }
+            }
+           return res;
         } else {
             throw new IllegalStateException("Failed to detect name in url: " + url);
         }

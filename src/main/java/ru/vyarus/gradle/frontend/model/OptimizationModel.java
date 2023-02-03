@@ -32,8 +32,6 @@ public class OptimizationModel {
         if (!cssDir.exists()) {
             cssDir.mkdirs();
         }
-
-        registerFiles();
     }
 
     public File getBaseDir() {
@@ -64,14 +62,21 @@ public class OptimizationModel {
         htmls.forEach(HtmlModel::gzip);
     }
 
-    private void registerFiles() throws GradleException {
+    public void findFiles() throws GradleException {
         final List<File> files = FileUtils.findHtmls(baseDir);
         for (File file : files) {
             try {
-                htmls.add(new HtmlModel(jsDir, cssDir, file));
+                final HtmlModel html = new HtmlModel(jsDir, cssDir, file);
+                htmls.add(html);
+                // todo apply exclusions
+                html.findResources();
             } catch (Exception ex) {
                 throw new GradleException("Failed to parse html " + file.getAbsolutePath(), ex);
             }
         }
+    }
+
+    public void resolveResources(final boolean download, final boolean preferMinified, final boolean sourceMaps) {
+        htmls.forEach(html -> html.resolveResources(download, preferMinified, sourceMaps));
     }
 }

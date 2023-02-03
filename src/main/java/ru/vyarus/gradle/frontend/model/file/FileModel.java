@@ -23,7 +23,7 @@ public abstract class FileModel extends OptimizedItem {
     protected File gzip;
     protected final String attr;
     protected final File dir;
-    protected boolean ignored;
+
     protected boolean remote;
 
     public FileModel(final HtmlModel html, final Element element, final String attr, final File dir) {
@@ -31,11 +31,6 @@ public abstract class FileModel extends OptimizedItem {
         this.element = element;
         this.attr = attr;
         this.dir = dir;
-//        recordStat(Stat.ORIGINAL, file.length());
-    }
-
-    public boolean isIgnored() {
-        return ignored;
     }
 
     public void setIgnored(final boolean ignored) {
@@ -63,10 +58,10 @@ public abstract class FileModel extends OptimizedItem {
             }
         } else {
             // local file
-            file = new File(file.getParentFile(), target);
+            file = new File(html.getHtmlDir(), target);
             if (!file.exists()) {
-                System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from " + file.getAbsolutePath()
-                        + " not found: no optimizations would be applied");
+                System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
+                        + html.getFile().getAbsolutePath() + " not found: no optimizations would be applied");
 
                 ignored = true;
             }
@@ -75,6 +70,10 @@ public abstract class FileModel extends OptimizedItem {
         if (file != null && file.exists()) {
             recordStat(Stat.ORIGINAL, file.length());
         }
+    }
+
+    public boolean isRemote() {
+        return remote;
     }
 
     public File getFile() {
@@ -116,14 +115,18 @@ public abstract class FileModel extends OptimizedItem {
 
     // IMPORTANT must be applied after possible minification (last steps!)
     public void applyMd5() {
-        String md5 = FileUtils.computeMd5(file);
-        changeTarget(getTarget() + "?" + md5);
+        if (file != null && file.exists()) {
+            String md5 = FileUtils.computeMd5(file);
+            changeTarget(getTarget() + "?" + md5);
+        }
     }
 
     // IMPORTANT must be applied after possible minification (last steps!)
     public void gzip() {
-        gzip = FileUtils.gzip(file);
-        recordStat(Stat.GZIP, gzip.length());
+        if (file != null && file.exists()) {
+            gzip = FileUtils.gzip(file);
+            recordStat(Stat.GZIP, gzip.length());
+        }
     }
 
     public abstract void minify(boolean generateSourceMaps);

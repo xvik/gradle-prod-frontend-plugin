@@ -21,7 +21,7 @@ public class JsModel extends FileModel {
 
     @Override
     public void minify(final boolean generateSourceMaps) {
-        if (file.getName().toLowerCase().contains(".min.")) {
+        if (isIgnored() || file.getName().toLowerCase().contains(".min.")) {
             // already minified
             return;
         }

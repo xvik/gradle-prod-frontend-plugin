@@ -42,6 +42,10 @@ public class HtmlModel extends OptimizedItem {
         return cssDir;
     }
 
+    public File getHtmlDir() {
+        return file.getParentFile();
+    }
+
     public Document getDoc() {
         return doc;
     }

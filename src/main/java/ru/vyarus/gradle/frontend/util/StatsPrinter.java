@@ -40,7 +40,7 @@ public final class StatsPrinter {
             String htmlPath = html.getFile().getParentFile().getAbsolutePath() + "/";
             for (JsModel js : html.getJs()) {
                 res.append(String.format("%-50s %s%n",
-                        "  " + js.getFile().getAbsolutePath().replace(htmlPath, ""), formatSizes(js)));
+                        "  " + js.getTarget(), formatSizes(js)));
             }
             for (CssModel css : html.getCss()) {
                 res.append(String.format("%-50s %s%n",
@@ -67,16 +67,25 @@ public final class StatsPrinter {
             res.append(String.format("%-15s", stats.containsKey(stat)
                     ? FileUtils.byteCountToDisplaySize(stats.get(stat)) : ""));
         }
+        if (res.length() == 0) {
+            res.append("UNKNOWN");
+        }
         return res.toString();
     }
 
     private static String sum(final HtmlModel html, final Stat stat) {
         long res = getStat(html, stat);
         for (CssModel css : html.getCss()) {
-            res += getStat(css, stat);
+            // avoid ignored
+            if (css.getStats().containsKey(Stat.ORIGINAL)) {
+                res += getStat(css, stat);
+            }
         }
         for (JsModel js : html.getJs()) {
-            res += getStat(js, stat);
+            // avoid ignored
+            if (js.getStats().containsKey(Stat.ORIGINAL)) {
+                res += getStat(js, stat);
+            }
         }
         return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));
     }

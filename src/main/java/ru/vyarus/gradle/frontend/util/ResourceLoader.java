@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
@@ -71,7 +72,9 @@ public final class ResourceLoader {
 
     public static void download(final String urlStr, final File file) throws IOException {
         final URL url = new URL(urlStr);
-        final ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+        final URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(1000);
+        final ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
         file.getParentFile().mkdirs();
         final FileOutputStream fos = new FileOutputStream(file);
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);

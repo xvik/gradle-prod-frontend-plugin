@@ -1,5 +1,7 @@
 package ru.vyarus.gradle.frontend.util;
 
+import org.apache.commons.io.input.ReversedLinesFileReader;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -97,6 +99,21 @@ public final class FileUtils {
             throw new IllegalStateException("Failed to gzip file " + source.getAbsolutePath(), ex);
         }
         return target;
+    }
+
+    public static String readLastLine(final File file) {
+        try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file, StandardCharsets.UTF_8)) {
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    return line;
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read last file line " + file.getAbsolutePath(), e);
+        }
+        return null;
     }
 
     private static class CustomGzipStream extends GZIPOutputStream {

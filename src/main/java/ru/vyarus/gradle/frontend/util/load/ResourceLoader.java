@@ -2,6 +2,7 @@ package ru.vyarus.gradle.frontend.util.load;
 
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.UrlUtils;
+import ru.vyarus.gradle.frontend.util.WebUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,23 @@ public final class ResourceLoader {
                 System.out.println("ERROR: Failed to load resource '" + url + "': skipping");
                 ex.printStackTrace();
                 return null;
+            }
+        }
+
+        if (sourceMaps) {
+            String sourceMapUrl = WebUtils.getSourceMapReference(res);
+            if (sourceMapUrl != null) {
+                String fileName = UrlUtils.getFileName(sourceMapUrl);
+                String urlBase = UrlUtils.getBaseUrl(url);
+                File target = FileUtils.selectNotExistingFile(targetDir, fileName);
+                final String targetUrl = urlBase + sourceMapUrl;
+                try {
+                    UrlUtils.download(targetUrl, target);
+                } catch (IOException ex) {
+                    System.out.println("ERROR: Failed to load source mapping file '" + targetUrl + "': skipping");
+                    ex.printStackTrace();
+                    return null;
+                }
             }
         }
         return res;

@@ -3,7 +3,7 @@ package ru.vyarus.gradle.frontend.model.file;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.util.load.ResourceLoader;
 import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
@@ -44,14 +44,14 @@ public abstract class FileModel extends OptimizedItem {
             remote = true;
             if (download) {
                 // url - just downloading it to local directory here (as-is)
-                file = ResourceLoader.download(target, true, dir);
+                file = ResourceLoader.download(target, preferMinified, sourceMaps, dir);
                 if (file == null) {
                     // leave link as is - no optimizations
                     System.out.println("WARNING: failed to download resource " + target);
                     ignored = true;
                 } else {
                     // update target
-                    changeTarget(html.relativize(file));
+                    changeTarget(FileUtils.relative(html.getFile(), file));
                 }
             } else {
                 ignored = true;

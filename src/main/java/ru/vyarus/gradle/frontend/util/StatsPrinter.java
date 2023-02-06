@@ -6,6 +6,7 @@ import ru.vyarus.gradle.frontend.model.OptimizationModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
 import ru.vyarus.gradle.frontend.model.file.CssModel;
 import ru.vyarus.gradle.frontend.model.file.JsModel;
+import ru.vyarus.gradle.frontend.model.file.RelativeCssResource;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 
 import java.io.File;
@@ -24,9 +25,9 @@ public final class StatsPrinter {
     public static String print(final OptimizationModel model) {
         final File baseDir = model.getBaseDir();
         final String basePath = baseDir.getAbsolutePath() + "/";
-        final String line = repeat('-', 50 + 15 * 3 + 1) + "\n";
+        final String line = repeat('-', 70 + 15 * 3 + 1) + "\n";
         final String sumLine = repeat('-', 15 * 3) + "\n";
-        final StringBuilder res = new StringBuilder();
+        final StringBuilder res = new StringBuilder("\n");
         if (!model.getHtmls().isEmpty()) {
             res.append(String.format("%-50s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
             res.append(line);
@@ -35,21 +36,25 @@ public final class StatsPrinter {
             if (!html.isChanged()) {
                 continue;
             }
-            res.append(String.format("%-50s %s%n",
+            res.append(String.format("%-70s %s%n",
                     html.getFile().getAbsolutePath().replace(basePath, ""), formatSizes(html)));
             String htmlPath = html.getFile().getParentFile().getAbsolutePath() + "/";
             for (JsModel js : html.getJs()) {
-                res.append(String.format("%-50s %s%n",
-                        "  " + js.getTarget(), formatSizes(js)));
+                res.append(String.format("%-70s %s%n",
+                        "  " + unhash(js.getTarget()), formatSizes(js)));
             }
             for (CssModel css : html.getCss()) {
-                res.append(String.format("%-50s %s%n",
-                        "  " + css.getFile().getAbsolutePath().replace(htmlPath, ""), formatSizes(css)));
+                res.append(String.format("%-70s %s%n",
+                        "  " + unhash(css.getTarget()), formatSizes(css)));
+                for (RelativeCssResource resource : css.getUrls()) {
+                    res.append(String.format("%-70s   %s%n",
+                            "    " + unhash(resource.getTarget()), formatSizes(resource)));
+                }
             }
 
             if (!html.getCss().isEmpty() || html.getJs().isEmpty()) {
-                res.append(String.format("%-50s %s", "", sumLine));
-                res.append(String.format("%-50s %-15s%-15s%-15s%n", "",
+                res.append(String.format("%-70s %s", "", sumLine));
+                res.append(String.format("%-70s %-15s%-15s%-15s%n", "",
                         sum(html, Stat.ORIGINAL), sum(html, Stat.MODIFIED), sum(html, Stat.GZIP)));
             }
         }
@@ -111,5 +116,10 @@ public final class StatsPrinter {
             res = String.valueOf(dash);
         }
         return res;
+    }
+
+    private static String unhash(final String path) {
+        int idx = path.indexOf('?');
+        return idx > 0 ? path.substring(0, idx) : path;
     }
 }

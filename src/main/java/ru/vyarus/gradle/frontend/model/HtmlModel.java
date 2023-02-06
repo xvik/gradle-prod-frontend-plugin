@@ -131,8 +131,4 @@ public class HtmlModel extends OptimizedItem {
         js.forEach(js -> js.resolve(download, preferMinified, sourceMaps));
         css.forEach(css -> css.resolve(download, preferMinified, sourceMaps));
     }
-
-    public String relativize(final File resource) {
-        return this.file.getParentFile().toPath().relativize(resource.toPath()).toString();
-    }
 }

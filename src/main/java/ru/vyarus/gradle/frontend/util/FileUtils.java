@@ -37,6 +37,15 @@ public final class FileUtils {
         }
     }
 
+    public static File selectNotExistingFile(final File dir, final String name) {
+        String target = name;
+        int attempt = 0;
+        while (new File(dir, target).exists()) {
+            FileUtils.appendBeforeExtension(name, "_" + (++attempt));
+        }
+        return new File(dir, target);
+    }
+
     public static String getMinName(final String name) {
         if (name.contains(".min.")) {
             return name;
@@ -50,6 +59,10 @@ public final class FileUtils {
             throw new IllegalStateException("Can't find extension in file name: " + name);
         }
         return name.substring(0, dotIdx) + append + name.substring(dotIdx);
+    }
+
+    public static String relative(final File from, final File file) {
+        return (from.isDirectory() ? from : from.getParentFile()).toPath().relativize(file.toPath()).toString();
     }
 
     public static void writeFile(final File target, final String content) {
@@ -73,6 +86,10 @@ public final class FileUtils {
 
     public static File gzip(final File source) {
         final File target = new File(source.getAbsolutePath() + ".gz");
+        if (target.exists() && target.lastModified() > source.lastModified()) {
+            // avoid redundant  re-generation
+            return target;
+        }
         try (CustomGzipStream gos = new CustomGzipStream(
                 new FileOutputStream(target))) {
             Files.copy(source.toPath(), gos);

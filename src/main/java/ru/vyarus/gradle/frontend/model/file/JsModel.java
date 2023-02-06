@@ -4,8 +4,6 @@ import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.util.minify.JsMinifier;
 
-import java.io.File;
-
 /**
  *
  * @author Vyacheslav Rusakov

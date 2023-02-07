@@ -2,14 +2,16 @@ package ru.vyarus.gradle.frontend.model.file;
 
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
+import ru.vyarus.gradle.frontend.util.CssUtils;
+import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.UrlUtils;
-import ru.vyarus.gradle.frontend.util.load.CssResourcesLoader;
 import ru.vyarus.gradle.frontend.util.minify.CssMinifier;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Vyacheslav Rusakov
@@ -29,13 +31,30 @@ public class CssModel extends FileModel {
         String url = getTarget();
         super.resolve(download, preferMinified, sourceMaps);
 
-        if (remote && !ignored) {
-            String urlBase = UrlUtils.getBaseUrl(url);
-            // load links to css (@import), font references and image urls
-            // NOTE: css links updated here with md5 computation
-            final Map<String, File> urls = CssResourcesLoader.processLinks(file, urlBase);
-            if (urls != null) {
-                urls.forEach((s, file1) -> this.urls.add(new RelativeCssResource(this, s, file1)));
+        if (!isIgnored()) {
+            // css could link other css (@import), fonts and images
+            CssUtils.findLinks(file).forEach(link -> urls.add(new RelativeCssResource(this, link)));
+            // if css was loaded, relative resources must be also loaded
+            final String urlBase = remote ? UrlUtils.getBaseUrl(url) : null;
+            urls.forEach(relativeCssResource -> relativeCssResource.resolve(download, urlBase));
+
+            // overwrite css with new links
+            final List<RelativeCssResource> overrides = urls.stream()
+                    .filter(resource -> resource.isRemote() && !resource.isIgnored())
+                    .collect(Collectors.toList());
+            if (!overrides.isEmpty()) {
+                try {
+                    // replacing like this to not harm minification
+                    String content = Files.readString(file.toPath());
+                    for (RelativeCssResource resource : overrides) {
+                        String md5 = FileUtils.computeMd5(resource.getFile());
+                        content = content.replace(resource.getUrl(),
+                                FileUtils.relative(file, resource.getFile()) + "?" + md5);
+                    }
+                    FileUtils.writeFile(file, content);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to fix css file links", e);
+                }
             }
         }
     }

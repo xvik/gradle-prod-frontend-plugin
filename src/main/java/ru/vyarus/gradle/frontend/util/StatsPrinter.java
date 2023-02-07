@@ -29,7 +29,7 @@ public final class StatsPrinter {
         final String sumLine = repeat('-', 15 * 3) + "\n";
         final StringBuilder res = new StringBuilder("\n");
         if (!model.getHtmls().isEmpty()) {
-            res.append(String.format("%-50s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
+            res.append(String.format("%-70s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
             res.append(line);
         }
         for (HtmlModel html : model.getHtmls()) {
@@ -38,7 +38,6 @@ public final class StatsPrinter {
             }
             res.append(String.format("%-70s %s%n",
                     html.getFile().getAbsolutePath().replace(basePath, ""), formatSizes(html)));
-            String htmlPath = html.getFile().getParentFile().getAbsolutePath() + "/";
             for (JsModel js : html.getJs()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + unhash(js.getTarget()), formatSizes(js)));
@@ -62,6 +61,9 @@ public final class StatsPrinter {
     }
 
     private static String formatSizes(final OptimizedItem file) {
+        if (file.isIgnored()) {
+            return file.getIgnoreReason();
+        }
         return formatSizes(file.getStats(), Stat.ORIGINAL, Stat.MODIFIED, Stat.GZIP);
     }
 
@@ -71,9 +73,6 @@ public final class StatsPrinter {
             // use whitespace to keep table columns for files without minifiction
             res.append(String.format("%-15s", stats.containsKey(stat)
                     ? FileUtils.byteCountToDisplaySize(stats.get(stat)) : ""));
-        }
-        if (res.length() == 0) {
-            res.append("UNKNOWN");
         }
         return res.toString();
     }

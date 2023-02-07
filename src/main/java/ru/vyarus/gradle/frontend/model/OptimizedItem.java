@@ -15,14 +15,28 @@ public abstract class OptimizedItem {
 
     private final List<String> changes = new ArrayList<>();
     private final Map<Stat, Long> stats = new HashMap<>();
-    protected boolean ignored;
+    private boolean ignored;
+    private String ignoreReason;
 
     public boolean isIgnored() {
         return ignored;
     }
 
+    public String getIgnoreReason() {
+        return ignoreReason;
+    }
+
+    protected void ignore(final String reason) {
+        ignored = true;
+        ignoreReason = reason;
+    }
+
     public List<String> getChanges() {
         return changes;
+    }
+
+    public boolean hasChanges() {
+        return !changes.isEmpty();
     }
 
     public Map<Stat, Long> getStats() {

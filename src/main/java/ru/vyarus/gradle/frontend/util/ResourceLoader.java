@@ -1,8 +1,4 @@
-package ru.vyarus.gradle.frontend.util.load;
-
-import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.UrlUtils;
-import ru.vyarus.gradle.frontend.util.WebUtils;
+package ru.vyarus.gradle.frontend.util;
 
 import java.io.File;
 import java.io.IOException;

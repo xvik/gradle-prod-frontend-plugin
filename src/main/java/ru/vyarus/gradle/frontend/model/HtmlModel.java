@@ -67,14 +67,14 @@ public class HtmlModel extends OptimizedItem {
     }
 
     public boolean isChanged() {
-        if (!getChanges().isEmpty()) {
+        if (hasChanges()) {
             return true;
         }
         final Optional<Boolean> css = this.css.stream()
-                .map(cssFileModel -> !cssFileModel.getChanges().isEmpty())
+                .map(OptimizedItem::hasChanges)
                 .findAny();
         final Optional<Boolean> js = this.js.stream()
-                .map(cssFileModel -> !cssFileModel.getChanges().isEmpty())
+                .map(OptimizedItem::hasChanges)
                 .findAny();
         return css.isPresent() || js.isPresent();
     }
@@ -114,7 +114,7 @@ public class HtmlModel extends OptimizedItem {
 
         recordStat(Stat.MODIFIED, content.length());
 
-        if (!getChanges().isEmpty()) {
+        if (hasChanges()) {
             FileUtils.writeFile(file, content);
         }
     }

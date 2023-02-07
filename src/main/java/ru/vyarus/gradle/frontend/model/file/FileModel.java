@@ -3,7 +3,7 @@ package ru.vyarus.gradle.frontend.model.file;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.util.load.ResourceLoader;
+import ru.vyarus.gradle.frontend.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
@@ -33,10 +33,6 @@ public abstract class FileModel extends OptimizedItem {
         this.dir = dir;
     }
 
-    public void setIgnored(final boolean ignored) {
-        this.ignored = ignored;
-    }
-
     public void resolve(final boolean download, final boolean preferMinified, final boolean sourceMaps) {
         final String target = getTarget();
 
@@ -48,13 +44,13 @@ public abstract class FileModel extends OptimizedItem {
                 if (file == null) {
                     // leave link as is - no optimizations
                     System.out.println("WARNING: failed to download resource " + target);
-                    ignored = true;
+                    ignore("Download fail");
                 } else {
                     // update target
                     changeTarget(FileUtils.relative(html.getFile(), file));
                 }
             } else {
-                ignored = true;
+                ignore("Remote resource");
             }
         } else {
             // local file
@@ -63,7 +59,7 @@ public abstract class FileModel extends OptimizedItem {
                 System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
                         + html.getFile().getAbsolutePath() + " not found: no optimizations would be applied");
 
-                ignored = true;
+                ignore("Not found");
             }
         }
 

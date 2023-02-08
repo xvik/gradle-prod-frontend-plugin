@@ -116,6 +116,11 @@ public final class FileUtils {
         return null;
     }
 
+    public static String unhash(final String path) {
+        int idx = path.indexOf('?');
+        return idx > 0 ? path.substring(0, idx) : path;
+    }
+
     private static class CustomGzipStream extends GZIPOutputStream {
 
         public CustomGzipStream(OutputStream out) throws IOException {

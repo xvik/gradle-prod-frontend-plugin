@@ -54,7 +54,7 @@ public abstract class FileModel extends OptimizedItem {
             }
         } else {
             // local file
-            file = new File(html.getHtmlDir(), target);
+            file = new File(html.getHtmlDir(), FileUtils.unhash(target));
             if (!file.exists()) {
                 System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
                         + html.getFile().getAbsolutePath() + " not found: no optimizations would be applied");

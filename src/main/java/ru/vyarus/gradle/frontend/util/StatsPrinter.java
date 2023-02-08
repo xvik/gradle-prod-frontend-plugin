@@ -13,6 +13,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
+import static ru.vyarus.gradle.frontend.util.FileUtils.unhash;
+
 /**
  * @author Vyacheslav Rusakov
  * @since 02.02.2023
@@ -115,10 +117,5 @@ public final class StatsPrinter {
             res = String.valueOf(dash);
         }
         return res;
-    }
-
-    private static String unhash(final String path) {
-        int idx = path.indexOf('?');
-        return idx > 0 ? path.substring(0, idx) : path;
     }
 }

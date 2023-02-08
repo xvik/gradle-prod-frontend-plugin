@@ -78,7 +78,7 @@ public class RelativeCssResource extends OptimizedItem {
             recordChange(url + " -> " + this.target);
         } else {
             // local file
-            file = new File(css.getFile().getParentFile(), url);
+            file = new File(css.getFile().getParentFile(), FileUtils.unhash(url));
             if (!file.exists()) {
                 System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
                         + css.getFile().getAbsolutePath() + " not found");

@@ -1,5 +1,7 @@
 package ru.vyarus.gradle.frontend.util;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,14 +57,23 @@ public final class UrlUtils {
     }
 
     public static void download(final String urlStr, final File file) throws IOException {
-        final URL url = new URL(urlStr);
-        final URLConnection connection = url.openConnection();
-        connection.setConnectTimeout(1000);
-        final ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-        file.getParentFile().mkdirs();
-        final FileOutputStream fos = new FileOutputStream(file);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        fos.close();
-        rbc.close();
+        System.out.print("Download " + urlStr);
+        try {
+            long time = System.currentTimeMillis();
+            final URL url = new URL(urlStr);
+            final URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(1000);
+            final ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+            file.getParentFile().mkdirs();
+            final FileOutputStream fos = new FileOutputStream(file);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            fos.close();
+            rbc.close();
+            System.out.println(", took " + DurationFormatter.format(System.currentTimeMillis() - time) + " ("
+                    + FileUtils.byteCountToDisplaySize(file.length()) + ")");
+        } catch (Exception ex) {
+            System.out.println(", FAILED");
+            throw ex;
+        }
     }
 }

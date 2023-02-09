@@ -68,7 +68,6 @@ public class RelativeCssResource extends OptimizedItem {
             File target = new File(css.getFile().getParentFile().getAbsolutePath() + "/" + folder + "/" + name);
             try {
                 final String targetUrl = baseUrl + url;
-                System.out.println("Loading: " + targetUrl);
                 UrlUtils.download(targetUrl, target);
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to load relative css resource: " + url, e);

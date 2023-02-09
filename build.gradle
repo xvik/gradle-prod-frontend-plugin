@@ -17,7 +17,7 @@ plugins {
 sourceCompatibility = '11'
 
 wrapper {
-    gradleVersion = '6.9'
+    gradleVersion = '7.6'
 }
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
@@ -30,7 +30,7 @@ dependencies {
     implementation 'com.helger:ph-css:7.0.0'
     implementation 'com.google.javascript:closure-compiler:v20230103'
 
-    testImplementation 'org.spockframework:spock-core:2.0-groovy-2.5'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
 }
 
 group = 'ru.vyarus'

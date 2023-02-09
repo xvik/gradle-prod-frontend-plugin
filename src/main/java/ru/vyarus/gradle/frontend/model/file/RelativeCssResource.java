@@ -26,6 +26,7 @@ public class RelativeCssResource extends OptimizedItem {
     public RelativeCssResource(final CssModel css, final String url) {
         this.css = css;
         this.url = url;
+        this.target = url;
     }
 
     public void resolve(final boolean download, final String baseUrl) {
@@ -46,6 +47,7 @@ public class RelativeCssResource extends OptimizedItem {
                 ignore("Remote resource");
             }
         } else if (baseUrl != null) {
+            remote = true;
             // css was loaded and all relative resources must be also loaded
 
             // relative resources (often started with ../) - not loading them would lead to error

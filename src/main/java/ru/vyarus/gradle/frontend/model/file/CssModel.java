@@ -48,8 +48,7 @@ public class CssModel extends FileModel {
                     String content = Files.readString(file.toPath());
                     for (RelativeCssResource resource : overrides) {
                         String md5 = FileUtils.computeMd5(resource.getFile());
-                        content = content.replace(resource.getUrl(),
-                                FileUtils.relative(file, resource.getFile()) + "?" + md5);
+                        content = content.replace(resource.getUrl(), resource.getTarget() + "?" + md5);
                     }
                     FileUtils.writeFile(file, content);
                 } catch (IOException e) {

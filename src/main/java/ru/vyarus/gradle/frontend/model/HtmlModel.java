@@ -1,12 +1,12 @@
 package ru.vyarus.gradle.frontend.model;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import ru.vyarus.gradle.frontend.model.file.CssModel;
 import ru.vyarus.gradle.frontend.model.file.FileModel;
 import ru.vyarus.gradle.frontend.model.file.JsModel;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
+import ru.vyarus.gradle.frontend.util.HtmlParser;
 import ru.vyarus.gradle.frontend.util.minify.HtmlMinifier;
 
 import java.io.File;
@@ -119,15 +119,11 @@ public class HtmlModel extends OptimizedItem {
         }
     }
 
-    public void findResources() throws Exception {
-        doc = Jsoup.parse(file);
-        // ignore icon links
-        doc.select("link[href]").forEach(element -> {
-            if ("stylesheet".equalsIgnoreCase(element.attr("rel"))) {
-                css.add(new CssModel(this, element));
-            }
-        });
-        doc.select("script[src]").forEach(element -> js.add(new JsModel(this, element)));
+    public void findResources() {
+        final HtmlParser.ParseResult res = HtmlParser.parse(file);
+        doc = res.getDocument();
+        res.getCss().forEach(element -> css.add(new CssModel(this, element)));
+        res.getJs().forEach(element -> js.add(new JsModel(this, element)));
     }
 
     public void resolveResources(final boolean download,

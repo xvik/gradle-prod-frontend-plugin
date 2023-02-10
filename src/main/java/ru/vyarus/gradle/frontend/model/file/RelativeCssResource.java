@@ -38,13 +38,13 @@ public class RelativeCssResource extends OptimizedItem {
                 if (file == null) {
                     // leave link as is - no optimizations
                     System.out.println("WARNING: failed to download resource " + target);
-                    ignore("Download fail");
+                    ignore("download fail");
                 } else {
                     target = FileUtils.relative(css.getFile(), file);
                     recordChange(url + " -> " + target);
                 }
             } else {
-                ignore("Remote resource");
+                ignore("remote resource");
             }
         } else if (baseUrl != null) {
             remote = true;
@@ -70,7 +70,7 @@ public class RelativeCssResource extends OptimizedItem {
             File target = new File(css.getFile().getParentFile().getAbsolutePath() + "/" + folder + "/" + name);
             try {
                 final String targetUrl = baseUrl + url;
-                UrlUtils.download(targetUrl, target);
+                target = UrlUtils.smartDownload(targetUrl, target);
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to load relative css resource: " + url, e);
             }
@@ -84,7 +84,7 @@ public class RelativeCssResource extends OptimizedItem {
                 System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
                         + css.getFile().getAbsolutePath() + " not found");
 
-                ignore("Not found");
+                ignore("not found");
             }
         }
 
@@ -119,7 +119,18 @@ public class RelativeCssResource extends OptimizedItem {
     }
 
     public void gzip() {
-        gzip = FileUtils.gzip(file);
+        gzip = FileUtils.gzip(file, css.getHtml().getBaseDir());
         recordStat(Stat.GZIP, gzip.length());
+    }
+
+    public void applyMd5() {
+        if (file != null && file.exists()) {
+            String md5 = FileUtils.computeMd5(file);// md5 might be already applied
+            if (!getTarget().endsWith(md5)) {
+                String upd = FileUtils.unhash(getTarget()) + "?" + md5;
+                recordChange(target + " -> " + upd);
+                target = upd;
+            }
+        }
     }
 }

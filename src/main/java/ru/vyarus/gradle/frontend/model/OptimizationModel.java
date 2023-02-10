@@ -15,16 +15,18 @@ import java.util.List;
  * @since 30.01.2023
  */
 public class OptimizationModel {
+    private boolean debug;
     private final File baseDir;
     // for relative urls
     private final File jsDir;
     private final File cssDir;
     private List<HtmlModel> htmls = new ArrayList<>();
 
-    public OptimizationModel(final File baseDir, final File jsDir, final File cssDir) {
+    public OptimizationModel(final File baseDir, final File jsDir, final File cssDir, final boolean debug) {
         this.baseDir = baseDir;
         this.jsDir = jsDir;
         this.cssDir = cssDir;
+        this.debug = debug;
 
         if (!jsDir.exists()) {
             jsDir.mkdirs();
@@ -36,6 +38,18 @@ public class OptimizationModel {
 
     public File getBaseDir() {
         return baseDir;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public File getJsDir() {
+        return jsDir;
+    }
+
+    public File getCssDir() {
+        return cssDir;
     }
 
     public List<HtmlModel> getHtmls() {
@@ -66,7 +80,7 @@ public class OptimizationModel {
         final List<File> files = FileUtils.findHtmls(baseDir);
         for (File file : files) {
             try {
-                final HtmlModel html = new HtmlModel(jsDir, cssDir, file);
+                final HtmlModel html = new HtmlModel(this, file);
                 htmls.add(html);
                 // todo apply exclusions
                 html.findResources();

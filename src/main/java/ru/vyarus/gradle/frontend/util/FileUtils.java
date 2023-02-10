@@ -43,7 +43,8 @@ public final class FileUtils {
         String target = name;
         int attempt = 0;
         while (new File(dir, target).exists()) {
-            FileUtils.appendBeforeExtension(name, "_" + (++attempt));
+            final String append = "_" + (++attempt);
+            target = FileUtils.appendBeforeExtension(name, append);
         }
         return new File(dir, target);
     }
@@ -83,6 +84,25 @@ public final class FileUtils {
             return new BigInteger(1, hash).toString(16);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to calculate MD5 for file " + file.getAbsolutePath(), e);
+        }
+    }
+
+    public static File gzip(final File source, final File baseDir) {
+        if (baseDir != null) {
+            System.out.print("Gzip " + relative(baseDir, source));
+        }
+        try {
+            final File gzip = gzip(source);
+            if (baseDir != null) {
+                System.out.println(" " + gzip.length() * 100 / source.length() + "%");
+            }
+            return gzip;
+        } catch (RuntimeException ex) {
+            if (baseDir != null) {
+                // newline
+                System.out.println();
+            }
+            throw ex;
         }
     }
 

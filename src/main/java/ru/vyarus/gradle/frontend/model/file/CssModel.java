@@ -6,6 +6,7 @@ import ru.vyarus.gradle.frontend.util.CssUtils;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.UrlUtils;
 import ru.vyarus.gradle.frontend.util.minify.CssMinifier;
+import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +26,8 @@ public class CssModel extends FileModel {
     public CssModel(final HtmlModel html, final Element element) {
         super(html, element, ATTR, html.getCssDir());
     }
+
+
 
     @Override
     public void resolve(boolean download, boolean preferMinified, boolean sourceMaps) {
@@ -47,8 +50,9 @@ public class CssModel extends FileModel {
                     // replacing like this to not harm minification
                     String content = Files.readString(file.toPath());
                     for (RelativeCssResource resource : overrides) {
-                        String md5 = FileUtils.computeMd5(resource.getFile());
-                        content = content.replace(resource.getUrl(), resource.getTarget() + "?" + md5);
+                        // todo sync with upper mld5
+                        resource.applyMd5();
+                        content = content.replace(resource.getUrl(), resource.getTarget());
                     }
                     FileUtils.writeFile(file, content);
                 } catch (IOException e) {
@@ -66,7 +70,11 @@ public class CssModel extends FileModel {
             return;
         }
         // todo check if resulted file is LARGER
-        minified(CssMinifier.minify(file, generateSourceMaps));
+        long size = file.length();
+        System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
+        final MinifyResult min = CssMinifier.minify(file, generateSourceMaps);
+        System.out.println(" " + min.getMinified().length() * 100 / size + "%");
+        minified(min);
 
         // relative resources are not minified! (even css from import)
         // small images are not converted into data-urls!

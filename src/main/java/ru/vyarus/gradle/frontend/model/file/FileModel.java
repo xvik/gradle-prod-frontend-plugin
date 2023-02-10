@@ -3,10 +3,10 @@ package ru.vyarus.gradle.frontend.model.file;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.util.ResourceLoader;
-import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
+import ru.vyarus.gradle.frontend.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 
 import java.io.File;
 
@@ -44,28 +44,33 @@ public abstract class FileModel extends OptimizedItem {
                 if (file == null) {
                     // leave link as is - no optimizations
                     System.out.println("WARNING: failed to download resource " + target);
-                    ignore("Download fail");
+                    ignore("download fail");
                 } else {
                     // update target
                     changeTarget(FileUtils.relative(html.getFile(), file));
                 }
             } else {
-                ignore("Remote resource");
+                ignore("remote resource");
             }
         } else {
             // local file
             file = new File(html.getHtmlDir(), FileUtils.unhash(target));
             if (!file.exists()) {
-                System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
-                        + html.getFile().getAbsolutePath() + " not found: no optimizations would be applied");
+                System.out.println("WARNING: " + FileUtils.relative(html.getFile(), file) + " (referenced from "
+                        + FileUtils.relative(html.getBaseDir(), html.getFile())
+                        + ") not found: no optimizations would be applied");
 
-                ignore("Not found");
+                ignore("not found");
             }
         }
 
         if (file != null && file.exists()) {
             recordStat(Stat.ORIGINAL, file.length());
         }
+    }
+
+    public HtmlModel getHtml() {
+        return html;
     }
 
     public boolean isRemote() {
@@ -105,7 +110,7 @@ public abstract class FileModel extends OptimizedItem {
             sourceMap(result.getSourceMap());
 
             recordStat(Stat.MODIFIED, result.getMinified().length());
-            recordChange("minimized");
+            recordChange("minified");
         }
     }
 
@@ -113,14 +118,17 @@ public abstract class FileModel extends OptimizedItem {
     public void applyMd5() {
         if (file != null && file.exists()) {
             String md5 = FileUtils.computeMd5(file);
-            changeTarget(getTarget() + "?" + md5);
+            // md5 might be already applied
+            if (!getTarget().endsWith(md5)) {
+                changeTarget(FileUtils.unhash(getTarget()) + "?" + md5);
+            }
         }
     }
 
     // IMPORTANT must be applied after possible minification (last steps!)
     public void gzip() {
         if (file != null && file.exists()) {
-            gzip = FileUtils.gzip(file);
+            gzip = FileUtils.gzip(file, html.getBaseDir());
             recordStat(Stat.GZIP, gzip.length());
         }
     }

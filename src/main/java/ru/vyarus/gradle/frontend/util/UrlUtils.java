@@ -56,6 +56,23 @@ public final class UrlUtils {
         return res;
     }
 
+    public static File smartDownload(final String url, final File target) throws IOException {
+        File res = ru.vyarus.gradle.frontend.util.FileUtils
+                .selectNotExistingFile(target.getParentFile(), target.getName());
+        download(url, res);
+        if (!res.getName().equals(target.getName())) {
+            if (res.length() == target.length() &&
+                    ru.vyarus.gradle.frontend.util.FileUtils.computeMd5(res)
+                            .equals(ru.vyarus.gradle.frontend.util.FileUtils.computeMd5(target))) {
+                System.out.println("Downloaded file is the same as already existing file, using existing file");
+                // same as existing file, remove downloaded
+                res.delete();
+                res = target;
+            }
+        }
+        return res;
+    }
+
     public static void download(final String urlStr, final File file) throws IOException {
         System.out.print("Download " + urlStr);
         try {

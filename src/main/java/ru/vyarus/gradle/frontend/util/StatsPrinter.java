@@ -35,21 +35,23 @@ public final class StatsPrinter {
             res.append(line);
         }
         for (HtmlModel html : model.getHtmls()) {
-            if (!html.isChanged()) {
-                continue;
-            }
             res.append(String.format("%-70s %s%n",
                     html.getFile().getAbsolutePath().replace(basePath, ""), formatSizes(html)));
+            writeChanges(model.isDebug(), html, "", res);
+
             for (JsModel js : html.getJs()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + unhash(js.getTarget()), formatSizes(js)));
+                writeChanges(model.isDebug(), js, "  ", res);
             }
             for (CssModel css : html.getCss()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + unhash(css.getTarget()), formatSizes(css)));
+                writeChanges(model.isDebug(), css, "  ", res);
                 for (RelativeCssResource resource : css.getUrls()) {
                     res.append(String.format("%-70s   %s%n",
                             "    " + unhash(resource.getTarget()), formatSizes(resource)));
+                    writeChanges(model.isDebug(), resource, "    ", res);
                 }
             }
 
@@ -117,5 +119,14 @@ public final class StatsPrinter {
             res = String.valueOf(dash);
         }
         return res;
+    }
+
+    private static void writeChanges(boolean debug, OptimizedItem item, String prefix, StringBuilder res) {
+        if (debug && item.hasChanges()) {
+            res.append(prefix).append("| changes:\n");
+            item.getChanges().forEach(s -> res.append(prefix).append("| \t").append(s).append("\n"));
+            // extra line to separate from the following items
+            res.append("\n");
+        }
     }
 }

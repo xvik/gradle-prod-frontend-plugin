@@ -2,7 +2,9 @@ package ru.vyarus.gradle.frontend.model.file;
 
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
+import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.minify.JsMinifier;
+import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
 
 /**
  *
@@ -23,7 +25,11 @@ public class JsModel extends FileModel {
             // already minified
             return;
         }
-        minified(JsMinifier.minify(file, generateSourceMaps));
+        long size = file.length();
+        System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
+        final MinifyResult min = JsMinifier.minify(file, generateSourceMaps);
+        System.out.println(" " + min.getMinified().length() * 100 / size + "%");
+        minified(min);
     }
 }
 

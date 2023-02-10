@@ -56,7 +56,16 @@ public class CssModel extends FileModel {
                     }
                     FileUtils.writeFile(file, content);
                 } catch (IOException e) {
-                    throw new IllegalStateException("Failed to fix css file links", e);
+                    throw new IllegalStateException("Failed to update css file links", e);
+                }
+
+                // downloaded css file may appear different with existing file just after download due to
+                // changed urls inside css, so checking one more time after url changes were applied
+                // Situation: html was overridden in already optimized folder (with loaded and processes css) so
+                // css was loaded again on current processing into different file
+                if (remote) {
+                    // todo IMPLEMENT
+                    // todo implement additional check after minification (for JS TOO!)
                 }
             }
         }

@@ -82,7 +82,7 @@ public class CssModel extends FileModel {
         long size = file.length();
         System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
         final MinifyResult min = CssMinifier.minify(file, generateSourceMaps);
-        System.out.println(" " + min.getMinified().length() * 100 / size + "%");
+        System.out.println(", " + (size - min.getMinified().length()) * 100 / size + "% size decrease");
         minified(min);
 
         // relative resources are not minified! (even css from import)

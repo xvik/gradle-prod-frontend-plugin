@@ -43,7 +43,8 @@ public final class FileUtils {
         String target = name;
         int attempt = 0;
         while (new File(dir, target).exists()) {
-            final String append = "_" + (++attempt);
+            // use this scheme to preserve .min. in file name (used for minified file detection)
+            final String append = "." + (++attempt);
             target = FileUtils.appendBeforeExtension(name, append);
         }
         return new File(dir, target);
@@ -88,13 +89,18 @@ public final class FileUtils {
     }
 
     public static File gzip(final File source, final File baseDir) {
+        final File target = new File(source.getAbsolutePath() + ".gz");
+        if (target.exists() && target.lastModified() > source.lastModified()) {
+            // avoid redundant  re-generation
+            return target;
+        }
         if (baseDir != null) {
             System.out.print("Gzip " + relative(baseDir, source));
         }
         try {
             final File gzip = gzip(source);
             if (baseDir != null) {
-                System.out.println(" " + gzip.length() * 100 / source.length() + "%");
+                System.out.println(", " + (source.length() - gzip.length()) * 100 / source.length() + "% size decrease");
             }
             return gzip;
         } catch (RuntimeException ex) {

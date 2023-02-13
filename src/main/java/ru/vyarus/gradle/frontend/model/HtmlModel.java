@@ -121,7 +121,7 @@ public class HtmlModel extends OptimizedItem {
             long size = file.length();
             System.out.print("Minify " + FileUtils.relative(getBaseDir(), file));
             content = HtmlMinifier.minify(content);
-            System.out.println(" " + content.length() * 100 / size + "%");
+            System.out.println(", " + (size - content.length()) * 100 / size + "% size decrease");
             if (size != content.length()) {
                 recordChange("minified");
             }

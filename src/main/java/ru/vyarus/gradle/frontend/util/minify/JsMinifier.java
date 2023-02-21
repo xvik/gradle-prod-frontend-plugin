@@ -26,12 +26,9 @@ public final class JsMinifier {
     }
 
     public static MinifyResult minify(final File file, final boolean sourceMaps) {
-        // without source maps enabled writing into the same file
         String name = file.getName();
-        if (sourceMaps) {
-            // if source maps used preserving original file
-            name = FileUtils.getMinName(name);
-        }
+        // if source maps used preserving original file
+        name = FileUtils.getMinName(name);
         final File target = new File(file.getParentFile(), name);
         final File sourceMap = new File(target.getAbsolutePath() + ".map");
 

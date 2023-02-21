@@ -6,4 +6,5 @@ pluginManagement {
 }
 
 include 'vue',
-        'bootstrap'
+        'bootstrap',
+        'buefy'

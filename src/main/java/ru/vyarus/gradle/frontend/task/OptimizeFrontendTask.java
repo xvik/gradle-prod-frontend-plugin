@@ -49,7 +49,7 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
                 root,
                 new File(root, getJsDir().get()),
                 new File(root, getCssDir().get()),
-                true);
+                getDebug().get());
 
         // todo exclusions applied here
         model.findFiles();

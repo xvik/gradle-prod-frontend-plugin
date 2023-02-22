@@ -91,6 +91,14 @@ public class OptimizationModel {
     }
 
     public void resolveResources(final boolean download, final boolean preferMinified, final boolean sourceMaps) {
+
+        // todo apply integrity tags
+        // todo support downloading remote resources only for validation
+
+        // todo sri should be used ONLY on loaded files because cdn min versions could be auto generated on demand
+        // in https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css
+        // * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+
         htmls.forEach(html -> html.resolveResources(download, preferMinified, sourceMaps));
     }
 }

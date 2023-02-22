@@ -20,7 +20,6 @@ public final class ResourceLoader {
         final String minName = FileUtils.getMinName(name);
         File res = null;
         if (!name.equals(minName) && preferMinified) {
-            // todo load source maps
             // trying to load min version directly (for many cdns .min.js|.min.css is a common convention)
             final String minUrl = url.replace(name, minName);
             try {
@@ -42,6 +41,7 @@ public final class ResourceLoader {
         }
 
         if (sourceMaps) {
+            // todo download original if source maps enabled
             String sourceMapUrl = WebUtils.getSourceMapReference(res);
             if (sourceMapUrl != null) {
                 String fileName = UrlUtils.getFileName(sourceMapUrl);

@@ -4,6 +4,7 @@ import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.model.HtmlModel;
 import ru.vyarus.gradle.frontend.model.OptimizedItem;
 import ru.vyarus.gradle.frontend.model.stat.Stat;
+import ru.vyarus.gradle.frontend.util.DigestUtils;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
@@ -46,6 +47,17 @@ public abstract class FileModel extends OptimizedItem {
                     System.out.println("WARNING: failed to download resource " + target);
                     ignore("download fail");
                 } else {
+                    // if integrity tag specified - validate loaded file
+                    if (getIntegrity() != null) {
+                        if (!DigestUtils.validateSriToken(file, getIntegrity())) {
+                            final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
+                            // delete invalid file
+                            file.delete();
+                            throw new IllegalStateException("Integrity check failed for downloaded file "+target
+                                    +":\n\tdeclared: "+getIntegrity()+"\n\tactual: "+DigestUtils.buildSri(file, alg));
+                        }
+                        System.out.println("Integrity check for " + target + " OK");
+                    }
                     // update target
                     changeTarget(FileUtils.relative(html.getFile(), file));
                 }
@@ -89,6 +101,10 @@ public abstract class FileModel extends OptimizedItem {
         return element.attr(attr);
     }
 
+    public String getIntegrity() {
+        return element.attr("integrity");
+    }
+
     public File getSourceMap() {
         return sourceMap;
     }
@@ -101,6 +117,17 @@ public abstract class FileModel extends OptimizedItem {
         final String old = element.attr(attr);
         element.attr(attr, url);
         recordChange(old + " -> " + url);
+
+        // target change ALWAYS into local so removing crossorigin and integrity attributes
+        // e.g. bootstrap example suggest using them
+        if (element.hasAttr("crossorigin")) {
+            element.removeAttr("crossorigin");
+            recordChange("crossorigin removed");
+        }
+        if (element.hasAttr("integrity")) {
+            element.removeAttr("integrity");
+            recordChange("integrity removed");
+        }
     }
 
     public void minified(final MinifyResult result) {

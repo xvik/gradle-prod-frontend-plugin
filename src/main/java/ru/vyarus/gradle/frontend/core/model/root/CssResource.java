@@ -1,7 +1,8 @@
-package ru.vyarus.gradle.frontend.model.file;
+package ru.vyarus.gradle.frontend.core.model.root;
 
 import org.jsoup.nodes.Element;
-import ru.vyarus.gradle.frontend.model.HtmlModel;
+import ru.vyarus.gradle.frontend.core.model.HtmlPage;
+import ru.vyarus.gradle.frontend.core.model.root.sub.RelativeCssResource;
 import ru.vyarus.gradle.frontend.util.CssUtils;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.UrlUtils;
@@ -18,28 +19,29 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public class CssModel extends FileModel {
+public class CssResource extends RootResource {
     // link to relative file reference
     private final List<RelativeCssResource> urls = new ArrayList<>();
     public static final String ATTR = "href";
 
-    public CssModel(final HtmlModel html, final Element element) {
+    public CssResource(final HtmlPage html, final Element element) {
         super(html, element, ATTR, html.getCssDir());
     }
 
 
 
     @Override
-    public void resolve(boolean download, boolean preferMinified, boolean sourceMaps) {
+    public void resolve() {
         String url = getTarget();
-        super.resolve(download, preferMinified, sourceMaps);
+        super.resolve();
 
         if (!isIgnored()) {
             // css could link other css (@import), fonts and images
             CssUtils.findLinks(file).forEach(link -> urls.add(new RelativeCssResource(this, link)));
             // if css was loaded, relative resources must be also loaded
             final String urlBase = remote ? UrlUtils.getBaseUrl(url) : null;
-            urls.forEach(relativeCssResource -> relativeCssResource.resolve(download, urlBase));
+            urls.forEach(relativeCssResource -> relativeCssResource
+                    .resolve(getSettings().isDownloadResources(), urlBase));
 
             // overwrite css with new links
             final List<RelativeCssResource> overrides = urls.stream()
@@ -50,8 +52,9 @@ public class CssModel extends FileModel {
                     // replacing like this to not harm minification
                     String content = Files.readString(file.toPath());
                     for (RelativeCssResource resource : overrides) {
-                        // todo sync with upper mld5
-                        resource.applyMd5();
+                        if (getSettings().isApplyAntiCache()) {
+                            resource.applyMd5();
+                        }
                         content = content.replace(resource.getUrl(), resource.getTarget());
                     }
                     FileUtils.writeFile(file, content);
@@ -72,7 +75,7 @@ public class CssModel extends FileModel {
     }
 
     @Override
-    public void minify(final boolean generateSourceMaps) {
+    public void minify() {
         if (isIgnored() || file.getName().toLowerCase().contains(".min.")) {
             // already minified
             // todo try to only remove comments
@@ -81,7 +84,7 @@ public class CssModel extends FileModel {
         // todo check if resulted file is LARGER
         long size = file.length();
         System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
-        final MinifyResult min = CssMinifier.minify(file, generateSourceMaps);
+        final MinifyResult min = CssMinifier.minify(file, getSettings().isSourceMaps());
         System.out.println(", " + (size - min.getMinified().length()) * 100 / size + "% size decrease");
         minified(min);
 
@@ -95,7 +98,8 @@ public class CssModel extends FileModel {
         urls.forEach(RelativeCssResource::gzip);
     }
 
-    public List<RelativeCssResource> getUrls() {
+    @Override
+    public List<RelativeCssResource> getSubResources() {
         return urls;
     }
 }

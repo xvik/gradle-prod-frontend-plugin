@@ -1,10 +1,10 @@
 package ru.vyarus.gradle.frontend.util;
 
-import ru.vyarus.gradle.frontend.model.HtmlModel;
-import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.model.file.CssModel;
-import ru.vyarus.gradle.frontend.model.file.JsModel;
-import ru.vyarus.gradle.frontend.model.file.RelativeCssResource;
+import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.model.HtmlPage;
+import ru.vyarus.gradle.frontend.core.model.root.CssResource;
+import ru.vyarus.gradle.frontend.core.model.root.JsResource;
 
 /**
  * @author Vyacheslav Rusakov
@@ -12,17 +12,17 @@ import ru.vyarus.gradle.frontend.model.file.RelativeCssResource;
  */
 public class DebugReporter {
 
-    public static String buildHtmlReport(HtmlModel html) {
+    public static String buildReport(HtmlPage html) {
         StringBuilder res = new StringBuilder(FileUtils.relative(html.getBaseDir(), html.getFile())).append("\n");
-        for (JsModel js : html.getJs()) {
+        for (JsResource js : html.getJs()) {
             res.append("\t").append(js.getTarget());
             appendIgnored(res, js);
         }
-        for (CssModel css : html.getCss()) {
+        for (CssResource css : html.getCss()) {
             res.append("\t").append(css.getTarget());
             appendIgnored(res, css);
-            if (!css.getUrls().isEmpty()) {
-                for (RelativeCssResource rel : css.getUrls()) {
+            if (!css.getSubResources().isEmpty()) {
+                for (SubResourceInfo rel : css.getSubResources()) {
                     res.append("\t\t").append(rel.getTarget());
                     appendIgnored(res, rel);
                 }
@@ -31,7 +31,7 @@ public class DebugReporter {
         return res.toString();
     }
 
-    private static void appendIgnored(final StringBuilder res, final OptimizedItem item) {
+    private static void appendIgnored(final StringBuilder res, final ResourceInfo item) {
         if (item.isIgnored()) {
             res.append(" (").append(item.getIgnoreReason()).append(")");
         }

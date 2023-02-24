@@ -1,9 +1,11 @@
-package ru.vyarus.gradle.frontend.model.file;
+package ru.vyarus.gradle.frontend.core.model.root;
 
 import org.jsoup.nodes.Element;
-import ru.vyarus.gradle.frontend.model.HtmlModel;
-import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.model.stat.Stat;
+import ru.vyarus.gradle.frontend.core.model.HtmlPage;
+import ru.vyarus.gradle.frontend.core.model.OptimizedResource;
+import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.OptimizationFlow;
+import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
 import ru.vyarus.gradle.frontend.util.DigestUtils;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.ResourceLoader;
@@ -15,9 +17,10 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public abstract class FileModel extends OptimizedItem {
+public abstract class RootResource extends OptimizedResource implements RootResourceInfo {
 
-    protected final HtmlModel html;
+    public static final String INTEGRITY_ATTR = "integrity";
+    protected final HtmlPage html;
     protected final Element element;
     protected File file;
     protected File sourceMap;
@@ -27,21 +30,22 @@ public abstract class FileModel extends OptimizedItem {
 
     protected boolean remote;
 
-    public FileModel(final HtmlModel html, final Element element, final String attr, final File dir) {
+    public RootResource(final HtmlPage html, final Element element, final String attr, final File dir) {
         this.html = html;
         this.element = element;
         this.attr = attr;
         this.dir = dir;
     }
 
-    public void resolve(final boolean download, final boolean preferMinified, final boolean sourceMaps) {
+    public void resolve() {
         final String target = getTarget();
 
         if (target.toLowerCase().startsWith("http")) {
             remote = true;
-            if (download) {
+            if (getSettings().isDownloadResources()) {
                 // url - just downloading it to local directory here (as-is)
-                file = ResourceLoader.download(target, preferMinified, sourceMaps, dir);
+                file = ResourceLoader.download(target, getSettings().isTryDownloadMin(),
+                        getSettings().isSourceMaps(), dir);
                 if (file == null) {
                     // leave link as is - no optimizations
                     System.out.println("WARNING: failed to download resource " + target);
@@ -81,34 +85,44 @@ public abstract class FileModel extends OptimizedItem {
         }
     }
 
-    public HtmlModel getHtml() {
+    public HtmlPage getHtml() {
         return html;
     }
 
+    public OptimizationFlow.Settings getSettings() {
+        return getHtml().getSettings();
+    }
+
+    @Override
     public boolean isRemote() {
         return remote;
     }
 
+    @Override
     public File getFile() {
         return file;
     }
 
+    @Override
     public Element getElement() {
         return element;
     }
 
+    @Override
     public String getTarget() {
         return element.attr(attr);
     }
 
+    @Override
     public String getIntegrity() {
         return element.attr("integrity");
     }
 
+    @Override
     public File getSourceMap() {
         return sourceMap;
     }
-
+    @Override
     public File getGzip() {
         return gzip;
     }
@@ -124,8 +138,8 @@ public abstract class FileModel extends OptimizedItem {
             element.removeAttr("crossorigin");
             recordChange("crossorigin removed");
         }
-        if (element.hasAttr("integrity")) {
-            element.removeAttr("integrity");
+        if (element.hasAttr(INTEGRITY_ATTR)) {
+            element.removeAttr(INTEGRITY_ATTR);
             recordChange("integrity removed");
         }
     }
@@ -138,6 +152,14 @@ public abstract class FileModel extends OptimizedItem {
 
             recordStat(Stat.MODIFIED, result.getMinified().length());
             recordChange("minified");
+        }
+    }
+
+    public void applyIntegrity() {
+        if (!isIgnored()) {
+            final String token = DigestUtils.buildSri(file, "SHA-384");
+            element.attr(INTEGRITY_ATTR, token);
+            recordChange("integrity token applied");
         }
     }
 
@@ -160,7 +182,7 @@ public abstract class FileModel extends OptimizedItem {
         }
     }
 
-    public abstract void minify(boolean generateSourceMaps);
+    public abstract void minify();
 
     private void changeFile(final File file) {
         if (!this.file.equals(file)) {

@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.model.stat;
+package ru.vyarus.gradle.frontend.core.stat;
 
 /**
  * @author Vyacheslav Rusakov

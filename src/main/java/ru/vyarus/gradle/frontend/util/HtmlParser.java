@@ -3,8 +3,6 @@ package ru.vyarus.gradle.frontend.util;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import ru.vyarus.gradle.frontend.model.file.CssModel;
-import ru.vyarus.gradle.frontend.model.file.JsModel;
 
 import java.io.File;
 import java.io.IOException;

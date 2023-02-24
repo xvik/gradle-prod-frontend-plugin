@@ -1,7 +1,9 @@
-package ru.vyarus.gradle.frontend.model.file;
+package ru.vyarus.gradle.frontend.core.model.root.sub;
 
-import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.model.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.model.OptimizedResource;
+import ru.vyarus.gradle.frontend.core.model.root.CssResource;
+import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.UrlUtils;
 import ru.vyarus.gradle.frontend.util.ResourceLoader;
@@ -13,9 +15,9 @@ import java.io.IOException;
  * @author Vyacheslav Rusakov
  * @since 06.02.2023
  */
-public class RelativeCssResource extends OptimizedItem {
+public class RelativeCssResource extends OptimizedResource implements SubResourceInfo {
 
-    private final CssModel css;
+    private final CssResource css;
     private final String url;
     private File file;
     private String target;
@@ -23,7 +25,7 @@ public class RelativeCssResource extends OptimizedItem {
 
     private File gzip;
 
-    public RelativeCssResource(final CssModel css, final String url) {
+    public RelativeCssResource(final CssResource css, final String url) {
         this.css = css;
         this.url = url;
         this.target = url;
@@ -94,7 +96,7 @@ public class RelativeCssResource extends OptimizedItem {
     }
 
 
-    public CssModel getCss() {
+    public CssResource getCss() {
         return css;
     }
 
@@ -102,18 +104,21 @@ public class RelativeCssResource extends OptimizedItem {
         return url;
     }
 
+    @Override
     public File getFile() {
         return file;
     }
 
+    @Override
     public String getTarget() {
         return target;
     }
 
+    @Override
     public boolean isRemote() {
         return remote;
     }
-
+    @Override
     public File getGzip() {
         return gzip;
     }

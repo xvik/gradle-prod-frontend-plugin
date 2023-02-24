@@ -9,8 +9,7 @@ import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
-import ru.vyarus.gradle.frontend.model.OptimizationModel;
-import ru.vyarus.gradle.frontend.util.StatsPrinter;
+import ru.vyarus.gradle.frontend.core.OptimizationFlow;
 
 import java.io.File;
 
@@ -44,31 +43,21 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
             throw new GradleException("Webapp directory does not exists: " + root.getAbsolutePath());
         }
 
-        // search htmls
-        OptimizationModel model = new OptimizationModel(
-                root,
-                new File(root, getJsDir().get()),
-                new File(root, getCssDir().get()),
-                getDebug().get());
+        OptimizationFlow.create(root)
+                .jsDir(getJsDir().get())
+                .cssDir(getCssDir().get())
+                .downloadResources()
+                .tryDownloadMin()
+                .minifyJs()
+                .minifyCss()
+                .minifyHtml()
+                .applyAntiCache()
+                .applyIntegrity()
+                .sourceMaps()
+                .gzip()
+                .debug(getDebug().get())
 
-        // todo exclusions applied here
-        model.findFiles();
-        model.resolveResources(true, true, true);
-
-        model.minifyCss(true);
-        model.minifyJs(true);
-        model.applyAntiCache();
-
-        model.updateHtml(getMinifyHtml().get());
-        model.generateGzip();
-
-//        if (getDebug().get()) {
-//            getLogger().lifecycle("Found html files in {}:\n{}", getProject().relativePath(root), htmls.stream()
-//                    .map(file -> "\t" + getProject().relativePath(file))
-//                    .sorted()
-//                    .collect(Collectors.joining("\n")));
-//        }
-
-        System.out.println(StatsPrinter.print(model));
+                .run()
+                .printStats();
     }
 }

@@ -1,13 +1,12 @@
 package ru.vyarus.gradle.frontend.util;
 
 import org.apache.commons.io.FileUtils;
-import ru.vyarus.gradle.frontend.model.HtmlModel;
-import ru.vyarus.gradle.frontend.model.OptimizationModel;
-import ru.vyarus.gradle.frontend.model.OptimizedItem;
-import ru.vyarus.gradle.frontend.model.file.CssModel;
-import ru.vyarus.gradle.frontend.model.file.JsModel;
-import ru.vyarus.gradle.frontend.model.file.RelativeCssResource;
-import ru.vyarus.gradle.frontend.model.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
+import ru.vyarus.gradle.frontend.core.info.OptimizationInfo;
+import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.stat.Stat;
 
 import java.io.File;
 import java.util.Arrays;
@@ -24,34 +23,35 @@ public final class StatsPrinter {
     private StatsPrinter() {
     }
 
-    public static String print(final OptimizationModel model) {
-        final File baseDir = model.getBaseDir();
+    public static String print(final OptimizationInfo result) {
+        final File baseDir = result.getSettings().getBaseDir();
         final String basePath = baseDir.getAbsolutePath() + "/";
         final String line = repeat('-', 70 + 15 * 3 + 1) + "\n";
         final String sumLine = repeat('-', 15 * 3) + "\n";
         final StringBuilder res = new StringBuilder("\n");
-        if (!model.getHtmls().isEmpty()) {
+        if (!result.getHtmls().isEmpty()) {
             res.append(String.format("%-70s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
             res.append(line);
         }
-        for (HtmlModel html : model.getHtmls()) {
+        for (HtmlInfo html : result.getHtmls()) {
             res.append(String.format("%-70s %s%n",
                     html.getFile().getAbsolutePath().replace(basePath, ""), formatSizes(html)));
-            writeChanges(model.isDebug(), html, "", res);
+            final boolean debug = result.getSettings().isDebug();
+            writeChanges(debug, html, "", res);
 
-            for (JsModel js : html.getJs()) {
+            for (RootResourceInfo js : html.getJs()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + unhash(js.getTarget()), formatSizes(js)));
-                writeChanges(model.isDebug(), js, "  ", res);
+                writeChanges(debug, js, "  ", res);
             }
-            for (CssModel css : html.getCss()) {
+            for (RootResourceInfo css : html.getCss()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + unhash(css.getTarget()), formatSizes(css)));
-                writeChanges(model.isDebug(), css, "  ", res);
-                for (RelativeCssResource resource : css.getUrls()) {
+                writeChanges(debug, css, "  ", res);
+                for (SubResourceInfo resource : css.getSubResources()) {
                     res.append(String.format("%-70s   %s%n",
                             "    " + unhash(resource.getTarget()), formatSizes(resource)));
-                    writeChanges(model.isDebug(), resource, "    ", res);
+                    writeChanges(debug, resource, "    ", res);
                 }
             }
 
@@ -64,7 +64,7 @@ public final class StatsPrinter {
         return res.toString();
     }
 
-    private static String formatSizes(final OptimizedItem file) {
+    private static String formatSizes(final ResourceInfo file) {
         if (file.isIgnored()) {
             return file.getIgnoreReason();
         }
@@ -81,15 +81,15 @@ public final class StatsPrinter {
         return res.toString();
     }
 
-    private static String sum(final HtmlModel html, final Stat stat) {
+    private static String sum(final HtmlInfo html, final Stat stat) {
         long res = getStat(html, stat);
-        for (CssModel css : html.getCss()) {
+        for (RootResourceInfo css : html.getCss()) {
             // avoid ignored
             if (css.getStats().containsKey(Stat.ORIGINAL)) {
                 res += getStat(css, stat);
             }
         }
-        for (JsModel js : html.getJs()) {
+        for (RootResourceInfo js : html.getJs()) {
             // avoid ignored
             if (js.getStats().containsKey(Stat.ORIGINAL)) {
                 res += getStat(js, stat);
@@ -98,7 +98,7 @@ public final class StatsPrinter {
         return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));
     }
 
-    private static long getStat(OptimizedItem item, final Stat stat) {
+    private static long getStat(ResourceInfo item, final Stat stat) {
         Stat target = stat;
         // going backward for stats because something might be missing (e.g. minification if file already minimized)
         while (!item.getStats().containsKey(target)) {
@@ -121,7 +121,7 @@ public final class StatsPrinter {
         return res;
     }
 
-    private static void writeChanges(boolean debug, OptimizedItem item, String prefix, StringBuilder res) {
+    private static void writeChanges(boolean debug, ResourceInfo item, String prefix, StringBuilder res) {
         if (debug && item.hasChanges()) {
             res.append(prefix).append("| changes:\n");
             item.getChanges().forEach(s -> res.append(prefix).append("| \t").append(s).append("\n"));

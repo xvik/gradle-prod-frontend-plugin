@@ -1,6 +1,7 @@
-package ru.vyarus.gradle.frontend.model;
+package ru.vyarus.gradle.frontend.core.model;
 
-import ru.vyarus.gradle.frontend.model.stat.Stat;
+import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,17 +12,19 @@ import java.util.Map;
  * @author Vyacheslav Rusakov
  * @since 02.02.2023
  */
-public abstract class OptimizedItem {
+public abstract class OptimizedResource implements ResourceInfo {
 
     private final List<String> changes = new ArrayList<>();
     private final Map<Stat, Long> stats = new HashMap<>();
     private boolean ignored;
     private String ignoreReason;
 
+    @Override
     public boolean isIgnored() {
         return ignored;
     }
 
+    @Override
     public String getIgnoreReason() {
         return ignoreReason;
     }
@@ -31,14 +34,17 @@ public abstract class OptimizedItem {
         ignoreReason = reason;
     }
 
-    public List<String> getChanges() {
-        return changes;
-    }
-
+    @Override
     public boolean hasChanges() {
         return !changes.isEmpty();
     }
 
+    @Override
+    public List<String> getChanges() {
+        return changes;
+    }
+
+    @Override
     public Map<Stat, Long> getStats() {
         return stats;
     }

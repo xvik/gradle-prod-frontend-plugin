@@ -1,10 +1,12 @@
-package ru.vyarus.gradle.frontend.model;
+package ru.vyarus.gradle.frontend.core.model;
 
 import org.jsoup.nodes.Document;
-import ru.vyarus.gradle.frontend.model.file.CssModel;
-import ru.vyarus.gradle.frontend.model.file.FileModel;
-import ru.vyarus.gradle.frontend.model.file.JsModel;
-import ru.vyarus.gradle.frontend.model.stat.Stat;
+import ru.vyarus.gradle.frontend.core.OptimizationFlow;
+import ru.vyarus.gradle.frontend.core.model.root.CssResource;
+import ru.vyarus.gradle.frontend.core.model.root.JsResource;
+import ru.vyarus.gradle.frontend.core.model.root.RootResource;
+import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
 import ru.vyarus.gradle.frontend.util.DebugReporter;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.HtmlParser;
@@ -18,49 +20,50 @@ import java.util.List;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public class HtmlModel extends OptimizedItem {
-    private final OptimizationModel model;
+public class HtmlPage extends OptimizedResource implements HtmlInfo {
+    private final OptimizationFlow.Settings settings;
     private final File file;
     private File gzip;
     private Document doc;
-    private final List<JsModel> js = new ArrayList<>();
-    private final List<CssModel> css = new ArrayList<>();
+    private final List<JsResource> js = new ArrayList<>();
+    private final List<CssResource> css = new ArrayList<>();
 
-    public HtmlModel(final OptimizationModel model, final File file) {
-        this.model = model;
+    public HtmlPage(final OptimizationFlow.Settings settings, final File file) {
+        this.settings = settings;
         this.file = file;
         recordStat(Stat.ORIGINAL, file.length());
     }
 
-    public OptimizationModel getModel() {
-        return model;
+    public OptimizationFlow.Settings getSettings() {
+        return settings;
     }
 
     public File getBaseDir() {
-        return model.getBaseDir();
+        return settings.getBaseDir();
     }
 
     public File getJsDir() {
-        return model.getJsDir();
+        return settings.getJsDir();
     }
 
     public File getCssDir() {
-        return model.getCssDir();
+        return settings.getCssDir();
     }
 
     public File getHtmlDir() {
         return file.getParentFile();
     }
 
-    public Document getDoc() {
+    @Override
+    public Document getParsedDocument() {
         return doc;
     }
 
-    public List<JsModel> getJs() {
+    public List<JsResource> getJs() {
         return js;
     }
 
-    public List<CssModel> getCss() {
+    public List<CssResource> getCss() {
         return css;
     }
 
@@ -77,26 +80,31 @@ public class HtmlModel extends OptimizedItem {
             return true;
         }
         final boolean cssChanges = this.css.stream()
-                .anyMatch(OptimizedItem::hasChanges);
+                .anyMatch(OptimizedResource::hasChanges);
         final boolean jsChanges = this.js.stream()
-                .anyMatch(OptimizedItem::hasChanges);
+                .anyMatch(OptimizedResource::hasChanges);
         return cssChanges || jsChanges;
     }
 
-    public void minifyJs(boolean generateSourceMaps) {
-        js.forEach(jsFileModel -> jsFileModel.minify(generateSourceMaps));
+    public void minifyJs() {
+        js.forEach(JsResource::minify);
     }
 
-    public void minifyCss(boolean generateSourceMaps) {
-        css.forEach(cssFileModel -> cssFileModel.minify(generateSourceMaps));
+    public void minifyCss() {
+        css.forEach(CssResource::minify);
+    }
+
+    public void applyIntegrity() {
+        css.forEach(RootResource::applyIntegrity);
+        js.forEach(RootResource::applyIntegrity);
     }
 
     public void applyAntiCache() {
-        css.forEach(FileModel::applyMd5);
-        js.forEach(FileModel::applyMd5);
+        css.forEach(RootResource::applyMd5);
+        js.forEach(RootResource::applyMd5);
 
-        if (model.isDebug()) {
-            System.out.println("Anti-cache: " + DebugReporter.buildHtmlReport(this));
+        if (settings.isDebug()) {
+            System.out.println("Anti-cache: " + DebugReporter.buildReport(this));
         }
     }
 
@@ -105,17 +113,17 @@ public class HtmlModel extends OptimizedItem {
         gzip = FileUtils.gzip(file, getBaseDir());
         recordStat(Stat.GZIP, gzip.length());
 
-        css.forEach(FileModel::gzip);
-        js.forEach(FileModel::gzip);
+        css.forEach(RootResource::gzip);
+        js.forEach(RootResource::gzip);
     }
 
-    public void updateHtml(boolean minimize) {
+    public void updateHtml() {
         String content = doc.outerHtml();
         if (isChanged()) {
             recordChange("changed links");
         }
 
-        if (minimize) {
+        if (getSettings().isMinifyHtml()) {
             // using file length because content would contain DIFFERENT output and on consequent runs result could
             // be the same
             long size = file.length();
@@ -137,20 +145,18 @@ public class HtmlModel extends OptimizedItem {
     public void findResources() {
         final HtmlParser.ParseResult res = HtmlParser.parse(file);
         doc = res.getDocument();
-        res.getCss().forEach(element -> css.add(new CssModel(this, element)));
-        res.getJs().forEach(element -> js.add(new JsModel(this, element)));
-        if (model.isDebug()) {
-            System.out.println("Found: " + DebugReporter.buildHtmlReport(this));
+        res.getCss().forEach(element -> css.add(new CssResource(this, element)));
+        res.getJs().forEach(element -> js.add(new JsResource(this, element)));
+        if (settings.isDebug()) {
+            System.out.println("Found: " + DebugReporter.buildReport(this));
         }
     }
 
-    public void resolveResources(final boolean download,
-                                 final boolean preferMinified,
-                                 final boolean sourceMaps) {
-        js.forEach(js -> js.resolve(download, preferMinified, sourceMaps));
-        css.forEach(css -> css.resolve(download, preferMinified, sourceMaps));
-        if (model.isDebug()) {
-            System.out.println("Resolved: " + DebugReporter.buildHtmlReport(this));
+    public void resolveResources() {
+        js.forEach(js -> js.resolve());
+        css.forEach(css -> css.resolve());
+        if (settings.isDebug()) {
+            System.out.println("Resolved: " + DebugReporter.buildReport(this));
         }
     }
 }

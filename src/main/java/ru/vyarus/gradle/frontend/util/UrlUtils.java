@@ -10,12 +10,16 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Vyacheslav Rusakov
  * @since 04.02.2023
  */
 public final class UrlUtils {
+
+    private static final Pattern URL_BASE = Pattern.compile("https?://[^/:]+(:\\d+)?");
 
     private UrlUtils() {
     }
@@ -30,6 +34,11 @@ public final class UrlUtils {
         } else {
             throw new IllegalStateException("Failed to detect base in url: " + url);
         }
+    }
+
+    public static String getServerRoot(final String url) {
+        final Matcher matcher = URL_BASE.matcher(url);
+        return matcher.find() ? matcher.group(0) : null;
     }
 
     public static int getNameSeparatorPos(final String url) {

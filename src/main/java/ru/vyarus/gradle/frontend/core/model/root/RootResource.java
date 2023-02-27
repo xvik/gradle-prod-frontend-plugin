@@ -67,7 +67,8 @@ public abstract class RootResource extends OptimizedResource implements RootReso
 
     @Override
     public String getIntegrity() {
-        return element.attr("integrity");
+        final String integrity = element.attr("integrity");
+        return integrity.isEmpty() ? null : integrity;
     }
 
     @Override

@@ -244,7 +244,7 @@ public class OptimizationFlow implements OptimizationInfo {
 
         public Builder downloadSourceMaps(final Boolean sourceMaps) {
             if (sourceMaps != null) {
-                settings.downloadSourceMaps = false;
+                settings.downloadSourceMaps = sourceMaps;
             }
             return this;
         }

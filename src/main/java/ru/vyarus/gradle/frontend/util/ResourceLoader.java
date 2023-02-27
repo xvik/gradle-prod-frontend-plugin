@@ -45,7 +45,8 @@ public final class ResourceLoader {
             String sourceMapUrl = WebUtils.getSourceMapReference(res);
             if (sourceMapUrl != null) {
                 String fileName = UrlUtils.getFileName(sourceMapUrl);
-                String urlBase = UrlUtils.getBaseUrl(url);
+                // jsdeliver links sourcemaps to server root instead of relative to file
+                String urlBase = sourceMapUrl.startsWith("/") ? UrlUtils.getServerRoot(url) : UrlUtils.getBaseUrl(url);
                 final String targetUrl = urlBase + sourceMapUrl;
                 try {
                     // will override existing file (assuming it would be downloaded AFTER main file

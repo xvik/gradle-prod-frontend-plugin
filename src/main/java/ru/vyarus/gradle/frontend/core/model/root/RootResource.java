@@ -37,54 +37,6 @@ public abstract class RootResource extends OptimizedResource implements RootReso
         this.dir = dir;
     }
 
-    public void resolve() {
-        final String target = getTarget();
-
-        if (target.toLowerCase().startsWith("http")) {
-            remote = true;
-            if (getSettings().isDownloadResources()) {
-                // url - just downloading it to local directory here (as-is)
-                file = ResourceLoader.download(target, getSettings().isTryDownloadMin(),
-                        getSettings().isSourceMaps(), dir);
-                if (file == null) {
-                    // leave link as is - no optimizations
-                    System.out.println("WARNING: failed to download resource " + target);
-                    ignore("download fail");
-                } else {
-                    // if integrity tag specified - validate loaded file
-                    if (getIntegrity() != null) {
-                        if (!DigestUtils.validateSriToken(file, getIntegrity())) {
-                            final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
-                            // delete invalid file
-                            file.delete();
-                            throw new IllegalStateException("Integrity check failed for downloaded file "+target
-                                    +":\n\tdeclared: "+getIntegrity()+"\n\tactual: "+DigestUtils.buildSri(file, alg));
-                        }
-                        System.out.println("Integrity check for " + target + " OK");
-                    }
-                    // update target
-                    changeTarget(FileUtils.relative(html.getFile(), file));
-                }
-            } else {
-                ignore("remote resource");
-            }
-        } else {
-            // local file
-            file = new File(html.getHtmlDir(), FileUtils.unhash(target));
-            if (!file.exists()) {
-                System.out.println("WARNING: " + FileUtils.relative(html.getFile(), file) + " (referenced from "
-                        + FileUtils.relative(html.getBaseDir(), html.getFile())
-                        + ") not found: no optimizations would be applied");
-
-                ignore("not found");
-            }
-        }
-
-        if (file != null && file.exists()) {
-            recordStat(Stat.ORIGINAL, file.length());
-        }
-    }
-
     public HtmlPage getHtml() {
         return html;
     }
@@ -125,6 +77,54 @@ public abstract class RootResource extends OptimizedResource implements RootReso
     @Override
     public File getGzip() {
         return gzip;
+    }
+
+    public void resolve() {
+        final String target = getTarget();
+
+        if (target.toLowerCase().startsWith("http")) {
+            remote = true;
+            if (getSettings().isDownloadResources()) {
+                // url - just downloading it to local directory here (as-is)
+                file = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
+                        getSettings().isDownloadSourceMaps(), dir);
+                if (file == null) {
+                    // leave link as is - no optimizations
+                    System.out.println("WARNING: failed to download resource " + target);
+                    ignore("download fail");
+                } else {
+                    // if integrity tag specified - validate loaded file
+                    if (getIntegrity() != null) {
+                        if (!DigestUtils.validateSriToken(file, getIntegrity())) {
+                            final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
+                            // delete invalid file
+                            file.delete();
+                            throw new IllegalStateException("Integrity check failed for downloaded file "+target
+                                    +":\n\tdeclared: "+getIntegrity()+"\n\tactual: "+DigestUtils.buildSri(file, alg));
+                        }
+                        System.out.println("Integrity check for " + target + " OK");
+                    }
+                    // update target
+                    changeTarget(FileUtils.relative(html.getFile(), file));
+                }
+            } else {
+                ignore("remote resource");
+            }
+        } else {
+            // local file
+            file = new File(html.getHtmlDir(), FileUtils.unhash(target));
+            if (!file.exists()) {
+                System.out.println("WARNING: " + FileUtils.relative(html.getFile(), file) + " (referenced from "
+                        + FileUtils.relative(html.getBaseDir(), html.getFile())
+                        + ") not found: no optimizations would be applied");
+
+                ignore("not found");
+            }
+        }
+
+        if (file != null && file.exists()) {
+            recordStat(Stat.ORIGINAL, file.length());
+        }
     }
 
     public void changeTarget(String url) {

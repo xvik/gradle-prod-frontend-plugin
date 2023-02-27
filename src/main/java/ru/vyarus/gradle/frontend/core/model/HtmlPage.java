@@ -42,14 +42,6 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
         return settings.getBaseDir();
     }
 
-    public File getJsDir() {
-        return settings.getJsDir();
-    }
-
-    public File getCssDir() {
-        return settings.getCssDir();
-    }
-
     public File getHtmlDir() {
         return file.getParentFile();
     }
@@ -86,6 +78,24 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
         return cssChanges || jsChanges;
     }
 
+    public void findResources() {
+        final HtmlParser.ParseResult res = HtmlParser.parse(file);
+        doc = res.getDocument();
+        res.getCss().forEach(element -> css.add(new CssResource(this, element)));
+        res.getJs().forEach(element -> js.add(new JsResource(this, element)));
+        if (settings.isDebug()) {
+            System.out.println("Found: " + DebugReporter.buildReport(this));
+        }
+    }
+
+    public void resolveResources() {
+        js.forEach(RootResource::resolve);
+        css.forEach(CssResource::resolve);
+        if (settings.isDebug()) {
+            System.out.println("Resolved: " + DebugReporter.buildReport(this));
+        }
+    }
+
     public void minifyJs() {
         js.forEach(JsResource::minify);
     }
@@ -106,15 +116,6 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
         if (settings.isDebug()) {
             System.out.println("Anti-cache: " + DebugReporter.buildReport(this));
         }
-    }
-
-    // IMPORTANT must be applied after possible minification (last steps!)
-    public void gzip() {
-        gzip = FileUtils.gzip(file, getBaseDir());
-        recordStat(Stat.GZIP, gzip.length());
-
-        css.forEach(RootResource::gzip);
-        js.forEach(RootResource::gzip);
     }
 
     public void updateHtml() {
@@ -142,21 +143,12 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
         }
     }
 
-    public void findResources() {
-        final HtmlParser.ParseResult res = HtmlParser.parse(file);
-        doc = res.getDocument();
-        res.getCss().forEach(element -> css.add(new CssResource(this, element)));
-        res.getJs().forEach(element -> js.add(new JsResource(this, element)));
-        if (settings.isDebug()) {
-            System.out.println("Found: " + DebugReporter.buildReport(this));
-        }
-    }
+    // IMPORTANT must be applied after possible minification (last steps!)
+    public void gzip() {
+        gzip = FileUtils.gzip(file, getBaseDir());
+        recordStat(Stat.GZIP, gzip.length());
 
-    public void resolveResources() {
-        js.forEach(js -> js.resolve());
-        css.forEach(css -> css.resolve());
-        if (settings.isDebug()) {
-            System.out.println("Resolved: " + DebugReporter.buildReport(this));
-        }
+        css.forEach(RootResource::gzip);
+        js.forEach(RootResource::gzip);
     }
 }

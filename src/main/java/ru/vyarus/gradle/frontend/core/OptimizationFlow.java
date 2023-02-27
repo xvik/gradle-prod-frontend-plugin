@@ -92,11 +92,6 @@ public class OptimizationFlow implements OptimizationInfo {
         return this;
     }
 
-    @Override
-    public void printStats() {
-        System.out.println(StatsPrinter.print(this));
-    }
-
 
     public OptimizationFlow generateGzip() {
         if (settings.isGzip()) {
@@ -105,13 +100,19 @@ public class OptimizationFlow implements OptimizationInfo {
         return this;
     }
 
+    @Override
+    public void printStats() {
+        System.out.println(StatsPrinter.print(this));
+    }
+
     public static class Settings {
         private final File baseDir;
         // for relative urls
         private File jsDir;
         private File cssDir;
         private boolean downloadResources;
-        private boolean tryDownloadMin;
+        private boolean preferMinDownload;
+        private boolean downloadSourceMaps;
         private boolean minifyJs;
         private boolean minifyCss;
         private boolean minifyHtml;
@@ -143,8 +144,12 @@ public class OptimizationFlow implements OptimizationInfo {
             return downloadResources;
         }
 
-        public boolean isTryDownloadMin() {
-            return tryDownloadMin;
+        public boolean isPreferMinDownload() {
+            return preferMinDownload;
+        }
+
+        public boolean isDownloadSourceMaps() {
+            return downloadSourceMaps;
         }
 
         public boolean isMinifyJs() {
@@ -226,15 +231,26 @@ public class OptimizationFlow implements OptimizationInfo {
             return downloadResources(true);
         }
 
-        public Builder tryDownloadMin(final Boolean min) {
+        public Builder preferMinDownload(final Boolean min) {
             if (min != null) {
-                settings.tryDownloadMin = min;
+                settings.preferMinDownload = min;
             }
             return this;
         }
 
-        public Builder tryDownloadMin() {
-            return tryDownloadMin(true);
+        public Builder preferMinDownload() {
+            return preferMinDownload(true);
+        }
+
+        public Builder downloadSourceMaps(final Boolean sourceMaps) {
+            if (sourceMaps != null) {
+                settings.downloadSourceMaps = false;
+            }
+            return this;
+        }
+
+        public Builder downloadSourceMaps() {
+            return downloadSourceMaps(true);
         }
 
         public Builder minifyJs(final Boolean minify) {
@@ -329,8 +345,8 @@ public class OptimizationFlow implements OptimizationInfo {
             return new OptimizationFlow(settings)
                     .findFiles()
                     .resolveResources()
-                    .minifyCss()
                     .minifyJs()
+                    .minifyCss()
                     .applyIntegrity()
                     .applyAntiCache()
 

@@ -70,7 +70,7 @@ public final class CssMinifier {
 
         String output = compiler.execute(target, sourceMap);
         if (sourceMaps) {
-            output += "\n//# sourceMappingURL=" + sourceMap.getName();
+            output += "\n/*# sourceMappingURL=" + sourceMap.getName() + "*/";
         }
         FileUtils.writeFile(target, output);
         return new MinifyResult(target, sourceMaps ? sourceMap : null);

@@ -41,7 +41,7 @@ public final class ResourceLoader {
         }
 
         if (sourceMaps) {
-            // todo download original if source maps enabled
+            // todo download sources from source map (often not the same as version without min)!
             String sourceMapUrl = WebUtils.getSourceMapReference(res);
             if (sourceMapUrl != null) {
                 String fileName = UrlUtils.getFileName(sourceMapUrl);

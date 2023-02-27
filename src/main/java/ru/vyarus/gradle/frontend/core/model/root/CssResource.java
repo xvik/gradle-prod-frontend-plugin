@@ -25,7 +25,7 @@ public class CssResource extends RootResource {
     public static final String ATTR = "href";
 
     public CssResource(final HtmlPage html, final Element element) {
-        super(html, element, ATTR, html.getCssDir());
+        super(html, element, ATTR, html.getSettings().getCssDir());
     }
 
 

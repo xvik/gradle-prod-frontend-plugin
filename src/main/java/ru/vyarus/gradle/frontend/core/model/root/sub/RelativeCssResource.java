@@ -31,6 +31,33 @@ public class RelativeCssResource extends OptimizedResource implements SubResourc
         this.target = url;
     }
 
+    public CssResource getCss() {
+        return css;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public File getFile() {
+        return file;
+    }
+
+    @Override
+    public String getTarget() {
+        return target;
+    }
+
+    @Override
+    public boolean isRemote() {
+        return remote;
+    }
+    @Override
+    public File getGzip() {
+        return gzip;
+    }
+
     public void resolve(final boolean download, final String baseUrl) {
         if (url.startsWith("http")) {
             remote = true;
@@ -93,34 +120,6 @@ public class RelativeCssResource extends OptimizedResource implements SubResourc
         if (file != null && file.exists()) {
             recordStat(Stat.ORIGINAL, file.length());
         }
-    }
-
-
-    public CssResource getCss() {
-        return css;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    @Override
-    public File getFile() {
-        return file;
-    }
-
-    @Override
-    public String getTarget() {
-        return target;
-    }
-
-    @Override
-    public boolean isRemote() {
-        return remote;
-    }
-    @Override
-    public File getGzip() {
-        return gzip;
     }
 
     public void gzip() {

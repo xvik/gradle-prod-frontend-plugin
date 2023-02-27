@@ -47,7 +47,7 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
                 .jsDir(getJsDir().get())
                 .cssDir(getCssDir().get())
                 .downloadResources()
-                .tryDownloadMin()
+                .preferMinDownload()
                 .minifyJs()
                 .minifyCss()
                 .minifyHtml()

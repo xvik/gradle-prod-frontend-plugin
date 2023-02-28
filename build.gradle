@@ -27,7 +27,6 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-compress:1.22'
     implementation 'org.padler:closure-stylesheets:1.6.5'
-    implementation 'com.helger:ph-css:7.0.0'
     implementation 'com.google.javascript:closure-compiler:v20230103'
 
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'

@@ -35,7 +35,7 @@ public final class ResourceLoader {
         if (res == null) {
             try {
                 res = UrlUtils.smartDownload(realUrl, new File(targetDir, name));
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 System.out.println("ERROR: Failed to load resource '" + realUrl + "': skipping");
                 ex.printStackTrace();
                 return null;
@@ -54,7 +54,7 @@ public final class ResourceLoader {
                 try {
                     // will override existing file (assuming it would be downloaded AFTER main file
                     UrlUtils.download(targetUrl, new File(targetDir, fileName));
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     System.out.println("ERROR: Failed to load source mapping file '" + targetUrl + "': skipping");
                     ex.printStackTrace();
                     return null;

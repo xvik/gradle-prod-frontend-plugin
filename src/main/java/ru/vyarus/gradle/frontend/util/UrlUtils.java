@@ -4,8 +4,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -32,8 +32,8 @@ public final class UrlUtils {
 
         try {
             String res = url;
-
-            final URL target = new URL(url);
+            // remove ../ parts in url
+            final URL target = new URI(url).normalize().toURL();
             final HttpURLConnection conn = (HttpURLConnection) target.openConnection();
             conn.setInstanceFollowRedirects(false);
             conn.setReadTimeout(1000);
@@ -48,7 +48,7 @@ public final class UrlUtils {
                 if (!res.startsWith("http")) {
                     res = getServerRoot(url) + res;
                 }
-                System.out.println("Redirect resolved: " + url + " --> " + res);
+                System.out.println("Redirect resolved: " + target + " --> " + res);
                 // might be multiple redirects
                 res = checkRedirect(res);
             }
@@ -106,7 +106,7 @@ public final class UrlUtils {
         return res;
     }
 
-    public static File smartDownload(final String url, final File target) throws IOException {
+    public static File smartDownload(final String url, final File target) throws Exception {
         File res = ru.vyarus.gradle.frontend.util.FileUtils
                 .selectNotExistingFile(target.getParentFile(), target.getName());
         download(url, res);
@@ -123,11 +123,13 @@ public final class UrlUtils {
         return res;
     }
 
-    public static void download(final String urlStr, final File file) throws IOException {
-        System.out.print("Download " + urlStr);
+    public static void download(final String urlStr, final File file) throws Exception {
+        System.out.print("Download ");
         try {
             long time = System.currentTimeMillis();
-            final URL url = new URL(urlStr);
+            // remove ../ parts in url
+            final URL url = new URI(urlStr).normalize().toURL();
+            System.out.print(url);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(1000);
             connection.addRequestProperty("User-Agent", "Mozilla");

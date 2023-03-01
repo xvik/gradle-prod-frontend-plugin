@@ -100,7 +100,7 @@ public class RelativeCssResource extends OptimizedResource implements SubResourc
             try {
                 final String targetUrl = baseUrl + url;
                 target = UrlUtils.smartDownload(targetUrl, target);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new IllegalStateException("Failed to load relative css resource: " + url, e);
             }
             file = target;

@@ -16,12 +16,14 @@ public final class ResourceLoader {
                                 final boolean preferMinified,
                                 final boolean sourceMaps,
                                 final File targetDir) {
-        final String name = UrlUtils.getFileName(url);
+        // check redirects only when target file is unknown (folder references)
+        String realUrl = UrlUtils.hasExtension(url) ? url : UrlUtils.checkRedirect(url);
+        String name = UrlUtils.getFileName(realUrl);
         final String minName = FileUtils.getMinName(name);
         File res = null;
         if (!name.equals(minName) && preferMinified) {
             // trying to load min version directly (for many cdns .min.js|.min.css is a common convention)
-            final String minUrl = url.replace(name, minName);
+            final String minUrl = realUrl.replace(name, minName);
             try {
                 res = UrlUtils.smartDownload(minUrl, new File(targetDir, minName));
             } catch (Exception ex) {
@@ -32,9 +34,9 @@ public final class ResourceLoader {
         }
         if (res == null) {
             try {
-                res = UrlUtils.smartDownload(url, new File(targetDir, name));
+                res = UrlUtils.smartDownload(realUrl, new File(targetDir, name));
             } catch (IOException ex) {
-                System.out.println("ERROR: Failed to load resource '" + url + "': skipping");
+                System.out.println("ERROR: Failed to load resource '" + realUrl + "': skipping");
                 ex.printStackTrace();
                 return null;
             }
@@ -46,7 +48,8 @@ public final class ResourceLoader {
             if (sourceMapUrl != null) {
                 String fileName = UrlUtils.getFileName(sourceMapUrl);
                 // jsdeliver links sourcemaps to server root instead of relative to file
-                String urlBase = sourceMapUrl.startsWith("/") ? UrlUtils.getServerRoot(url) : UrlUtils.getBaseUrl(url);
+                String urlBase = sourceMapUrl.startsWith("/") ? UrlUtils.getServerRoot(realUrl)
+                        : UrlUtils.getBaseUrl(realUrl);
                 final String targetUrl = urlBase + sourceMapUrl;
                 try {
                     // will override existing file (assuming it would be downloaded AFTER main file

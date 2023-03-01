@@ -5,11 +5,12 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,8 +21,42 @@ import java.util.regex.Pattern;
 public final class UrlUtils {
 
     private static final Pattern URL_BASE = Pattern.compile("https?://[^/:]+(:\\d+)?");
+    private static List<Integer> REDIRECT_STATUS = Arrays.asList(301, 302, 303, 307, 308);
 
     private UrlUtils() {
+    }
+
+    // for example, unpkg supports urls like https://unpkg.com/vue@2 leading to actual file
+    // https://unpkg.com/vue@2.7.14/dist/vue.js - it is important to follow redirect first to know exact base dir
+    public static String checkRedirect(final String url) {
+
+        try {
+            String res = url;
+
+            final URL target = new URL(url);
+            final HttpURLConnection conn = (HttpURLConnection) target.openConnection();
+            conn.setInstanceFollowRedirects(false);
+            conn.setReadTimeout(1000);
+            conn.addRequestProperty("User-Agent", "Mozilla");
+
+            final boolean redirect = REDIRECT_STATUS.contains(conn.getResponseCode());
+            conn.getInputStream().close();
+            conn.disconnect();
+
+            if (redirect) {
+                res = conn.getHeaderField("Location");
+                if (!res.startsWith("http")) {
+                    res = getServerRoot(url) + res;
+                }
+                System.out.println("Redirect resolved: " + url + " --> " + res);
+                // might be multiple redirects
+                res = checkRedirect(res);
+            }
+
+            return res;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to check redirect on url: " + url, e);
+        }
     }
 
     public static String getBaseUrl(final String url) {
@@ -47,6 +82,12 @@ public final class UrlUtils {
             idx = url.lastIndexOf('\\');
         }
         return idx;
+    }
+
+    public static boolean hasExtension(final String url) {
+        String name = getFileName(url);
+        int idx = name.lastIndexOf('.');
+        return name.length() - idx <= 4;
     }
 
     public static String getFileName(final String url) {
@@ -87,14 +128,16 @@ public final class UrlUtils {
         try {
             long time = System.currentTimeMillis();
             final URL url = new URL(urlStr);
-            final URLConnection connection = url.openConnection();
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(1000);
+            connection.addRequestProperty("User-Agent", "Mozilla");
             final ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
             file.getParentFile().mkdirs();
             final FileOutputStream fos = new FileOutputStream(file);
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             fos.close();
             rbc.close();
+            connection.disconnect();
             System.out.println(", took " + DurationFormatter.format(System.currentTimeMillis() - time) + " ("
                     + FileUtils.byteCountToDisplaySize(file.length()) + ")");
         } catch (Exception ex) {

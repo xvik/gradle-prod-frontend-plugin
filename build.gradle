@@ -28,6 +28,7 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.22'
     implementation 'org.padler:closure-stylesheets:1.6.5'
     implementation 'com.google.javascript:closure-compiler:v20230103'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
 
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
 }

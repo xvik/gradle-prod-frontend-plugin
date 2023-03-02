@@ -1,7 +1,6 @@
 package ru.vyarus.gradle.frontend.util;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Vyacheslav Rusakov
@@ -43,9 +42,12 @@ public final class ResourceLoader {
         }
 
         if (sourceMaps) {
-            // todo download sources from source map (often not the same as version without min)!
             String sourceMapUrl = WebUtils.getSourceMapReference(res);
-            if (sourceMapUrl != null) {
+            if (sourceMapUrl == null) {
+                System.out.println("No source map file reference found");
+
+                // source maps file might be embedded!
+            } else if (!sourceMapUrl.startsWith("data:")) {
                 String fileName = UrlUtils.getFileName(sourceMapUrl);
                 // jsdeliver links sourcemaps to server root instead of relative to file
                 String urlBase = sourceMapUrl.startsWith("/") ? UrlUtils.getServerRoot(realUrl)
@@ -53,7 +55,10 @@ public final class ResourceLoader {
                 final String targetUrl = urlBase + sourceMapUrl;
                 try {
                     // will override existing file (assuming it would be downloaded AFTER main file
-                    UrlUtils.download(targetUrl, new File(targetDir, fileName));
+                    final File mapFile = new File(targetDir, fileName);
+                    UrlUtils.download(targetUrl, mapFile);
+                    // load and append sources inside source map file
+                    SourceMapUtils.includeSources(mapFile, urlBase);
                 } catch (Exception ex) {
                     System.out.println("ERROR: Failed to load source mapping file '" + targetUrl + "': skipping");
                     ex.printStackTrace();

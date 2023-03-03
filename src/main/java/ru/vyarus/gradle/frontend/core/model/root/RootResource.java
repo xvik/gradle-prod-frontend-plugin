@@ -181,6 +181,10 @@ public abstract class RootResource extends OptimizedResource implements RootReso
             gzip = FileUtils.gzip(file, html.getBaseDir());
             recordStat(Stat.GZIP, gzip.length());
         }
+        // gzip source map file (remote source maps would contain all sources)
+        if (sourceMap != null && sourceMap.exists()) {
+            FileUtils.gzip(sourceMap, html.getBaseDir());
+        }
     }
 
     public abstract void minify();

@@ -116,6 +116,8 @@ public class OptimizationFlow implements OptimizationInfo {
         private boolean minifyJs;
         private boolean minifyCss;
         private boolean minifyHtml;
+        private boolean minifyHtmlCss;
+        private boolean minifyHtmlJs;
         private boolean applyAntiCache;
         private boolean applyIntegrity;
         private boolean sourceMaps;
@@ -162,6 +164,14 @@ public class OptimizationFlow implements OptimizationInfo {
 
         public boolean isMinifyHtml() {
             return minifyHtml;
+        }
+
+        public boolean isMinifyHtmlCss() {
+            return minifyHtmlCss;
+        }
+
+        public boolean isMinifyHtmlJs() {
+            return minifyHtmlJs;
         }
 
         public boolean isApplyAntiCache() {
@@ -284,6 +294,28 @@ public class OptimizationFlow implements OptimizationInfo {
 
         public Builder minifyHtml() {
             return minifyHtml(true);
+        }
+
+        public Builder minifyHtmlCss(final Boolean minify) {
+            if (minify != null) {
+                settings.minifyHtmlCss = minify;
+            }
+            return this;
+        }
+
+        public Builder minifyHtmlCss() {
+            return minifyHtmlCss(true);
+        }
+
+        public Builder minifyHtmlJs(final Boolean minify) {
+            if (minify != null) {
+                settings.minifyHtmlJs = minify;
+            }
+            return this;
+        }
+
+        public Builder minifyHtmlJs() {
+            return minifyHtmlJs(true);
         }
 
         public Builder applyAntiCache(final Boolean antiCache) {

@@ -14,14 +14,14 @@ public final class HtmlMinifier {
     private HtmlMinifier() {
     }
 
-    public static String minify(final String html) {
+    public static String minify(final String html, final boolean minifuCss, final boolean minifyJs) {
         final Configuration cfg = new Configuration.Builder()
                 .setKeepHtmlAndHeadOpeningTags(true)
                 .setDoNotMinifyDoctype(true)
                 .setEnsureSpecCompliantUnquotedAttributeValues(true)
                 .setKeepSpacesBetweenAttributes(true)
-                .setMinifyCss(true)
-                .setMinifyJs(true)
+                .setMinifyCss(minifuCss)
+                .setMinifyJs(minifyJs)
                 .build();
         return MinifyHtml.minify(html, cfg);
     }

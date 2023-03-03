@@ -52,6 +52,8 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
                 .minifyJs()
                 .minifyCss()
                 .minifyHtml()
+                .minifyHtmlCss()
+                .minifyHtmlJs()
                 .applyAntiCache()
                 .applyIntegrity()
                 .sourceMaps()

@@ -129,7 +129,7 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
             // be the same
             long size = file.length();
             System.out.print("Minify " + FileUtils.relative(getBaseDir(), file));
-            content = HtmlMinifier.minify(content);
+            content = HtmlMinifier.minify(content, settings.isMinifyHtmlCss(), settings.isMinifyHtmlJs());
             System.out.println(", " + (size - content.length()) * 100 / size + "% size decrease");
             if (size != content.length()) {
                 recordChange("minified");

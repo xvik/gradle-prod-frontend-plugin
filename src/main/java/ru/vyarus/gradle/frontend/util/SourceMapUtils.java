@@ -20,7 +20,7 @@ public class SourceMapUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    public static void includeSources(final File sourceMap, final String baseUrl) {
+    public static void includeRemoteSources(final File sourceMap, final String baseUrl) {
         SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
             // do nothing - content already included
@@ -46,6 +46,35 @@ public class SourceMapUtils {
             }
         }
         tmp.delete();
+        map.setSourcesContent(content);
+        write(map, sourceMap);
+        System.out.println("Source map updated: " + sourceMap.getName() + " ("
+                + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
+    }
+
+    public static void includeSources(final File sourceMap) {
+        SourceMap map = parse(sourceMap);
+        if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
+            // do nothing - content already included
+            return;
+        }
+        final List<String> content = new ArrayList<>();
+        final File baseDir = sourceMap.getParentFile();
+
+        System.out.println("Embedding " + map.getSources().size() + " source files into source map "
+                + sourceMap.getName() + " (" + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
+        for (String src : map.getSources()) {
+            try {
+                final File source = new File(baseDir, src);
+                if (!source.exists()) {
+                    throw new IllegalStateException("Source file not found: " + source.getAbsolutePath());
+                }
+                content.add(Files.readString(source.toPath(), StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to read source file content for source map "
+                        + sourceMap.getName());
+            }
+        }
         map.setSourcesContent(content);
         write(map, sourceMap);
         System.out.println("Source map updated: " + sourceMap.getName() + " ("

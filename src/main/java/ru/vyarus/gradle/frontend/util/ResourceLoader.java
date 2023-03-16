@@ -58,7 +58,7 @@ public final class ResourceLoader {
                     final File mapFile = new File(targetDir, fileName);
                     UrlUtils.download(targetUrl, mapFile);
                     // load and append sources inside source map file
-                    SourceMapUtils.includeSources(mapFile, urlBase);
+                    SourceMapUtils.includeRemoteSources(mapFile, urlBase);
                 } catch (Exception ex) {
                     System.out.println("ERROR: Failed to load source mapping file '" + targetUrl + "': skipping");
                     ex.printStackTrace();

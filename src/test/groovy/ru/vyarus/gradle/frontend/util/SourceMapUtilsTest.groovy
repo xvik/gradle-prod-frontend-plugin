@@ -1,7 +1,6 @@
 package ru.vyarus.gradle.frontend.util
 
 import ru.vyarus.gradle.frontend.AbstractTest
-import spock.lang.Specification
 
 /**
  * @author Vyacheslav Rusakov
@@ -15,7 +14,7 @@ class SourceMapUtilsTest extends AbstractTest {
         File file = fileFromClasspath("materialdesignicons.min.css.map", '/sourcemap/materialdesignicons.min.css.map')
 
         when: "download and embed content"
-        SourceMapUtils.includeSources(file, "https://cdn.jsdelivr.net/npm/@mdi/font@2.5.94/css/")
+        SourceMapUtils.includeRemoteSources(file, "https://cdn.jsdelivr.net/npm/@mdi/font@2.5.94/css/")
 
         then: "map updated"
         def parse = SourceMapUtils.parse(file)
@@ -28,7 +27,7 @@ class SourceMapUtilsTest extends AbstractTest {
         long size = file.length()
 
         when: "download and embed content"
-        SourceMapUtils.includeSources(file, "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/")
+        SourceMapUtils.includeRemoteSources(file, "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/")
 
         then: "map updated"
         def parse = SourceMapUtils.parse(file)

@@ -8,7 +8,7 @@ import ru.vyarus.gradle.frontend.AbstractTest
  */
 class CssMinifyTest extends AbstractTest {
 
-    def "Check css minification"() {
+    def "Check buefy minification"() {
 
         setup:
         File file = fileFromClasspath('buefy.css', '/min/buefy.css')
@@ -19,6 +19,38 @@ class CssMinifyTest extends AbstractTest {
 
         then: "minified"
         res.minified.name == 'buefy.min.css'
+        res.minified.length() < size
+        res.sourceMap.exists()
+        !file.exists()
+    }
+
+    def "Check bootstrap minification"() {
+
+        setup:
+        File file = fileFromClasspath('bootstrap.css', '/min/bootstrap.css')
+        long size = file.length()
+
+        when: "minifying"
+        def res = CssMinifier.minify(file, true)
+
+        then: "minified"
+        res.minified.name == 'bootstrap.min.css'
+        res.minified.length() < size
+        res.sourceMap.exists()
+        !file.exists()
+    }
+
+    def "Check materialdesignicons minification"() {
+
+        setup:
+        File file = fileFromClasspath('materialdesignicons.css', '/min/materialdesignicons.css')
+        long size = file.length()
+
+        when: "minifying"
+        def res = CssMinifier.minify(file, true)
+
+        then: "minified"
+        res.minified.name == 'materialdesignicons.min.css'
         res.minified.length() < size
         res.sourceMap.exists()
         !file.exists()

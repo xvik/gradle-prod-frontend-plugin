@@ -75,7 +75,7 @@ public final class CssMinifier {
             Files.writeString(target.toPath(), minified, StandardCharsets.UTF_8);
 
             // remove original file
-            System.out.println("Minified file source removed: " + file.getName());
+            System.out.println("Minified file removed: " + file.getName());
             file.delete();
 
         } catch (IOException ex) {

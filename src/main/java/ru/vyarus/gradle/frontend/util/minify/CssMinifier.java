@@ -25,6 +25,7 @@ public final class CssMinifier {
     }
 
     public static MinifyResult minify(final File file, final boolean sourceMaps) {
+        System.out.println("Minifying " + file.getName() + " (" + (sourceMaps ? "with" : "no") + " source maps)");
         String name = file.getName();
         name = FileUtils.getMinName(name);
         final File target = new File(file.getParentFile(), name);
@@ -75,7 +76,7 @@ public final class CssMinifier {
             Files.writeString(target.toPath(), minified, StandardCharsets.UTF_8);
 
             // remove original file
-            System.out.println("Minified file removed: " + file.getName());
+            System.out.println("Minified file source removed: " + file.getName());
             file.delete();
 
         } catch (IOException ex) {

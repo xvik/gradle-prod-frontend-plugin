@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.frontend.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 
@@ -18,6 +19,7 @@ import java.util.List;
 public class SourceMapUtils {
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public static void includeRemoteSources(final File sourceMap, final String baseUrl) {
@@ -41,6 +43,7 @@ public class SourceMapUtils {
             try {
                 UrlUtils.download(base + src, tmp);
                 content.add(Files.readString(tmp.toPath(), StandardCharsets.UTF_8));
+                System.out.println("Source file " + src + " embedded into source map " + sourceMap.getName());
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to load source files for source map " + sourceMap.getName());
             }
@@ -63,18 +66,28 @@ public class SourceMapUtils {
 
         System.out.println("Embedding " + map.getSources().size() + " source files into source map "
                 + sourceMap.getName() + " (" + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
+        // repackage sources to use relative paths (e.g. google-closure puts absolute paths)
+        List<String> outSrc = new ArrayList<>();
         for (String src : map.getSources()) {
             try {
-                final File source = new File(baseDir, src);
+                // could be absolute path
+                File source = new File(src);
+                if (!source.exists()) {
+                    source = new File(baseDir, src);
+                }
                 if (!source.exists()) {
                     throw new IllegalStateException("Source file not found: " + source.getAbsolutePath());
                 }
+                outSrc.add(ru.vyarus.gradle.frontend.util.FileUtils.relative(sourceMap, source));
                 content.add(Files.readString(source.toPath(), StandardCharsets.UTF_8));
+                System.out.println("\t " + source.getName() + " ("+ FileUtils.byteCountToDisplaySize(source.length())
+                        + ") embedded into source map");
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to read source file content for source map "
-                        + sourceMap.getName());
+                        + sourceMap.getName(), e);
             }
         }
+        map.setSources(outSrc);
         map.setSourcesContent(content);
         write(map, sourceMap);
         System.out.println("Source map updated: " + sourceMap.getName() + " ("

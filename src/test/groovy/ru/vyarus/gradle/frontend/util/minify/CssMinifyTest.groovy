@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.frontend.util.minify
 
 import ru.vyarus.gradle.frontend.AbstractTest
+import ru.vyarus.gradle.frontend.util.SourceMapUtils
 
 /**
  * @author Vyacheslav Rusakov
@@ -21,7 +22,12 @@ class CssMinifyTest extends AbstractTest {
         res.minified.name == 'buefy.min.css'
         res.minified.length() < size
         res.sourceMap.exists()
+        res.sourceMap.name == 'buefy.min.css.map'
         !file.exists()
+        with(SourceMapUtils.parse(res.sourceMap)) {
+            sources == ['buefy.css']
+            sourcesContent.size() == 1
+        }
     }
 
     def "Check bootstrap minification"() {
@@ -37,6 +43,7 @@ class CssMinifyTest extends AbstractTest {
         res.minified.name == 'bootstrap.min.css'
         res.minified.length() < size
         res.sourceMap.exists()
+        res.sourceMap.name == 'bootstrap.min.css.map'
         !file.exists()
     }
 
@@ -53,6 +60,7 @@ class CssMinifyTest extends AbstractTest {
         res.minified.name == 'materialdesignicons.min.css'
         res.minified.length() < size
         res.sourceMap.exists()
+        res.sourceMap.name == 'materialdesignicons.min.css.map'
         !file.exists()
     }
 }

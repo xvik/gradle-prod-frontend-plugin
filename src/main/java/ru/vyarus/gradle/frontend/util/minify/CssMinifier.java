@@ -4,13 +4,15 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.SourceMapUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * https://github.com/css/csso
@@ -25,15 +27,17 @@ public final class CssMinifier {
     }
 
     public static MinifyResult minify(final File file, final boolean sourceMaps) {
-        System.out.println("Minifying " + file.getName() + " (" + (sourceMaps ? "with" : "no") + " source maps)");
         String name = file.getName();
         name = FileUtils.getMinName(name);
         final File target = new File(file.getParentFile(), name);
         final File sourceMap = new File(target.getAbsolutePath() + ".map");
 
         File localCsso = null;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
         try (Context context = Context.newBuilder("js")
                 .currentWorkingDirectory(file.getParentFile().toPath())
+                .out(output)
+                .err(output)
                 .allowIO(true)
                 .option("engine.WarnInterpreterOnly", "false")
                 .build()) {
@@ -70,23 +74,27 @@ public final class CssMinifier {
             if (sourceMapContent != null) {
                 minified += "\n/*# sourceMappingURL=" + sourceMap.getName() + "*/";
                 Files.writeString(sourceMap.toPath(), sourceMapContent, StandardCharsets.UTF_8);
-                SourceMapUtils.includeSources(sourceMap);
             }
 
             Files.writeString(target.toPath(), minified, StandardCharsets.UTF_8);
-
-            // remove original file
-            System.out.println("Minified file source removed: " + file.getName());
-            file.delete();
-
         } catch (IOException ex) {
-            throw new IllegalStateException("Failed to minify", ex);
+            String out = output.toString(StandardCharsets.UTF_8);
+            if (out.isEmpty()) {
+                out = Arrays.stream(out.split("\n"))
+                        .map(s -> "\t" + s).collect(Collectors.joining("\n"));
+            }
+            throw new IllegalStateException("Failed to minify css: " + file.getAbsolutePath() + "\n" + out, ex);
         } finally {
             // remove temporary lib
             if (localCsso != null && localCsso.exists()) {
                 localCsso.delete();
             }
         }
-        return new MinifyResult(target, sourceMaps ? sourceMap : null);
+        String out = output.toString(StandardCharsets.UTF_8);
+        if (out.isEmpty()) {
+            out = Arrays.stream(out.split("\n"))
+                    .map(s -> "\t" + s).collect(Collectors.joining("\n"));
+        }
+        return new MinifyResult(target, sourceMaps ? sourceMap : null, out);
     }
 }

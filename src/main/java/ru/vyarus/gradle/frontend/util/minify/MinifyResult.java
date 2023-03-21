@@ -10,10 +10,12 @@ public class MinifyResult {
 
     private final File minified;
     private final File sourceMap;
+    private final String extraLog;
 
-    public MinifyResult(final File minified, final File sourceMap) {
+    public MinifyResult(final File minified, final File sourceMap, final String extraLog) {
         this.minified = minified;
         this.sourceMap = sourceMap;
+        this.extraLog = extraLog;
     }
 
     public File getMinified() {
@@ -26,5 +28,9 @@ public class MinifyResult {
 
     public boolean isChanged(final File original) {
         return !original.equals(minified);
+    }
+
+    public String getExtraLog() {
+        return extraLog;
     }
 }

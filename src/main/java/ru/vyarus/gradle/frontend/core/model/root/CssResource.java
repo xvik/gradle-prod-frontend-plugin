@@ -5,6 +5,7 @@ import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.model.root.sub.RelativeCssResource;
 import ru.vyarus.gradle.frontend.util.CssUtils;
 import ru.vyarus.gradle.frontend.util.FileUtils;
+import ru.vyarus.gradle.frontend.util.SourceMapUtils;
 import ru.vyarus.gradle.frontend.util.UrlUtils;
 import ru.vyarus.gradle.frontend.util.minify.CssMinifier;
 import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
@@ -84,9 +85,22 @@ public class CssResource extends RootResource {
         // todo check if resulted file is LARGER
         long size = file.length();
         System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
-        final MinifyResult min = CssMinifier.minify(file, getSettings().isSourceMaps());
-        System.out.println(", " + (size - min.getMinified().length()) * 100 / size + "% size decrease");
-        minified(min);
+        try {
+            final MinifyResult min = CssMinifier.minify(file, getSettings().isSourceMaps());
+            System.out.println(", " + (size - min.getMinified().length()) * 100 / size + "% size decrease");
+            if (min.getExtraLog() != null) {
+                System.out.println(min.getExtraLog());
+            }
+            SourceMapUtils.includeSources(sourceMap);
+            // remove original file
+            System.out.println("\tMinified file source removed: " + file.getName());
+            file.delete();
+
+            minified(min);
+        } catch (RuntimeException ex) {
+            System.out.println(" FAILED");
+            throw ex;
+        }
 
         // relative resources are not minified! (even css from import)
         // small images are not converted into data-urls!

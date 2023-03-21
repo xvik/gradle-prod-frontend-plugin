@@ -36,14 +36,13 @@ public class SourceMapUtils {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Embedding " + map.getSources().size() + " source files into source map "
-                + sourceMap.getName() + " (" + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
         final String base = baseUrl + (map.getSourceRoot() == null ? "" : map.getSourceRoot());
         for (String src : map.getSources()) {
             try {
                 UrlUtils.download(base + src, tmp);
                 content.add(Files.readString(tmp.toPath(), StandardCharsets.UTF_8));
-                System.out.println("Source file " + src + " embedded into source map " + sourceMap.getName());
+                System.out.println("\t" + src + " ("+ FileUtils.byteCountToDisplaySize(tmp.length())
+                        + ") embedded into source map");
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to load source files for source map " + sourceMap.getName());
             }
@@ -51,7 +50,7 @@ public class SourceMapUtils {
         tmp.delete();
         map.setSourcesContent(content);
         write(map, sourceMap);
-        System.out.println("Source map updated: " + sourceMap.getName() + " ("
+        System.out.println("\tSource map updated: " + sourceMap.getName() + " ("
                 + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
     }
 
@@ -64,8 +63,6 @@ public class SourceMapUtils {
         final List<String> content = new ArrayList<>();
         final File baseDir = sourceMap.getParentFile();
 
-        System.out.println("Embedding " + map.getSources().size() + " source files into source map "
-                + sourceMap.getName() + " (" + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
         // repackage sources to use relative paths (e.g. google-closure puts absolute paths)
         List<String> outSrc = new ArrayList<>();
         for (String src : map.getSources()) {
@@ -90,7 +87,7 @@ public class SourceMapUtils {
         map.setSources(outSrc);
         map.setSourcesContent(content);
         write(map, sourceMap);
-        System.out.println("Source map updated: " + sourceMap.getName() + " ("
+        System.out.println("\tSource map updated: " + sourceMap.getName() + " ("
                 + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
     }
 

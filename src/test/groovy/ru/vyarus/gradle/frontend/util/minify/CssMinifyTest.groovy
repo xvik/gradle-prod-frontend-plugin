@@ -18,12 +18,12 @@ class CssMinifyTest extends AbstractTest {
         when: "minifying"
         def res = CssMinifier.minify(file, true)
 
+
         then: "minified"
         res.minified.name == 'buefy.min.css'
         res.minified.length() < size
         res.sourceMap.exists()
         res.sourceMap.name == 'buefy.min.css.map'
-        !file.exists()
         with(SourceMapUtils.parse(res.sourceMap)) {
             sources == ['buefy.css']
             sourcesContent.size() == 1
@@ -44,7 +44,6 @@ class CssMinifyTest extends AbstractTest {
         res.minified.length() < size
         res.sourceMap.exists()
         res.sourceMap.name == 'bootstrap.min.css.map'
-        !file.exists()
     }
 
     def "Check materialdesignicons minification"() {
@@ -61,6 +60,5 @@ class CssMinifyTest extends AbstractTest {
         res.minified.length() < size
         res.sourceMap.exists()
         res.sourceMap.name == 'materialdesignicons.min.css.map'
-        !file.exists()
     }
 }

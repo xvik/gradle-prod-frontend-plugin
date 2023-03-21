@@ -11,16 +11,18 @@ import com.google.javascript.jscomp.LightweightMessageFormatter;
 import com.google.javascript.jscomp.MessageFormatter;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.WarningLevel;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.SourceMapUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * https://github.com/google/closure-compiler
@@ -33,8 +35,6 @@ public final class JsMinifier {
     }
 
     public static MinifyResult minify(final File file, final boolean sourceMaps) {
-        // todo unify logging with upper level (add debug option for additional logs)
-        System.out.println("Minifying " + file.getName() + " (" + (sourceMaps ? "with" : "no") + " source maps)");
         String name = file.getName();
         // if source maps used preserving original file
         name = FileUtils.getMinName(name);
@@ -67,6 +67,9 @@ public final class JsMinifier {
 
         if (sourceMaps) {
             options.setSourceMapOutputPath(sourceMap.getAbsolutePath());
+            // avoid absolute paths in source map
+            options.setSourceMapLocationMappings(List.of(
+                    new SourceMap.PrefixLocationMapping(file.getParentFile().getAbsolutePath() + "/", "")));
         }
 
         final List<SourceFile> externs;
@@ -78,10 +81,9 @@ public final class JsMinifier {
         final Result result = compiler.compile(
                 externs, Collections.singletonList(SourceFile.fromFile(file.getAbsolutePath())), options);
 
-        if (!errors.getMessages().isEmpty()) {
-            for(String msg: errors.getMessages()) {
-                System.out.println(msg);
-            }
+        String extraLog = String.join("\n", errors.getMessages());
+        if (!extraLog.isEmpty()) {
+            extraLog = Arrays.stream(extraLog.split("\n")).map(s -> "\t" + s).collect(Collectors.joining("\n"));
         }
 
         if (result.success) {
@@ -95,20 +97,14 @@ public final class JsMinifier {
                     throw new IllegalStateException("Failed to generate source maps", e);
                 }
                 FileUtils.writeFile(sourceMap, sm.toString());
-                SourceMapUtils.includeSources(sourceMap);
                 content += "\n//# sourceMappingURL=" + sourceMap.getName();
             }
 
             FileUtils.writeFile(target, content);
-            System.out.println("-------------------\n"+content+"\n------------------------");
-
-            // remove original file
-            System.out.println("Minified file source removed: " + file.getName());
-            file.delete();
         } else {
-            throw new IllegalStateException("Failed to minify js: " + file.getAbsolutePath());
+            throw new IllegalStateException("Failed to minify js: " + file.getAbsolutePath() + "\n" + extraLog);
         }
-        return new MinifyResult(target, sourceMaps ? sourceMap : null);
+        return new MinifyResult(target, sourceMaps ? sourceMap : null, extraLog.isEmpty() ? null : extraLog);
     }
 
     private static class ErrorManager extends BasicErrorManager {
@@ -118,6 +114,7 @@ public final class JsMinifier {
         public ErrorManager(Compiler compiler) {
             formatter = new LightweightMessageFormatter(compiler);
         }
+
         @Override
         public void println(CheckLevel level, JSError error) {
             if (level != CheckLevel.OFF) {

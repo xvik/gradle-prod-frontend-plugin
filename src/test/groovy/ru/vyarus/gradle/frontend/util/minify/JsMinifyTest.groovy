@@ -23,10 +23,9 @@ class JsMinifyTest extends AbstractTest {
         res.minified.length() < size
         res.sourceMap.exists()
         res.sourceMap.name == 'buefy.min.js.map'
-        !file.exists()
         with(SourceMapUtils.parse(res.sourceMap)) {
             sources == ['buefy.js']
-            sourcesContent.size() == 1
+            sourcesContent == null
         }
     }
 
@@ -38,16 +37,16 @@ class JsMinifyTest extends AbstractTest {
 
         when: "minifying"
         def res = JsMinifier.minify(file, true)
+        println res.extraLog
 
         then: "minified"
         res.minified.name == 'bootstrap.bundle.min.js'
         res.minified.length() < size
         res.sourceMap.exists()
         res.sourceMap.name == 'bootstrap.bundle.min.js.map'
-        !file.exists()
         with(SourceMapUtils.parse(res.sourceMap)) {
             sources == ['bootstrap.bundle.js']
-            sourcesContent.size() == 1
+            sourcesContent == null
         }
     }
 
@@ -65,10 +64,9 @@ class JsMinifyTest extends AbstractTest {
         res.minified.length() < size
         res.sourceMap.exists()
         res.sourceMap.name == 'vue.min.js.map'
-        !file.exists()
         with(SourceMapUtils.parse(res.sourceMap)) {
             sources == ['vue.js']
-            sourcesContent.size() == 1
+            sourcesContent == null
         }
     }
 }

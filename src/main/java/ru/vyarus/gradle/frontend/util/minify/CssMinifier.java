@@ -21,12 +21,10 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 31.01.2023
  */
-public final class CssMinifier {
+public class CssMinifier implements ResourceMinifier {
 
-    private CssMinifier() {
-    }
-
-    public static MinifyResult minify(final File file, final boolean sourceMaps) {
+    @Override
+    public MinifyResult minify(final File file, final boolean sourceMaps) {
         String name = file.getName();
         name = FileUtils.getMinName(name);
         final File target = new File(file.getParentFile(), name);

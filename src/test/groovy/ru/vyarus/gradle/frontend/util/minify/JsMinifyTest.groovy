@@ -16,7 +16,7 @@ class JsMinifyTest extends AbstractTest {
         long size = file.length()
 
         when: "minifying"
-        def res = JsMinifier.minify(file, true)
+        def res = new JsMinifier().minify(file, true)
 
         then: "minified"
         res.minified.name == 'buefy.min.js'
@@ -36,7 +36,7 @@ class JsMinifyTest extends AbstractTest {
         long size = file.length()
 
         when: "minifying"
-        def res = JsMinifier.minify(file, true)
+        def res = new JsMinifier().minify(file, true)
         println res.extraLog
 
         then: "minified"
@@ -57,7 +57,7 @@ class JsMinifyTest extends AbstractTest {
         long size = file.length()
 
         when: "minifying"
-        def res = JsMinifier.minify(file, true)
+        def res = new JsMinifier().minify(file, true)
 
         then: "minified"
         res.minified.name == 'vue.min.js'

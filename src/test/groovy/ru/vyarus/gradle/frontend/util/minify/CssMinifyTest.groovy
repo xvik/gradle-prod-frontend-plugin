@@ -16,7 +16,7 @@ class CssMinifyTest extends AbstractTest {
         long size = file.length()
 
         when: "minifying"
-        def res = CssMinifier.minify(file, true)
+        def res = new CssMinifier().minify(file, true)
 
 
         then: "minified"
@@ -37,7 +37,7 @@ class CssMinifyTest extends AbstractTest {
         long size = file.length()
 
         when: "minifying"
-        def res = CssMinifier.minify(file, true)
+        def res = new CssMinifier().minify(file, true)
 
         then: "minified"
         res.minified.name == 'bootstrap.min.css'
@@ -53,7 +53,7 @@ class CssMinifyTest extends AbstractTest {
         long size = file.length()
 
         when: "minifying"
-        def res = CssMinifier.minify(file, true)
+        def res = new CssMinifier().minify(file, true)
 
         then: "minified"
         res.minified.name == 'materialdesignicons.min.css'

@@ -30,11 +30,10 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 31.01.2023
  */
-public final class JsMinifier {
-    private JsMinifier() {
-    }
+public class JsMinifier implements ResourceMinifier {
 
-    public static MinifyResult minify(final File file, final boolean sourceMaps) {
+    @Override
+    public MinifyResult minify(final File file, final boolean sourceMaps) {
         String name = file.getName();
         // if source maps used preserving original file
         name = FileUtils.getMinName(name);

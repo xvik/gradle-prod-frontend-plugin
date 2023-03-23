@@ -9,7 +9,9 @@ import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
 import ru.vyarus.gradle.frontend.util.DigestUtils;
 import ru.vyarus.gradle.frontend.util.FileUtils;
 import ru.vyarus.gradle.frontend.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.util.SourceMapUtils;
 import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
+import ru.vyarus.gradle.frontend.util.minify.ResourceMinifier;
 
 import java.io.File;
 
@@ -75,6 +77,7 @@ public abstract class RootResource extends OptimizedResource implements RootReso
     public File getSourceMap() {
         return sourceMap;
     }
+
     @Override
     public File getGzip() {
         return gzip;
@@ -100,8 +103,8 @@ public abstract class RootResource extends OptimizedResource implements RootReso
                             final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
                             // delete invalid file
                             file.delete();
-                            throw new IllegalStateException("Integrity check failed for downloaded file "+target
-                                    +":\n\tdeclared: "+getIntegrity()+"\n\tactual: "+DigestUtils.buildSri(file, alg));
+                            throw new IllegalStateException("Integrity check failed for downloaded file " + target
+                                    + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + DigestUtils.buildSri(file, alg));
                         }
                         System.out.println("Integrity check for " + target + " OK");
                     }
@@ -145,14 +148,36 @@ public abstract class RootResource extends OptimizedResource implements RootReso
         }
     }
 
-    public void minified(final MinifyResult result) {
-        if (result.isChanged(file)) {
-            // might be the same file if source maps disabled
-            changeFile(result.getMinified());
-            sourceMap(result.getSourceMap());
+    public void minify() {
+        if (isIgnored() || file.getName().toLowerCase().contains(".min.")) {
+            // already minified
+            return;
+        }
+        long size = file.length();
+        System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
+        try {
+            final MinifyResult min = getMinifier().minify(file, getSettings().isSourceMaps());
+            System.out.println(", " + (size - min.getMinified().length()) * 100 / size + "% size decrease");
+            if (min.getExtraLog() != null) {
+                System.out.println(min.getExtraLog());
+            }
+            if (min.getSourceMap() != null) {
+                System.out.println("\tSource map generated: "
+                        + FileUtils.relative(getHtml().getFile(), min.getSourceMap()));
+            }
+            SourceMapUtils.includeSources(sourceMap);
+            // remove original file
+            System.out.println("\tMinified file source removed: " + file.getName());
+            file.delete();
 
-            recordStat(Stat.MODIFIED, result.getMinified().length());
+            changeFile(min.getMinified());
+            sourceMap(min.getSourceMap());
+
+            recordStat(Stat.MODIFIED, min.getMinified().length());
             recordChange("minified");
+        } catch (RuntimeException ex) {
+            System.out.println(" FAILED");
+            throw ex;
         }
     }
 
@@ -187,7 +212,7 @@ public abstract class RootResource extends OptimizedResource implements RootReso
         }
     }
 
-    public abstract void minify();
+    protected abstract ResourceMinifier getMinifier();
 
     private void changeFile(final File file) {
         if (!this.file.equals(file)) {

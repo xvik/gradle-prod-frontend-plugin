@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
+package ru.vyarus.gradle.frontend.core.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -75,7 +75,7 @@ public class SourceMapUtils {
                 if (!source.exists()) {
                     throw new IllegalStateException("Source file not found: " + source.getAbsolutePath());
                 }
-                outSrc.add(ru.vyarus.gradle.frontend.util.FileUtils.relative(sourceMap, source));
+                outSrc.add(ru.vyarus.gradle.frontend.core.util.FileUtils.relative(sourceMap, source));
                 content.add(Files.readString(source.toPath(), StandardCharsets.UTF_8));
                 System.out.println("\t " + source.getName() + " ("+ FileUtils.byteCountToDisplaySize(source.length())
                         + ") embedded into source map");

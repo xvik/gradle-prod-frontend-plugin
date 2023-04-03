@@ -4,12 +4,11 @@ import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.OptimizedResource;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
-import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.UrlUtils;
-import ru.vyarus.gradle.frontend.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.UrlUtils;
+import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Vyacheslav Rusakov

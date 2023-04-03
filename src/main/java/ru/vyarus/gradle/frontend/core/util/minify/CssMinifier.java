@@ -1,9 +1,9 @@
-package ru.vyarus.gradle.frontend.util.minify;
+package ru.vyarus.gradle.frontend.core.util.minify;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
-import ru.vyarus.gradle.frontend.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

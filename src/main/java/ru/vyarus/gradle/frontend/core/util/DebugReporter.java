@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
+package ru.vyarus.gradle.frontend.core.util;
 
 import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;

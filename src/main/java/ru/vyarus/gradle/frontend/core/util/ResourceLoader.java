@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
+package ru.vyarus.gradle.frontend.core.util;
 
 import java.io.File;
 

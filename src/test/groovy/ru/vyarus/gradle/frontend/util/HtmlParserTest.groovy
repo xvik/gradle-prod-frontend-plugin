@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.util
 
+import ru.vyarus.gradle.frontend.core.util.HtmlParser
 import spock.lang.Specification
 import spock.lang.TempDir
 

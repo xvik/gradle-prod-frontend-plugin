@@ -1,6 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
-
-import org.codehaus.groovy.runtime.StringGroovyMethods;
+package ru.vyarus.gradle.frontend.core.util;
 
 import java.math.BigDecimal;
 
@@ -64,7 +62,7 @@ public final class DurationFormatter {
         }
 
         if (!secs && remain > 0) {
-            result.append(StringGroovyMethods.plus(remain, "ms"));
+            result.append(remain + "ms");
         }
 
         return result.toString();

@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.frontend.util
 
 import ru.vyarus.gradle.frontend.AbstractTest
+import ru.vyarus.gradle.frontend.core.util.SourceMapUtils
 
 /**
  * @author Vyacheslav Rusakov

@@ -3,8 +3,8 @@ package ru.vyarus.gradle.frontend.core;
 import org.gradle.api.GradleException;
 import ru.vyarus.gradle.frontend.core.info.OptimizationInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
-import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.StatsPrinter;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.StatsPrinter;
 
 import java.io.File;
 import java.util.ArrayList;

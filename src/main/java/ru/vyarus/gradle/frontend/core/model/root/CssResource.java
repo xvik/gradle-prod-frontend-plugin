@@ -3,11 +3,11 @@ package ru.vyarus.gradle.frontend.core.model.root;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.model.root.sub.RelativeCssResource;
-import ru.vyarus.gradle.frontend.util.CssUtils;
-import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.UrlUtils;
-import ru.vyarus.gradle.frontend.util.minify.CssMinifier;
-import ru.vyarus.gradle.frontend.util.minify.ResourceMinifier;
+import ru.vyarus.gradle.frontend.core.util.CssUtils;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.UrlUtils;
+import ru.vyarus.gradle.frontend.core.util.minify.CssMinifier;
+import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,7 +1,8 @@
 package ru.vyarus.gradle.frontend.util.minify
 
 import ru.vyarus.gradle.frontend.AbstractTest
-import ru.vyarus.gradle.frontend.util.SourceMapUtils
+import ru.vyarus.gradle.frontend.core.util.SourceMapUtils
+import ru.vyarus.gradle.frontend.core.util.minify.CssMinifier
 
 /**
  * @author Vyacheslav Rusakov

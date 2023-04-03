@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
+package ru.vyarus.gradle.frontend.core.util;
 
 import org.apache.commons.io.FileUtils;
 
@@ -107,13 +107,13 @@ public final class UrlUtils {
     }
 
     public static File smartDownload(final String url, final File target) throws Exception {
-        File res = ru.vyarus.gradle.frontend.util.FileUtils
+        File res = ru.vyarus.gradle.frontend.core.util.FileUtils
                 .selectNotExistingFile(target.getParentFile(), target.getName());
         download(url, res);
         if (!res.getName().equals(target.getName())) {
             if (res.length() == target.length() &&
-                    ru.vyarus.gradle.frontend.util.FileUtils.computeMd5(res)
-                            .equals(ru.vyarus.gradle.frontend.util.FileUtils.computeMd5(target))) {
+                    ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(res)
+                            .equals(ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(target))) {
                 System.out.println("Downloaded file is the same as already existing file, using existing file");
                 // same as existing file, remove downloaded
                 res.delete();

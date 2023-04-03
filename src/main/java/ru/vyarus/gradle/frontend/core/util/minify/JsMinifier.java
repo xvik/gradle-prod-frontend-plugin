@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util.minify;
+package ru.vyarus.gradle.frontend.core.util.minify;
 
 import com.google.javascript.jscomp.AbstractCommandLineRunner;
 import com.google.javascript.jscomp.BasicErrorManager;
@@ -14,7 +14,7 @@ import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.WarningLevel;
 import com.google.javascript.jscomp.deps.ModuleLoader;
-import ru.vyarus.gradle.frontend.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

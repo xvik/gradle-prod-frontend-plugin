@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util.minify;
+package ru.vyarus.gradle.frontend.core.util.minify;
 
 import java.io.File;
 

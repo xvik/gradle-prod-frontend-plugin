@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.util
 
+import ru.vyarus.gradle.frontend.core.util.WebUtils
 import spock.lang.Specification
 
 /**

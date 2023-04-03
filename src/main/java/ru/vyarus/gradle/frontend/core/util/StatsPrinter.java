@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
+package ru.vyarus.gradle.frontend.core.util;
 
 import org.apache.commons.io.FileUtils;
 import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
@@ -11,8 +11,6 @@ import ru.vyarus.gradle.frontend.core.stat.Stat;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
-
-import static ru.vyarus.gradle.frontend.util.FileUtils.unhash;
 
 /**
  * @author Vyacheslav Rusakov
@@ -41,16 +39,16 @@ public final class StatsPrinter {
 
             for (RootResourceInfo js : html.getJs()) {
                 res.append(String.format("%-70s %s%n",
-                        "  " + unhash(js.getTarget()), formatSizes(js)));
+                        "  " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(js.getTarget()), formatSizes(js)));
                 writeChanges(debug, js, "  ", res);
             }
             for (RootResourceInfo css : html.getCss()) {
                 res.append(String.format("%-70s %s%n",
-                        "  " + unhash(css.getTarget()), formatSizes(css)));
+                        "  " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(css.getTarget()), formatSizes(css)));
                 writeChanges(debug, css, "  ", res);
                 for (SubResourceInfo resource : css.getSubResources()) {
                     res.append(String.format("%-70s   %s%n",
-                            "    " + unhash(resource.getTarget()), formatSizes(resource)));
+                            "    " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(resource.getTarget()), formatSizes(resource)));
                     writeChanges(debug, resource, "    ", res);
                 }
             }

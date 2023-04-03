@@ -3,8 +3,8 @@ package ru.vyarus.gradle.frontend.core.model.root;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
-import ru.vyarus.gradle.frontend.util.minify.JsMinifier;
-import ru.vyarus.gradle.frontend.util.minify.ResourceMinifier;
+import ru.vyarus.gradle.frontend.core.util.minify.JsMinifier;
+import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 
 import java.util.Collections;
 import java.util.List;

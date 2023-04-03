@@ -1,4 +1,4 @@
-package ru.vyarus.gradle.frontend.util;
+package ru.vyarus.gradle.frontend.core.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

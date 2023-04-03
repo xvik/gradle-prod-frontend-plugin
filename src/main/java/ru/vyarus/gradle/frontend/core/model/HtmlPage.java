@@ -7,10 +7,10 @@ import ru.vyarus.gradle.frontend.core.model.root.JsResource;
 import ru.vyarus.gradle.frontend.core.model.root.RootResource;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
-import ru.vyarus.gradle.frontend.util.DebugReporter;
-import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.HtmlParser;
-import ru.vyarus.gradle.frontend.util.minify.HtmlMinifier;
+import ru.vyarus.gradle.frontend.core.util.DebugReporter;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.HtmlParser;
+import ru.vyarus.gradle.frontend.core.util.minify.HtmlMinifier;
 
 import java.io.File;
 import java.util.ArrayList;

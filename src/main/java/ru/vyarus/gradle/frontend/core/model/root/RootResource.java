@@ -6,12 +6,12 @@ import ru.vyarus.gradle.frontend.core.model.OptimizedResource;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
 import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
-import ru.vyarus.gradle.frontend.util.DigestUtils;
-import ru.vyarus.gradle.frontend.util.FileUtils;
-import ru.vyarus.gradle.frontend.util.ResourceLoader;
-import ru.vyarus.gradle.frontend.util.SourceMapUtils;
-import ru.vyarus.gradle.frontend.util.minify.MinifyResult;
-import ru.vyarus.gradle.frontend.util.minify.ResourceMinifier;
+import ru.vyarus.gradle.frontend.core.util.DigestUtils;
+import ru.vyarus.gradle.frontend.core.util.FileUtils;
+import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.core.util.SourceMapUtils;
+import ru.vyarus.gradle.frontend.core.util.minify.MinifyResult;
+import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 
 import java.io.File;
 

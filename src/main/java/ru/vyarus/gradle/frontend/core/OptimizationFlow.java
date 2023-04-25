@@ -218,7 +218,7 @@ public class OptimizationFlow implements OptimizationInfo {
 
         public Builder cssDir(File dir) {
             if (dir != null) {
-                settings.jsDir = dir;
+                settings.cssDir = dir;
             }
             return this;
         }

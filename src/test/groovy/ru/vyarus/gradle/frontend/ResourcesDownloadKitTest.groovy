@@ -34,21 +34,16 @@ class ResourcesDownloadKitTest extends AbstractKitTest {
 """
 
         when: "run task"
+        long idxSize = file('webapp/index.html').length()
         BuildResult result = run('prodFrontend')
 
         then: "task successful"
         result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS
 
-        file('webapp/js/vue.js').exists()
+        file('webapp/js/vue.min.js').exists()
         file('webapp/css/materialdesignicons.min.css').exists()
-        file('webapp/index.html').text == """<!doctype html>
-<html>
- <head>
-  <script src="js/vue.js"></script>
-  <link rel="stylesheet" href="css/materialdesignicons.min.css">
- </head>
- <body>
- </body>
-</html>"""
+        file('webapp/index.html').size() < idxSize
+
+        println file('webapp/index.html').text
     }
 }

@@ -124,7 +124,11 @@ public final class UrlUtils {
     }
 
     public static void download(final String urlStr, final File file) throws Exception {
-        System.out.print("Download ");
+        download(urlStr, file, "");
+    }
+
+    public static void download(final String urlStr, final File file, final String logPrefix) throws Exception {
+        System.out.print(logPrefix + "Download ");
         try {
             long time = System.currentTimeMillis();
             // remove ../ parts in url

@@ -110,6 +110,16 @@ public abstract class RootResource extends OptimizedResource implements RootReso
                     }
                     // update target
                     changeTarget(FileUtils.relative(html.getFile(), file));
+
+                    // removing crossorigin and integrity attributes (e.g. bootstrap example suggest using them)
+                    if (element.hasAttr("crossorigin")) {
+                        element.removeAttr("crossorigin");
+                        recordChange("crossorigin removed");
+                    }
+                    if (element.hasAttr(INTEGRITY_ATTR)) {
+                        element.removeAttr(INTEGRITY_ATTR);
+                        recordChange("integrity removed");
+                    }
                 }
             } else {
                 ignore("remote resource");
@@ -135,17 +145,6 @@ public abstract class RootResource extends OptimizedResource implements RootReso
         final String old = element.attr(attr);
         element.attr(attr, url);
         recordChange(old + " -> " + url);
-
-        // target change ALWAYS into local so removing crossorigin and integrity attributes
-        // e.g. bootstrap example suggest using them
-        if (element.hasAttr("crossorigin")) {
-            element.removeAttr("crossorigin");
-            recordChange("crossorigin removed");
-        }
-        if (element.hasAttr(INTEGRITY_ATTR)) {
-            element.removeAttr(INTEGRITY_ATTR);
-            recordChange("integrity removed");
-        }
     }
 
     public void minify() {

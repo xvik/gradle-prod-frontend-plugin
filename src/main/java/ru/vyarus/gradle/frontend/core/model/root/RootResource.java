@@ -133,6 +133,14 @@ public abstract class RootResource extends OptimizedResource implements RootReso
                         + ") not found: no optimizations would be applied");
 
                 ignore("not found");
+            } else if (getIntegrity() != null) {
+                // validate local integrity
+                if (!DigestUtils.validateSriToken(file, getIntegrity())) {
+                    final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
+                    throw new IllegalStateException("Integrity check failed for file " + target
+                            + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + DigestUtils.buildSri(file, alg));
+                }
+                System.out.println("Integrity check for " + target + " OK");
             }
         }
 
@@ -181,7 +189,8 @@ public abstract class RootResource extends OptimizedResource implements RootReso
     }
 
     public void applyIntegrity() {
-        if (!isIgnored()) {
+        // if integrity tag exists then it is assumed to be already validated (during resolve)
+        if (!isIgnored() && getIntegrity() == null) {
             final String token = DigestUtils.buildSri(file, "SHA-384");
             element.attr(INTEGRITY_ATTR, token);
             recordChange("integrity token applied");

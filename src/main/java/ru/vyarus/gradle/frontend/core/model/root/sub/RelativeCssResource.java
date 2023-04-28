@@ -52,6 +52,7 @@ public class RelativeCssResource extends OptimizedResource implements SubResourc
     public boolean isRemote() {
         return remote;
     }
+
     @Override
     public File getGzip() {
         return gzip;

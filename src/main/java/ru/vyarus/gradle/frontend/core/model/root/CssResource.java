@@ -12,7 +12,10 @@ import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,19 +35,14 @@ public class CssResource extends RootResource {
     }
 
 
-
     @Override
     public void resolve() {
+        // important to remember root css url before resolution (when it would be loaded locally)
         String url = getTarget();
         super.resolve();
 
         if (!isIgnored()) {
-            // css could link other css (@import), fonts and images
-            CssUtils.findLinks(file).forEach(link -> urls.add(new RelativeCssResource(this, link)));
-            // if css was loaded, relative resources must be also loaded
-            final String urlBase = remote ? UrlUtils.getBaseUrl(url) : null;
-            urls.forEach(relativeCssResource -> relativeCssResource
-                    .resolve(getSettings().isDownloadResources(), urlBase));
+            resolveSubLinks(url);
 
             // overwrite css with new links
             final List<RelativeCssResource> overrides = urls.stream()
@@ -91,5 +89,31 @@ public class CssResource extends RootResource {
     @Override
     protected ResourceMinifier getMinifier() {
         return new CssMinifier();
+    }
+
+    private void resolveSubLinks(final String url) {
+        // css could link other css (@import), fonts and images
+        CssUtils.findLinks(file).forEach(link -> urls.add(new RelativeCssResource(this, link)));
+        // if css was loaded, relative resources must be also loaded
+        final String urlBase = remote ? UrlUtils.getBaseUrl(url) : null;
+        urls.forEach(relativeCssResource -> relativeCssResource.resolve(getSettings().isDownloadResources(), urlBase));
+
+        // check for duplicates (e.g. there might be similar links to web-font files)
+        // remove duplicates only with exactly the same url!, preserving different urls for the same file
+        // (important for proper replacement in css)
+        final Iterator<RelativeCssResource> it = urls.iterator();
+        final Set<String> added = new HashSet<>();
+        while (it.hasNext()) {
+            final RelativeCssResource res = it.next();
+            if (res.getFile() != null) {
+                final String path = res.getUrl();
+                if (added.contains(path)) {
+                    // duplicate
+                    it.remove();
+                } else {
+                    added.add(path);
+                }
+            }
+        }
     }
 }

@@ -11,7 +11,8 @@ import spock.lang.TempDir
  */
 abstract class AbstractCoreTest extends Specification {
 
-    @TempDir File testDir
+    @TempDir
+    File testDir
 
     OptimizationInfo run(String dir) {
         def res = OptimizationFlow.create(file(dir))
@@ -56,7 +57,7 @@ abstract class AbstractCoreTest extends Specification {
 
     protected String unifyString(String input) {
         return input
-                // cleanup win line break for simpler comparisons
+        // cleanup win line break for simpler comparisons
                 .replace("\r", '')
     }
 }

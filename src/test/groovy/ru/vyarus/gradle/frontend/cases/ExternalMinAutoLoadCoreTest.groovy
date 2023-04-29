@@ -4,15 +4,15 @@ import ru.vyarus.gradle.frontend.core.info.HtmlInfo
 
 /**
  * @author Vyacheslav Rusakov
- * @since 25.04.2023
+ * @since 28.04.2023
  */
-class BootstrapCoreTest extends AbstractCoreTest {
+class ExternalMinAutoLoadCoreTest extends AbstractCoreTest {
 
-    def "Check bootstrap"() {
+    def "Check external minifiable resources"() {
 
-        fileFromClasspath('webapp/index.html', '/cases/bootstrap.html')
+        fileFromClasspath('webapp/index.html', '/cases/externalMinifiableJsCss.html')
 
-        when: "processing bootstrap application"
+        when: "processing application"
         def res = run('webapp')
 
         then: "optimization done"
@@ -22,22 +22,24 @@ class BootstrapCoreTest extends AbstractCoreTest {
         html.js.size() == 1
         with(html.js[0]) {
             remote
-            changes.size() == 5
-            changes.containsAll(['crossorigin removed', 'integrity removed', 'integrity token applied'])
-            target.startsWith("js/bootstrap.bundle.min.js?")
+            changes.size() == 3
+            // min version loaded directly
+            !changes.contains('minification')
+            changes.contains('integrity token applied')
+            target.startsWith("js/vue.min.js?")
             element.attr('integrity').length() > 0
-            element.attr('crossorigin').length() == 0
             gzip != null
             file != null
         }
         html.css.size() == 1
         with(html.css[0]) {
             remote
-            changes.size() == 5
-            changes.containsAll(['crossorigin removed', 'integrity removed', 'integrity token applied'])
-            target.startsWith("css/bootstrap.min.css?")
+            changes.size() == 3
+            // min version loaded directly
+            !changes.contains('minification')
+            changes.contains('integrity token applied')
+            target.startsWith("css/materialdesignicons.min.css?")
             element.attr('integrity').length() > 0
-            element.attr('crossorigin').length() == 0
             gzip != null
             file != null
         }

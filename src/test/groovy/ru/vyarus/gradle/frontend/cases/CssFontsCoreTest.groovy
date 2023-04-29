@@ -6,11 +6,11 @@ import ru.vyarus.gradle.frontend.core.info.HtmlInfo
  * @author Vyacheslav Rusakov
  * @since 26.04.2023
  */
-class CssFontsCoreTest  extends AbstractCoreTest {
+class CssFontsCoreTest extends AbstractCoreTest {
 
     def "Check css fonts support"() {
 
-        fileFromClasspath('webapp/index.html','/cases/cssFonts.html')
+        fileFromClasspath('webapp/index.html', '/cases/cssFonts.html')
 
         when: "processing fonts"
         def res = run('webapp')
@@ -21,7 +21,7 @@ class CssFontsCoreTest  extends AbstractCoreTest {
         html.changes == ['changed links', 'minified']
         html.js.size() == 0
         html.css.size() == 1
-        with(html.css[0]){
+        with(html.css[0]) {
             remote
             changes.size() == 3
             changes.containsAll(['integrity token applied'])
@@ -44,7 +44,7 @@ class CssFontsCoreTest  extends AbstractCoreTest {
         html2.changes.isEmpty()
         html2.getJs().size() == 0
         html2.css.size() == 1
-        with(html2.css[0]){
+        with(html2.css[0]) {
             !remote
             changes.size() == 0
             gzip != null

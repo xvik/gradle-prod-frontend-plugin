@@ -101,10 +101,13 @@ public abstract class RootResource extends OptimizedResource implements RootReso
                     if (getIntegrity() != null) {
                         if (!DigestUtils.validateSriToken(file, getIntegrity())) {
                             final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
+                            final String validSri = DigestUtils.buildSri(file, alg);
+                            System.out.println("Loaded file deleted because of integrity tag validation fail: "
+                                    + file.getAbsolutePath());
                             // delete invalid file
                             file.delete();
                             throw new IllegalStateException("Integrity check failed for downloaded file " + target
-                                    + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + DigestUtils.buildSri(file, alg));
+                                    + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + validSri);
                         }
                         System.out.println("Integrity check for " + target + " OK");
                     }

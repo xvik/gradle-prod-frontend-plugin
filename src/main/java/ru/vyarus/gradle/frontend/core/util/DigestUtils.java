@@ -51,6 +51,10 @@ public class DigestUtils {
         byte[] data;
         try {
             data = Files.readAllBytes(file.toPath());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read file " + file.getAbsolutePath(), e);
+        }
+        try {
             return MessageDigest.getInstance(alg).digest(data);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to calculate " + alg + " hash for file " + file.getAbsolutePath(), e);

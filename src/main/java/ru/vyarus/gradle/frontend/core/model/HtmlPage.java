@@ -10,6 +10,7 @@ import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.util.DebugReporter;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.HtmlParser;
+import ru.vyarus.gradle.frontend.core.util.SizeFormatter;
 import ru.vyarus.gradle.frontend.core.util.minify.HtmlMinifier;
 
 import java.io.File;
@@ -130,7 +131,8 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
             long size = file.length();
             System.out.print("Minify " + FileUtils.relative(getBaseDir(), file));
             content = HtmlMinifier.minify(content, settings.isMinifyHtmlCss(), settings.isMinifyHtmlJs());
-            System.out.println(", " + (size - content.length()) * 100 / size + "% size decrease");
+            // html size MIGHT increase due to added integrity tags (if overall html was very small)
+            System.out.println(", " + SizeFormatter.formatChangePercent(size, content.length()));
             if (size != content.length()) {
                 recordChange("minified");
             }

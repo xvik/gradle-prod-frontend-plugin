@@ -100,7 +100,7 @@ public final class FileUtils {
         try {
             final File gzip = gzip(source);
             if (baseDir != null) {
-                System.out.println(", " + (source.length() - gzip.length()) * 100 / source.length() + "% size decrease");
+                System.out.println(", " + SizeFormatter.formatChangePercent(source.length(), gzip.length()));
             }
             return gzip;
         } catch (RuntimeException ex) {

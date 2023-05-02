@@ -9,6 +9,7 @@ import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
 import ru.vyarus.gradle.frontend.core.util.DigestUtils;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.core.util.SizeFormatter;
 import ru.vyarus.gradle.frontend.core.util.SourceMapUtils;
 import ru.vyarus.gradle.frontend.core.util.minify.MinifyResult;
 import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
@@ -167,7 +168,7 @@ public abstract class RootResource extends OptimizedResource implements RootReso
         System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
         try {
             final MinifyResult min = getMinifier().minify(file, getSettings().isSourceMaps());
-            System.out.println(", " + (size - min.getMinified().length()) * 100 / size + "% size decrease");
+            System.out.println(", " + SizeFormatter.formatChangePercent(size, min.getMinified().length()));
             if (min.getExtraLog() != null) {
                 System.out.println(min.getExtraLog());
             }

@@ -134,7 +134,7 @@ public abstract class RootResource extends OptimizedResource implements RootReso
             if (!file.exists()) {
                 System.out.println("WARNING: " + FileUtils.relative(html.getFile(), file) + " (referenced from "
                         + FileUtils.relative(html.getBaseDir(), html.getFile())
-                        + ") not found: no optimizations would be applied");
+                        + ") not found: optimizations would not be applied");
 
                 ignore("not found");
             } else if (getIntegrity() != null) {

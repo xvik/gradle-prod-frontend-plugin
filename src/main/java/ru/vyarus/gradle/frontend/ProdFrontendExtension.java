@@ -1,5 +1,8 @@
 package ru.vyarus.gradle.frontend;
 
+import org.gradle.api.Action;
+import org.gradle.api.tasks.Nested;
+
 /**
  * prod-frontend plugin extension.
  *
@@ -19,31 +22,21 @@ public class ProdFrontendExtension {
     private String jsFolder = "js";
     private String cssFolder = "css";
 
-    /**
-     * Minimize html files
-     */
-    private boolean minifyHtml = true;
-    /**
-     * Download rest and css, declared as cdn links.
-     */
-    private boolean downloadResources = true;
+    private Download download = new Download();
+
+    private Minify minify = new Minify();
 
     /**
-     * Minify js.
+     * Ani-cache (apply md5 instead of name).
      */
-    private boolean minifyJs = true;
-    /**
-     * Minify css.
-     */
-    private boolean minifyCss = true;
+    private boolean applyAntiCache = true;
+
+    private boolean applyIntegrity = true;
+
     /**
      * Create .gz versions for resources
      */
     private boolean gzip = true;
-    /**
-     * Ani-cache (apply md5 instead of name).
-     */
-    private boolean appendMD5 = true;
 
     public boolean isDebug() {
         return debug;
@@ -77,36 +70,22 @@ public class ProdFrontendExtension {
         this.cssFolder = cssFolder;
     }
 
-    public boolean isMinifyHtml() {
-        return minifyHtml;
+    @Nested
+    public Download getDownload() {
+        return download;
     }
 
-    public void setMinifyHtml(boolean minifyHtml) {
-        this.minifyHtml = minifyHtml;
+    public void download(Action<Download> action) {
+        action.execute(getDownload());
     }
 
-    public boolean isDownloadResources() {
-        return downloadResources;
+    @Nested
+    public Minify getMinify() {
+        return minify;
     }
 
-    public void setDownloadResources(boolean downloadResources) {
-        this.downloadResources = downloadResources;
-    }
-
-    public boolean isMinifyJs() {
-        return minifyJs;
-    }
-
-    public void setMinifyJs(boolean minifyJs) {
-        this.minifyJs = minifyJs;
-    }
-
-    public boolean isMinifyCss() {
-        return minifyCss;
-    }
-
-    public void setMinifyCss(boolean minifyCss) {
-        this.minifyCss = minifyCss;
+    public void minify(Action<Minify> action) {
+        action.execute(getMinify());
     }
 
     public boolean isGzip() {
@@ -117,11 +96,119 @@ public class ProdFrontendExtension {
         this.gzip = gzip;
     }
 
-    public boolean isAppendMD5() {
-        return appendMD5;
+    public boolean isApplyAntiCache() {
+        return applyAntiCache;
     }
 
-    public void setAppendMD5(boolean appendMD5) {
-        this.appendMD5 = appendMD5;
+    public void setApplyAntiCache(boolean applyAntiCache) {
+        this.applyAntiCache = applyAntiCache;
+    }
+
+    public boolean isApplyIntegrity() {
+        return applyIntegrity;
+    }
+
+    public void setApplyIntegrity(boolean applyIntegrity) {
+        this.applyIntegrity = applyIntegrity;
+    }
+
+    public static class Download {
+        /**
+         * Download rest and css, declared as cdn links.
+         */
+        private boolean resources = true;
+        private boolean preferMin = true;
+        private boolean sourceMaps = true;
+
+        public boolean isResources() {
+            return resources;
+        }
+
+        public void setResources(boolean resources) {
+            this.resources = resources;
+        }
+
+        public boolean isPreferMin() {
+            return preferMin;
+        }
+
+        public void setPreferMin(boolean preferMin) {
+            this.preferMin = preferMin;
+        }
+
+        public boolean isSourceMaps() {
+            return sourceMaps;
+        }
+
+        public void setSourceMaps(boolean sourceMaps) {
+            this.sourceMaps = sourceMaps;
+        }
+    }
+
+    public static class Minify {
+
+        /**
+         * Minimize html files
+         */
+        private boolean html = true;
+        private boolean htmlJs = true;
+        private boolean htmlCss = true;
+        /**
+         * Minify js.
+         */
+        private boolean js = true;
+        /**
+         * Minify css.
+         */
+        private boolean css = true;
+        private boolean generateSourceMaps = true;
+
+        public boolean isHtml() {
+            return html;
+        }
+
+        public void setHtml(boolean html) {
+            this.html = html;
+        }
+
+        public boolean isHtmlJs() {
+            return htmlJs;
+        }
+
+        public void setHtmlJs(boolean htmlJs) {
+            this.htmlJs = htmlJs;
+        }
+
+        public boolean isHtmlCss() {
+            return htmlCss;
+        }
+
+        public void setHtmlCss(boolean htmlCss) {
+            this.htmlCss = htmlCss;
+        }
+
+        public boolean isJs() {
+            return js;
+        }
+
+        public void setJs(boolean js) {
+            this.js = js;
+        }
+
+        public boolean isCss() {
+            return css;
+        }
+
+        public void setCss(boolean css) {
+            this.css = css;
+        }
+
+        public boolean isGenerateSourceMaps() {
+            return generateSourceMaps;
+        }
+
+        public void setGenerateSourceMaps(boolean generateSourceMaps) {
+            this.generateSourceMaps = generateSourceMaps;
+        }
     }
 }

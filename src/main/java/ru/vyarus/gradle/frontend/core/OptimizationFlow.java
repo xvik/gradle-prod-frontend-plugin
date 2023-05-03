@@ -120,7 +120,7 @@ public class OptimizationFlow implements OptimizationInfo {
         private boolean minifyHtmlJs;
         private boolean applyAntiCache;
         private boolean applyIntegrity;
-        private boolean sourceMaps;
+        private boolean generateSourceMaps;
         private boolean gzip;
         private boolean debug;
 
@@ -182,8 +182,8 @@ public class OptimizationFlow implements OptimizationInfo {
             return applyIntegrity;
         }
 
-        public boolean isSourceMaps() {
-            return sourceMaps;
+        public boolean isGenerateSourceMaps() {
+            return generateSourceMaps;
         }
 
         public boolean isGzip() {
@@ -340,15 +340,15 @@ public class OptimizationFlow implements OptimizationInfo {
             return applyIntegrity(true);
         }
 
-        public Builder sourceMaps(final Boolean sourceMaps) {
-            if (sourceMaps != null) {
-                settings.sourceMaps = sourceMaps;
+        public Builder generateSourceMaps(final Boolean generateSourceMaps) {
+            if (generateSourceMaps != null) {
+                settings.generateSourceMaps = generateSourceMaps;
             }
             return this;
         }
 
-        public Builder sourceMaps() {
-            return sourceMaps(true);
+        public Builder generateSourceMaps() {
+            return generateSourceMaps(true);
         }
 
         public Builder gzip(final Boolean gzip) {

@@ -32,8 +32,40 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
     public abstract Property<String> getCssDir();
 
     @Input
+    public abstract Property<Boolean> getDownloadResources();
+
+    @Input
+    public abstract Property<Boolean> getPreferMinDownload();
+
+    @Input
+    public abstract Property<Boolean> getDownloadSourceMaps();
+
+    @Input
+    public abstract Property<Boolean> getMinifyJs();
+
+    @Input
+    public abstract Property<Boolean> getMinifyCss();
+
+    @Input
+    public abstract Property<Boolean> getGenerateSourceMaps();
+
+    @Input
     public abstract Property<Boolean> getMinifyHtml();
 
+    @Input
+    public abstract Property<Boolean> getMinifyHtmlJs();
+
+    @Input
+    public abstract Property<Boolean> getMinifyHtmlCss();
+
+    @Input
+    public abstract Property<Boolean> getApplyAntiCache();
+
+    @Input
+    public abstract Property<Boolean> getApplyIntegrity();
+
+    @Input
+    public abstract Property<Boolean> getGzip();
 
     @TaskAction
     public void run() {
@@ -46,18 +78,18 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
         OptimizationFlow.create(root)
                 .jsDir(getJsDir().get())
                 .cssDir(getCssDir().get())
-                .downloadResources()
-                .preferMinDownload()
-                .downloadSourceMaps()
-                .minifyJs()
-                .minifyCss()
-                .minifyHtml()
-                .minifyHtmlCss()
-                .minifyHtmlJs()
-                .applyAntiCache()
-                .applyIntegrity()
-                .sourceMaps()
-                .gzip()
+                .downloadResources(getDownloadResources().get())
+                .preferMinDownload(getPreferMinDownload().get())
+                .downloadSourceMaps(getDownloadSourceMaps().get())
+                .minifyJs(getMinifyJs().get())
+                .minifyCss(getMinifyCss().get())
+                .generateSourceMaps(getGenerateSourceMaps().get())
+                .minifyHtml(getMinifyHtml().get())
+                .minifyHtmlCss(getMinifyHtmlCss().get())
+                .minifyHtmlJs(getMinifyHtmlJs().get())
+                .applyAntiCache(getApplyAntiCache().get())
+                .applyIntegrity(getApplyIntegrity().get())
+                .gzip(getGzip().get())
                 .debug(getDebug().get())
 
                 .run()

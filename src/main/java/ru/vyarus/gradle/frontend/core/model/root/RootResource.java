@@ -168,7 +168,7 @@ public abstract class RootResource extends OptimizedResource implements RootReso
         long size = file.length();
         System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
         try {
-            final MinifyResult min = getMinifier().minify(file, getSettings().isSourceMaps());
+            final MinifyResult min = getMinifier().minify(file, getSettings().isGenerateSourceMaps());
             System.out.println(", " + SizeFormatter.formatChangePercent(size, min.getMinified().length()));
             if (min.getExtraLog() != null) {
                 System.out.println(min.getExtraLog());

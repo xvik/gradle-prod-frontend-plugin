@@ -26,7 +26,7 @@ abstract class AbstractCoreTest extends Specification {
                 .minifyHtmlJs()
                 .applyAntiCache()
                 .applyIntegrity()
-                .sourceMaps()
+                .generateSourceMaps()
                 .gzip()
                 .debug()
                 .run()

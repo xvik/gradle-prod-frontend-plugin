@@ -11,6 +11,7 @@ import ru.vyarus.gradle.frontend.task.OptimizeFrontendTask;
  * @since 28.01.2023
  */
 public class ProdFrontendPlugin implements Plugin<Project> {
+
     @Override
     public void apply(final Project project) {
         final ProdFrontendExtension extension = project.getExtensions().create("prodFrontend", ProdFrontendExtension.class);
@@ -20,7 +21,23 @@ public class ProdFrontendPlugin implements Plugin<Project> {
             task.getSourceDir().convention(project.getLayout().getProjectDirectory().dir(extension.getSource()));
             task.getJsDir().convention(extension.getJsFolder());
             task.getCssDir().convention(extension.getCssFolder());
-            task.getMinifyHtml().convention(extension.isMinifyHtml());
+
+            final ProdFrontendExtension.Download download = extension.getDownload();
+            task.getDownloadResources().convention(download.isResources());
+            task.getPreferMinDownload().convention(download.isPreferMin());
+            task.getDownloadSourceMaps().convention(download.isSourceMaps());
+
+            final ProdFrontendExtension.Minify minify = extension.getMinify();
+            task.getMinifyHtml().convention(minify.isHtml());
+            task.getMinifyJs().convention(minify.isJs());
+            task.getMinifyCss().convention(minify.isCss());
+            task.getMinifyHtmlJs().convention(minify.isHtmlJs());
+            task.getMinifyHtmlCss().convention(minify.isHtmlJs());
+            task.getGenerateSourceMaps().convention(minify.isGenerateSourceMaps());
+
+            task.getApplyAntiCache().convention(extension.isApplyAntiCache());
+            task.getApplyIntegrity().convention(extension.isApplyIntegrity());
+            task.getGzip().convention(extension.isGzip());
         });
     }
 

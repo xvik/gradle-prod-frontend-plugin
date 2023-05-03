@@ -134,7 +134,8 @@ public abstract class RootResource extends OptimizedResource implements RootReso
             if (!file.exists()) {
                 System.out.println("WARNING: " + FileUtils.relative(html.getFile(), file) + " (referenced from "
                         + FileUtils.relative(html.getBaseDir(), html.getFile())
-                        + ") not found: optimizations would not be applied");
+                        + ") not found: optimizations would not be applied"
+                        + "\n         (" + file.getAbsolutePath() + ")\n");
 
                 ignore("not found");
             } else if (getIntegrity() != null) {
@@ -176,7 +177,7 @@ public abstract class RootResource extends OptimizedResource implements RootReso
                 System.out.println("\tSource map generated: "
                         + FileUtils.relative(getHtml().getFile(), min.getSourceMap()));
             }
-            SourceMapUtils.includeSources(sourceMap);
+            SourceMapUtils.includeSources(min.getSourceMap());
             // remove original file
             System.out.println("\tMinified file source removed: " + file.getName());
             file.delete();

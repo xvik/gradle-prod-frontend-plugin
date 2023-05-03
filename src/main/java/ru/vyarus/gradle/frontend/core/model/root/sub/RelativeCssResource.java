@@ -123,8 +123,10 @@ public class RelativeCssResource extends OptimizedResource implements SubResourc
     }
 
     public void gzip() {
-        gzip = FileUtils.gzip(file, css.getHtml().getBaseDir());
-        recordStat(Stat.GZIP, gzip.length());
+        if (file != null && file.exists()) {
+            gzip = FileUtils.gzip(file, css.getHtml().getBaseDir());
+            recordStat(Stat.GZIP, gzip.length());
+        }
     }
 
     public void applyMd5() {

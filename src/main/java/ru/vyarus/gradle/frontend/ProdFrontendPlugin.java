@@ -18,9 +18,9 @@ public class ProdFrontendPlugin implements Plugin<Project> {
 
         project.getTasks().register("prodFrontend", OptimizeFrontendTask.class, task -> {
             task.getDebug().convention(extension.isDebug());
-            task.getSourceDir().convention(project.getLayout().getProjectDirectory().dir(extension.getSource()));
-            task.getJsDir().convention(extension.getJsFolder());
-            task.getCssDir().convention(extension.getCssFolder());
+            task.getSourceDir().convention(project.getLayout().getProjectDirectory().dir(extension.getSourceDir()));
+            task.getJsDir().convention(extension.getJsDir());
+            task.getCssDir().convention(extension.getCssDir());
 
             final ProdFrontendExtension.Download download = extension.getDownload();
             task.getDownloadResources().convention(download.isResources());

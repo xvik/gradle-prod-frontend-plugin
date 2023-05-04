@@ -16,11 +16,11 @@ public class ProdFrontendExtension {
      */
     private boolean debug;
 
-    private String source = "build/webapp";
+    private String sourceDir = "build/webapp";
 
     // required for loading urls
-    private String jsFolder = "js";
-    private String cssFolder = "css";
+    private String jsDir = "js";
+    private String cssDir = "css";
 
     private Download download = new Download();
 
@@ -46,28 +46,28 @@ public class ProdFrontendExtension {
         this.debug = debug;
     }
 
-    public String getSource() {
-        return source;
+    public String getSourceDir() {
+        return sourceDir;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setSourceDir(String sourceDir) {
+        this.sourceDir = sourceDir;
     }
 
-    public String getJsFolder() {
-        return jsFolder;
+    public String getJsDir() {
+        return jsDir;
     }
 
-    public void setJsFolder(String jsFolder) {
-        this.jsFolder = jsFolder;
+    public void setJsDir(String jsDir) {
+        this.jsDir = jsDir;
     }
 
-    public String getCssFolder() {
-        return cssFolder;
+    public String getCssDir() {
+        return cssDir;
     }
 
-    public void setCssFolder(String cssFolder) {
-        this.cssFolder = cssFolder;
+    public void setCssDir(String cssDir) {
+        this.cssDir = cssDir;
     }
 
     @Nested

@@ -17,8 +17,7 @@ class HtmlMinifyKitTest extends AbstractKitTest {
             }
             
             prodFrontend {
-                source = 'webapp'
-                minifyHtml = true
+                sourceDir = 'webapp'
             }
         """
 

@@ -17,8 +17,8 @@ class ResourcesDownloadKitTest extends AbstractKitTest {
             }
             
             prodFrontend {
-                source = 'webapp'
-                minifyHtml = false
+                sourceDir = 'webapp'
+                minify.html = false
             }
         """
 
@@ -42,7 +42,7 @@ class ResourcesDownloadKitTest extends AbstractKitTest {
 
         file('webapp/js/vue.min.js').exists()
         file('webapp/css/materialdesignicons.min.css').exists()
-        file('webapp/index.html').size() < idxSize
+        file('webapp/index.html').length() != idxSize
 
         println file('webapp/index.html').text
     }

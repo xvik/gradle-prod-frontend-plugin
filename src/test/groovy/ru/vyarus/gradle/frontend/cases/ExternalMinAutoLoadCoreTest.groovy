@@ -10,7 +10,7 @@ class ExternalMinAutoLoadCoreTest extends AbstractCoreTest {
 
     def "Check external minifiable resources"() {
 
-        fileFromClasspath('webapp/index.html', '/cases/externalMinifiableJsCss.html')
+        fileFromClasspath('webapp/index.html', '/cases/externalMinAutoLoad.html')
 
         when: "processing application"
         def res = run('webapp')

@@ -25,6 +25,7 @@ public class SourceMapUtils {
     public static void includeRemoteSources(final File sourceMap, final String baseUrl) {
         SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
+            System.out.println("\tSource map " + sourceMap.getName() + " already contain sources");
             // do nothing - content already included
             return;
         }
@@ -57,6 +58,7 @@ public class SourceMapUtils {
     public static void includeSources(final File sourceMap) {
         SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
+            System.out.println("\tSource map " + sourceMap.getName() + " already contain sources");
             // do nothing - content already included
             return;
         }

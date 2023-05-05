@@ -90,7 +90,7 @@ public final class FileUtils {
 
     public static File gzip(final File source, final File baseDir) {
         final File target = new File(source.getAbsolutePath() + ".gz");
-        if (target.exists() && target.lastModified() > source.lastModified()) {
+        if (target.exists() && target.lastModified() >= source.lastModified()) {
             // avoid redundant  re-generation
             return target;
         }

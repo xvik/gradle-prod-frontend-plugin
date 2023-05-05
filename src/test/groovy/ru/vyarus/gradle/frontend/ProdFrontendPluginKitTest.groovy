@@ -15,25 +15,43 @@ class ProdFrontendPluginKitTest extends AbstractKitTest {
             plugins {
                 id 'ru.vyarus.prod-frontend'
             }
-
-            productionFrontend {
-                foo '1'
-                bar '2'
+            
+            prodFrontend {
+                sourceDir = 'web'
             }
-
-            task printFoo() {
-                doLast {
-                    println "fooo: \$productionFrontend.foo"
-                }
-            }
-
         """
+        fileFromClasspath('web/index.html', '/cases/bootstrap.html')
 
         when: "run task"
-        BuildResult result = run('printFoo')
+        BuildResult result = run('prodFrontend')
 
         then: "task successful"
-        result.task(':printFoo').outcome == TaskOutcome.SUCCESS
-        result.output.contains('fooo: 1')
+        result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS
+        result.output.contains("""
+                                                                       original       minified       gzipped        
+--------------------------------------------------------------------------------------------------------------------
+index.html                                                             651 bytes      503 bytes      397 bytes      
+  js/bootstrap.bundle.min.js                                           78 KB                         22 KB          
+  css/bootstrap.min.css                                                190 KB                        26 KB          
+                                                                       ---------------------------------------------
+                                                                       269 KB         269 KB         49 KB""")
+
+        when: "run task again"
+        File index = file('web/index.html')
+        long modified = index.lastModified()
+        result = run('prodFrontend')
+
+        then: "task executed"
+        result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS
+        file('web/index.html').lastModified() == modified
+        result.output.contains("""
+                                                                       original       minified       gzipped        
+--------------------------------------------------------------------------------------------------------------------
+index.html                                                             503 bytes      503 bytes      397 bytes      
+  js/bootstrap.bundle.min.js                                           78 KB                         22 KB          
+  css/bootstrap.min.css                                                190 KB                        26 KB          
+                                                                       ---------------------------------------------
+                                                                       269 KB         269 KB         49 KB""")
+        !result.output.contains('Gzip index.html')
     }
 }

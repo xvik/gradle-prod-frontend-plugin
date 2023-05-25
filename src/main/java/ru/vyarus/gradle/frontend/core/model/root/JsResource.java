@@ -18,8 +18,8 @@ public class JsResource extends RootResource {
 
     public static final String ATTR = "src";
 
-    public JsResource(final HtmlPage html, final Element element) {
-        super(html, element, ATTR, html.getSettings().getJsDir());
+    public JsResource(final HtmlPage html, final Element element, final String sourceDeclaration) {
+        super(html, element, sourceDeclaration, ATTR, html.getSettings().getJsDir());
     }
 
     @Override

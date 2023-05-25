@@ -2,11 +2,11 @@ package ru.vyarus.gradle.frontend.core.model;
 
 import org.jsoup.nodes.Document;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
+import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.model.root.JsResource;
 import ru.vyarus.gradle.frontend.core.model.root.RootResource;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
-import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.util.DebugReporter;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.HtmlParser;
@@ -28,11 +28,15 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
     private Document doc;
     private final List<JsResource> js = new ArrayList<>();
     private final List<CssResource> css = new ArrayList<>();
+    private final boolean pureHtml;
 
     public HtmlPage(final OptimizationFlow.Settings settings, final File file) {
         this.settings = settings;
         this.file = file;
         recordStat(Stat.ORIGINAL, file.length());
+        final String name = file.getName().toLowerCase();
+        // only pure html files could be minified (and updated using dom)
+        pureHtml = name.endsWith(".htm") || name.endsWith(".html");
     }
 
     public OptimizationFlow.Settings getSettings() {
@@ -50,6 +54,11 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
     @Override
     public Document getParsedDocument() {
         return doc;
+    }
+
+    @Override
+    public boolean isPureHtml() {
+        return pureHtml;
     }
 
     public List<JsResource> getJs() {
@@ -82,8 +91,8 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
     public void findResources() {
         final HtmlParser.ParseResult res = HtmlParser.parse(file);
         doc = res.getDocument();
-        res.getCss().forEach(element -> css.add(new CssResource(this, element)));
-        res.getJs().forEach(element -> js.add(new JsResource(this, element)));
+        res.getCss().forEach(element -> css.add(new CssResource(this, element.getElement(), element.getSource())));
+        res.getJs().forEach(element -> js.add(new JsResource(this, element.getElement(), element.getSource())));
         if (settings.isDebug()) {
             System.out.println("Found: " + DebugReporter.buildReport(this));
         }
@@ -120,9 +129,36 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
     }
 
     public void updateHtml() {
-        String content = doc.outerHtml();
+        // jsoup not used because it may apply unwanted changes, instead do manual replacements
+        String content = FileUtils.readFile(file);
         if (isChanged()) {
             recordChange("changed links");
+            for (JsResource js : getJs()) {
+                if (js.hasChanges()) {
+                    final String source = js.getSourceDeclaration();
+                    if (content.contains(source)) {
+                        String actualSource = js.getElement().toString();
+                        // jsoup can't properly track closing script element so known source doesn't include it,
+                        // but generated element would contain this tag - remove manually to avoid duplicates
+                        if (actualSource.endsWith("</script>")) {
+                            actualSource = actualSource.substring(0, actualSource.length() - 9);
+                        }
+                        content = content.replace(source, actualSource);
+                    } else {
+                        System.out.println("WARNING: can't replace resource declaration in html file:\n\t" + source);
+                    }
+                }
+            }
+            for (CssResource css : getCss()) {
+                if (css.hasChanges()) {
+                    final String source = css.getSourceDeclaration();
+                    if (content.contains(source)) {
+                        content = content.replace(source, css.getElement().toString());
+                    } else {
+                        System.out.println("WARNING: can't replace resource declaration in html file:\n\t" + source);
+                    }
+                }
+            }
         }
 
         if (getSettings().isMinifyHtml()) {

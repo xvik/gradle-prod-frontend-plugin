@@ -22,7 +22,7 @@ wrapper {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'org.jsoup:jsoup:1.16.1'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.10.7'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-compress:1.22'

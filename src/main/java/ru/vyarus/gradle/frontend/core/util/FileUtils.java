@@ -24,7 +24,7 @@ public final class FileUtils {
     private FileUtils() {
     }
 
-    public static List<File> findHtmls(final File baseDir) {
+    public static List<File> findHtmls(final File baseDir, final List<String> extensions) {
         try {
             return Files.walk(baseDir.toPath(), 100).filter(path -> {
                 File fl = path.toFile();
@@ -32,7 +32,8 @@ public final class FileUtils {
                     return false;
                 }
                 final String name = fl.getName().toLowerCase();
-                return name.endsWith(".html") || name.endsWith(".htm");
+                int dot = name.lastIndexOf('.');
+                return dot > 0 && extensions.contains(name.substring(dot + 1).toLowerCase());
             }).map(Path::toFile).collect(Collectors.toList());
         } catch (IOException ex) {
             throw new IllegalStateException("Error searching for html files in " + baseDir.getAbsolutePath(), ex);
@@ -67,6 +68,14 @@ public final class FileUtils {
 
     public static String relative(final File from, final File file) {
         return (from.isDirectory() ? from : from.getParentFile()).toPath().relativize(file.toPath()).toString();
+    }
+
+    public static String readFile(final File file) {
+        try {
+            return Files.readString(file.toPath());
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read file content", e);
+        }
     }
 
     public static void writeFile(final File target, final String content) {

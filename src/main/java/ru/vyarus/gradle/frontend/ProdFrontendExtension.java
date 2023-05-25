@@ -3,6 +3,10 @@ package ru.vyarus.gradle.frontend;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.Nested;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * prod-frontend plugin extension.
  *
@@ -21,6 +25,8 @@ public class ProdFrontendExtension {
     // required for loading urls
     private String jsDir = "js";
     private String cssDir = "css";
+
+    private List<String> htmlExtensions = new ArrayList<>(Arrays.asList("html", "htm"));
 
     private Download download = new Download();
 
@@ -68,6 +74,14 @@ public class ProdFrontendExtension {
 
     public void setCssDir(String cssDir) {
         this.cssDir = cssDir;
+    }
+
+    public List<String> getHtmlExtensions() {
+        return htmlExtensions;
+    }
+
+    public void setHtmlExtensions(List<String> htmlExtensions) {
+        this.htmlExtensions = htmlExtensions;
     }
 
     @Nested

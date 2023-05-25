@@ -32,12 +32,18 @@ public abstract class RootResource extends OptimizedResource implements RootReso
     protected final File dir;
 
     protected boolean remote;
+    protected final String sourceDeclaration;
 
-    public RootResource(final HtmlPage html, final Element element, final String attr, final File dir) {
+    public RootResource(final HtmlPage html,
+                        final Element element,
+                        final String sourceDeclaration,
+                        final String attr,
+                        final File dir) {
         this.html = html;
         this.element = element;
         this.attr = attr;
         this.dir = dir;
+        this.sourceDeclaration = sourceDeclaration;
     }
 
     public HtmlPage getHtml() {
@@ -61,6 +67,11 @@ public abstract class RootResource extends OptimizedResource implements RootReso
     @Override
     public Element getElement() {
         return element;
+    }
+
+    @Override
+    public String getSourceDeclaration() {
+        return sourceDeclaration;
     }
 
     @Override

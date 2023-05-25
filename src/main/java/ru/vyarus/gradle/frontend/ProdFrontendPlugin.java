@@ -21,6 +21,7 @@ public class ProdFrontendPlugin implements Plugin<Project> {
             task.getSourceDir().convention(project.getLayout().getProjectDirectory().dir(extension.getSourceDir()));
             task.getJsDir().convention(extension.getJsDir());
             task.getCssDir().convention(extension.getCssDir());
+            task.getHtmlExtensions().convention(extension.getHtmlExtensions());
 
             final ProdFrontendExtension.Download download = extension.getDownload();
             task.getDownloadResources().convention(download.isResources());

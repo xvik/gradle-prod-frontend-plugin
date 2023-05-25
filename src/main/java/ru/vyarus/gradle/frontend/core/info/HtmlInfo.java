@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface HtmlInfo extends ResourceInfo {
 
+    boolean isPureHtml();
+
     Document getParsedDocument();
 
     File getFile();

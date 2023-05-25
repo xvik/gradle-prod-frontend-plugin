@@ -30,8 +30,8 @@ public class CssResource extends RootResource {
     private final List<RelativeCssResource> urls = new ArrayList<>();
     public static final String ATTR = "href";
 
-    public CssResource(final HtmlPage html, final Element element) {
-        super(html, element, ATTR, html.getSettings().getCssDir());
+    public CssResource(final HtmlPage html, final Element element, final String sourceDeclaration) {
+        super(html, element, sourceDeclaration, ATTR, html.getSettings().getCssDir());
     }
 
 

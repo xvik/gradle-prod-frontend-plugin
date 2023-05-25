@@ -8,7 +8,9 @@ import ru.vyarus.gradle.frontend.core.util.StatsPrinter;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Why no bundle: https://webspeedtools.com/should-i-combine-css-js/
@@ -40,7 +42,8 @@ public class OptimizationFlow implements OptimizationInfo {
     }
 
     public OptimizationFlow findFiles() throws GradleException {
-        final List<File> files = FileUtils.findHtmls(settings.getBaseDir());
+        final List<File> files = FileUtils.findHtmls(settings.getBaseDir(), settings.getHtmlExtensions()
+                .stream().map(String::toLowerCase).collect(Collectors.toList()));
         for (File file : files) {
             try {
                 final HtmlPage html = new HtmlPage(settings, file);
@@ -110,6 +113,7 @@ public class OptimizationFlow implements OptimizationInfo {
         // for relative urls
         private File jsDir;
         private File cssDir;
+        private List<String> htmlExtensions = Arrays.asList("html", "htm");
         private boolean downloadResources;
         private boolean preferMinDownload;
         private boolean downloadSourceMaps;
@@ -140,6 +144,10 @@ public class OptimizationFlow implements OptimizationInfo {
 
         public File getCssDir() {
             return cssDir;
+        }
+
+        public List<String> getHtmlExtensions() {
+            return htmlExtensions;
         }
 
         public boolean isDownloadResources() {
@@ -226,6 +234,17 @@ public class OptimizationFlow implements OptimizationInfo {
         public Builder cssDir(String relative) {
             if (relative != null) {
                 cssDir(new File(settings.baseDir, relative));
+            }
+            return this;
+        }
+
+        public Builder htmlExtensions(final String... extensions) {
+            return htmlExtensions(Arrays.asList(extensions));
+        }
+
+        public Builder htmlExtensions(final List<String> extensions) {
+            if (!extensions.isEmpty()) {
+                settings.htmlExtensions = extensions;
             }
             return this;
         }

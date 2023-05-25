@@ -14,8 +14,8 @@ abstract class AbstractCoreTest extends Specification {
     @TempDir
     File testDir
 
-    OptimizationInfo run(String dir) {
-        def res = OptimizationFlow.create(file(dir))
+    OptimizationFlow.Builder builder(String dir) {
+        return OptimizationFlow.create(file(dir))
                 .downloadResources()
                 .preferMinDownload()
                 .downloadSourceMaps()
@@ -28,6 +28,14 @@ abstract class AbstractCoreTest extends Specification {
                 .applyIntegrity()
                 .generateSourceMaps()
                 .gzip()
+    }
+
+    OptimizationInfo run(String dir) {
+        run(builder(dir))
+    }
+
+    OptimizationInfo run(OptimizationFlow.Builder builder) {
+        def res = builder
                 .debug()
                 .run()
         res.printStats()

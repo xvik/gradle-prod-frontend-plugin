@@ -15,6 +15,8 @@ public interface RootResourceInfo extends ResourceInfo {
 
     Element getElement();
 
+    String getSourceDeclaration();
+
     String getTarget();
     String getIntegrity();
 

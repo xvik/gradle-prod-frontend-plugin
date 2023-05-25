@@ -4,6 +4,7 @@ package ru.vyarus.gradle.frontend.task;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
@@ -30,6 +31,9 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
 
     @Input
     public abstract Property<String> getCssDir();
+
+    @Input
+    public abstract ListProperty<String> getHtmlExtensions();
 
     @Input
     public abstract Property<Boolean> getDownloadResources();
@@ -78,6 +82,7 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
         OptimizationFlow.create(root)
                 .jsDir(getJsDir().get())
                 .cssDir(getCssDir().get())
+                .htmlExtensions(getHtmlExtensions().get())
                 .downloadResources(getDownloadResources().get())
                 .preferMinDownload(getPreferMinDownload().get())
                 .downloadSourceMaps(getDownloadSourceMaps().get())

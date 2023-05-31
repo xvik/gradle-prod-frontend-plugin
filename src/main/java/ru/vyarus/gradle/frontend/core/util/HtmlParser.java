@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * https://jsoup.org/
+ *
  * @author Vyacheslav Rusakov
  * @since 09.02.2023
  */

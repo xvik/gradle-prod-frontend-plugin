@@ -37,7 +37,7 @@ class ProdFrontendPluginTest extends AbstractTest {
         prodFrontend.sourceDir == 'build/webapp'
         prodFrontend.jsDir == 'js'
         prodFrontend.cssDir == 'css'
-        prodFrontend.download.resources == true
+        prodFrontend.download.enabled == true
         prodFrontend.download.preferMin == true
         prodFrontend.download.sourceMaps == true
         prodFrontend.minify.html == true
@@ -109,7 +109,7 @@ class ProdFrontendPluginTest extends AbstractTest {
         prodFrontend.sourceDir == 'web'
         prodFrontend.jsDir == 'jss'
         prodFrontend.cssDir == 'csss'
-        prodFrontend.download.resources == false
+        prodFrontend.download.enabled == false
         prodFrontend.download.preferMin == false
         prodFrontend.download.sourceMaps == false
         prodFrontend.minify.html == false

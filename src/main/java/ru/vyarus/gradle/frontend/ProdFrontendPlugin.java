@@ -8,9 +8,9 @@ import ru.vyarus.gradle.frontend.task.OptimizeFrontendTask;
  * Production frontend plugin. Plugin detects all html files and optimize them and related resources.
  * <p>
  * IMPORTANT: Plugin is intended to be used on delivery generation phase only and not during development.
- * Plugin DOES NOT bundle multiple js or css files together because it makes no sense now (
- * <a href="https://webspeedtools.com/should-i-combine-css-js/">link 1</a>,
- * <a href="https://wpjohnny.com/why-you-shouldnt-combine-css-js-performance-reasons/">link 2</a>).
+ * Plugin DOES NOT bundle multiple js or css files together because it makes no sense now:
+ * <a href="https://webspeedtools.com/should-i-combine-css-js/">article 1</a>,
+ * <a href="https://wpjohnny.com/why-you-shouldnt-combine-css-js-performance-reasons/">article 2</a>.
  * <p>
  * Usage scenario: copy application assets somewhere inside build directory, run plugin on then and then bundle
  * result into final delivery.
@@ -19,7 +19,8 @@ import ru.vyarus.gradle.frontend.task.OptimizeFrontendTask;
  * <p>
  * Plugin intended to be used in simple cases when not too complex html page must be created and nodejs tools are
  * not wanted. During development cdn links to resources are used and for delivery all remote files are loaded
- * and bundled with application (plus, additional security applied).
+ * and bundled with application (plus, additional security applied). One example is a html page with simple SPA
+ * application (e.g. with vuejs), when nodejs tooling is an overkill.
  * <p>
  * If you already use some nodejs bundler, then this plugin would be useless.
  * <p>
@@ -73,7 +74,7 @@ public class ProdFrontendPlugin implements Plugin<Project> {
             task.getHtmlExtensions().convention(extension.getHtmlExtensions());
 
             final ProdFrontendExtension.Download download = extension.getDownload();
-            task.getDownloadResources().convention(download.isResources());
+            task.getDownloadResources().convention(download.isEnabled());
             task.getPreferMinDownload().convention(download.isPreferMin());
             task.getDownloadSourceMaps().convention(download.isSourceMaps());
 

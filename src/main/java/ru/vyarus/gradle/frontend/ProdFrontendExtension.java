@@ -199,7 +199,7 @@ public class ProdFrontendExtension {
         /**
          * Download js and css (e.g. declared as cdn links).
          */
-        private boolean resources = true;
+        private boolean enabled = true;
 
         /**
          * Try to download ".min" resource version first (applicable for cdn links)
@@ -214,15 +214,15 @@ public class ProdFrontendExtension {
         /**
          * @return true to download remote js and css links (e.g. cdn links)
          */
-        public boolean isResources() {
-            return resources;
+        public boolean isEnabled() {
+            return enabled;
         }
 
         /**
-         * @param resources true to download remote js and css links
+         * @param enabled true to download remote js and css links
          */
-        public void setResources(final boolean resources) {
-            this.resources = resources;
+        public void setEnabled(final boolean enabled) {
+            this.enabled = enabled;
         }
 
         /**

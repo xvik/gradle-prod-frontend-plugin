@@ -1,6 +1,6 @@
 package ru.vyarus.gradle.frontend.cases
 
-import ru.vyarus.gradle.frontend.core.info.HtmlInfo
+import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo
 
 /**
  * Jsdeliver auto-generates min files and also source maps, but link to source map points to server root!

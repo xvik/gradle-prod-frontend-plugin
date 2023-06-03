@@ -1,7 +1,7 @@
 package ru.vyarus.gradle.frontend.core.model.root;
 
 import org.jsoup.nodes.Element;
-import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.util.minify.JsMinifier;
 import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;

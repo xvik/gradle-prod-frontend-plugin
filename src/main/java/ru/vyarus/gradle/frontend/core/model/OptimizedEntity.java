@@ -1,7 +1,7 @@
 package ru.vyarus.gradle.frontend.core.model;
 
 import ru.vyarus.gradle.frontend.core.stat.Stat;
-import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Vyacheslav Rusakov
  * @since 02.02.2023
  */
-public abstract class OptimizedResource implements ResourceInfo {
+public abstract class OptimizedEntity implements OptimizedEntityInfo {
 
     private final List<String> changes = new ArrayList<>();
     private final Map<Stat, Long> stats = new HashMap<>();

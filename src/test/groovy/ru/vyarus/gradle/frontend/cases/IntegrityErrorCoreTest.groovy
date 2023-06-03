@@ -1,7 +1,4 @@
 package ru.vyarus.gradle.frontend.cases
-
-import ru.vyarus.gradle.frontend.core.info.HtmlInfo
-
 /**
  * @author Vyacheslav Rusakov
  * @since 29.04.2023

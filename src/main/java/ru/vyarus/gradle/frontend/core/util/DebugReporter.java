@@ -1,7 +1,7 @@
 package ru.vyarus.gradle.frontend.core.util;
 
-import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
-import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.model.root.JsResource;
@@ -31,7 +31,7 @@ public class DebugReporter {
         return res.toString();
     }
 
-    private static void appendIgnored(final StringBuilder res, final ResourceInfo item) {
+    private static void appendIgnored(final StringBuilder res, final OptimizedEntityInfo item) {
         if (item.isIgnored()) {
             res.append(" (").append(item.getIgnoreReason()).append(")");
         }

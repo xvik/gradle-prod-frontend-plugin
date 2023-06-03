@@ -83,7 +83,7 @@ class ProdFrontendPluginTest extends AbstractTest {
                 cssDir = 'csss'
 
                 download {
-                    resources = false
+                    enabled = false
                     preferMin = false
                     sourceMaps = false
                 }

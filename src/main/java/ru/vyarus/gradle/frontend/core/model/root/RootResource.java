@@ -2,10 +2,10 @@ package ru.vyarus.gradle.frontend.core.model.root;
 
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
-import ru.vyarus.gradle.frontend.core.model.OptimizedResource;
+import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
-import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.util.DigestUtils;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
@@ -20,7 +20,7 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public abstract class RootResource extends OptimizedResource implements RootResourceInfo {
+public abstract class RootResource extends OptimizedEntity implements ResourceInfo {
 
     public static final String INTEGRITY_ATTR = "integrity";
     protected final HtmlPage html;

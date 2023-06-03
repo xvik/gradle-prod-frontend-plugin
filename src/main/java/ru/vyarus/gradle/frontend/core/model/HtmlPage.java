@@ -2,7 +2,7 @@ package ru.vyarus.gradle.frontend.core.model;
 
 import org.jsoup.nodes.Document;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
-import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.model.root.JsResource;
 import ru.vyarus.gradle.frontend.core.model.root.RootResource;
@@ -21,7 +21,7 @@ import java.util.List;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public class HtmlPage extends OptimizedResource implements HtmlInfo {
+public class HtmlPage extends OptimizedEntity implements HtmlInfo {
     private final OptimizationFlow.Settings settings;
     private final File file;
     private File gzip;
@@ -82,9 +82,9 @@ public class HtmlPage extends OptimizedResource implements HtmlInfo {
             return true;
         }
         final boolean cssChanges = this.css.stream()
-                .anyMatch(OptimizedResource::hasChanges);
+                .anyMatch(OptimizedEntity::hasChanges);
         final boolean jsChanges = this.js.stream()
-                .anyMatch(OptimizedResource::hasChanges);
+                .anyMatch(OptimizedEntity::hasChanges);
         return cssChanges || jsChanges;
     }
 

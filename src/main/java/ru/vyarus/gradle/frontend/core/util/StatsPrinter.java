@@ -1,11 +1,11 @@
 package ru.vyarus.gradle.frontend.core.util;
 
 import org.apache.commons.io.FileUtils;
-import ru.vyarus.gradle.frontend.core.info.HtmlInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.info.OptimizationInfo;
-import ru.vyarus.gradle.frontend.core.info.ResourceInfo;
-import ru.vyarus.gradle.frontend.core.info.root.RootResourceInfo;
-import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
 
 import java.io.File;
@@ -37,12 +37,12 @@ public final class StatsPrinter {
             final boolean debug = result.getSettings().isDebug();
             writeChanges(debug, html, "", res);
 
-            for (RootResourceInfo js : html.getJs()) {
+            for (ResourceInfo js : html.getJs()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(js.getTarget()), formatSizes(js)));
                 writeChanges(debug, js, "  ", res);
             }
-            for (RootResourceInfo css : html.getCss()) {
+            for (ResourceInfo css : html.getCss()) {
                 res.append(String.format("%-70s %s%n",
                         "  " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(css.getTarget()), formatSizes(css)));
                 writeChanges(debug, css, "  ", res);
@@ -62,7 +62,7 @@ public final class StatsPrinter {
         return res.toString();
     }
 
-    private static String formatSizes(final ResourceInfo file) {
+    private static String formatSizes(final OptimizedEntityInfo file) {
         if (file.isIgnored()) {
             return file.getIgnoreReason();
         }
@@ -81,13 +81,13 @@ public final class StatsPrinter {
 
     private static String sum(final HtmlInfo html, final Stat stat) {
         long res = getStat(html, stat);
-        for (RootResourceInfo css : html.getCss()) {
+        for (ResourceInfo css : html.getCss()) {
             // avoid ignored
             if (css.getStats().containsKey(Stat.ORIGINAL)) {
                 res += getStat(css, stat);
             }
         }
-        for (RootResourceInfo js : html.getJs()) {
+        for (ResourceInfo js : html.getJs()) {
             // avoid ignored
             if (js.getStats().containsKey(Stat.ORIGINAL)) {
                 res += getStat(js, stat);
@@ -96,7 +96,7 @@ public final class StatsPrinter {
         return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));
     }
 
-    private static long getStat(ResourceInfo item, final Stat stat) {
+    private static long getStat(OptimizedEntityInfo item, final Stat stat) {
         Stat target = stat;
         // going backward for stats because something might be missing (e.g. minification if file already minimized)
         while (!item.getStats().containsKey(target)) {
@@ -119,7 +119,7 @@ public final class StatsPrinter {
         return res;
     }
 
-    private static void writeChanges(boolean debug, ResourceInfo item, String prefix, StringBuilder res) {
+    private static void writeChanges(boolean debug, OptimizedEntityInfo item, String prefix, StringBuilder res) {
         if (debug && item.hasChanges()) {
             res.append(prefix).append("| changes:\n");
             item.getChanges().forEach(s -> res.append(prefix).append("| \t").append(s).append("\n"));

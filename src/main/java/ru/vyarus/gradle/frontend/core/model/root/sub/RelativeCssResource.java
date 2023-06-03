@@ -1,7 +1,7 @@
 package ru.vyarus.gradle.frontend.core.model.root.sub;
 
-import ru.vyarus.gradle.frontend.core.info.root.sub.SubResourceInfo;
-import ru.vyarus.gradle.frontend.core.model.OptimizedResource;
+import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
+import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
@@ -14,7 +14,7 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 06.02.2023
  */
-public class RelativeCssResource extends OptimizedResource implements SubResourceInfo {
+public class RelativeCssResource extends OptimizedEntity implements SubResourceInfo {
 
     private final CssResource css;
     private final String url;

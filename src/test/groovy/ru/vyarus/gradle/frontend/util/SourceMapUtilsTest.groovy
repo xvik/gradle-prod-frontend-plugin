@@ -9,6 +9,14 @@ import ru.vyarus.gradle.frontend.core.util.SourceMapUtils
  */
 class SourceMapUtilsTest extends AbstractTest {
 
+    def "Check source map extraction"() {
+
+        expect:
+        SourceMapUtils.getSourceMapReference("/*# sourceMappingURL=materialdesignicons.min.css.map */") == 'materialdesignicons.min.css.map'
+        // jsdelivr
+        SourceMapUtils.getSourceMapReference("//# sourceMappingURL=/sm/9365766bce1527e45586988d0bb7e9064acca1c1d547544ad774220eaebf0c8b.map") == '/sm/9365766bce1527e45586988d0bb7e9064acca1c1d547544ad774220eaebf0c8b.map'
+    }
+
     def "Check sources inclusion"() {
 
         setup: "prepare map"

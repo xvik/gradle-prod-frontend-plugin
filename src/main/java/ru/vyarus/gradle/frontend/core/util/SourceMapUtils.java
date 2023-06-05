@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Vyacheslav Rusakov
@@ -18,9 +20,30 @@ import java.util.List;
  */
 public class SourceMapUtils {
 
+    /**
+     * Source map reference in minified file.
+     */
+    private static final Pattern SOURCE_URL = Pattern.compile("sourceMappingURL=([^ *]+)");
+
+    /**
+     * Pure jackson used for source map read/write
+     */
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+    public static String getSourceMapReference(final File file) {
+        final String line = ru.vyarus.gradle.frontend.core.util.FileUtils.readLastLine(file);
+        return line == null ? null : getSourceMapReference(line);
+    }
+
+    public static String getSourceMapReference(String line) {
+        final Matcher matcher = SOURCE_URL.matcher(line);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
 
     public static void includeRemoteSources(final File sourceMap, final String baseUrl) {
         SourceMap map = parse(sourceMap);

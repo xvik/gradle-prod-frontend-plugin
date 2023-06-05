@@ -42,7 +42,7 @@ public final class ResourceLoader {
         }
 
         if (sourceMaps) {
-            String sourceMapUrl = WebUtils.getSourceMapReference(res);
+            String sourceMapUrl = SourceMapUtils.getSourceMapReference(res);
             if (sourceMapUrl == null) {
                 System.out.println("No source map file reference found");
 

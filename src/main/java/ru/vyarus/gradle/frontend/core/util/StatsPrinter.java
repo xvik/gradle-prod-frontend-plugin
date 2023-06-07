@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
+ * Optimization statistics printer.
+ *
  * @author Vyacheslav Rusakov
  * @since 02.02.2023
  */
@@ -21,6 +23,12 @@ public final class StatsPrinter {
     private StatsPrinter() {
     }
 
+    /**
+     * Print optimization stats table.
+     *
+     * @param result optimization info
+     * @return rendered stats table
+     */
     public static String print(final OptimizationInfo result) {
         final File baseDir = result.getSettings().getBaseDir();
         final String basePath = baseDir.getAbsolutePath() + "/";
@@ -70,7 +78,7 @@ public final class StatsPrinter {
     }
 
     private static String formatSizes(final Map<Stat, Long> stats, final Stat... sequence) {
-        StringBuilder res = new StringBuilder();
+        final StringBuilder res = new StringBuilder();
         for (Stat stat : sequence) {
             // use whitespace to keep table columns for files without minifiction
             res.append(String.format("%-15s", stats.containsKey(stat)
@@ -96,7 +104,7 @@ public final class StatsPrinter {
         return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));
     }
 
-    private static long getStat(OptimizedEntityInfo item, final Stat stat) {
+    private static long getStat(final OptimizedEntityInfo item, final Stat stat) {
         Stat target = stat;
         // going backward for stats because something might be missing (e.g. minification if file already minimized)
         while (!item.getStats().containsKey(target)) {
@@ -119,7 +127,10 @@ public final class StatsPrinter {
         return res;
     }
 
-    private static void writeChanges(boolean debug, OptimizedEntityInfo item, String prefix, StringBuilder res) {
+    private static void writeChanges(final boolean debug,
+                                     final OptimizedEntityInfo item,
+                                     final String prefix,
+                                     final StringBuilder res) {
         if (debug && item.hasChanges()) {
             res.append(prefix).append("| changes:\n");
             item.getChanges().forEach(s -> res.append(prefix).append("| \t").append(s).append("\n"));

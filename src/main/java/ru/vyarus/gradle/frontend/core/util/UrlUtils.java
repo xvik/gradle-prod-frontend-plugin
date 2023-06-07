@@ -15,21 +15,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Url analysis and download methods.
+ *
  * @author Vyacheslav Rusakov
  * @since 04.02.2023
  */
 public final class UrlUtils {
 
     private static final Pattern URL_BASE = Pattern.compile("https?://[^/:]+(:\\d+)?");
-    private static List<Integer> REDIRECT_STATUS = Arrays.asList(301, 302, 303, 307, 308);
+    private static final List<Integer> REDIRECT_STATUS = Arrays.asList(301, 302, 303, 307, 308);
 
     private UrlUtils() {
     }
 
-    // for example, unpkg supports urls like https://unpkg.com/vue@2 leading to actual file
-    // https://unpkg.com/vue@2.7.14/dist/vue.js - it is important to follow redirect first to know exact base dir
-    public static String checkRedirect(final String url) {
-
+    /**
+     * Follows url redirects in order to know the actual url. This is important for general resource urls without
+     * file name (e.g. unpkg supports urls like "https://unpkg.com/vue@2" leading to actual file
+     * "https://unpkg.com/vue@2.7.14/dist/vue.js").
+     *
+     * @param url url to check redirects on
+     * @return url after the last redirect or original url if no redirects required
+     */
+    public static String followRedirects(final String url) {
         try {
             String res = url;
             // remove ../ parts in url
@@ -50,7 +57,7 @@ public final class UrlUtils {
                 }
                 System.out.println("Redirect resolved: " + target + " --> " + res);
                 // might be multiple redirects
-                res = checkRedirect(res);
+                res = followRedirects(res);
             }
 
             return res;
@@ -59,11 +66,16 @@ public final class UrlUtils {
         }
     }
 
-    public static String getBaseUrl(final String url) {
-        int idx = url.lastIndexOf('/');
-        if (idx == 0) {
-            idx = url.lastIndexOf('\\');
-        }
+    /**
+     * Gets base url fro file url. E.g base url for "http://some.com/files/file.txt" would be
+     * "http://some.com/files/".
+     *
+     * @param url url to detect base on
+     * @return base url
+     * @throws java.lang.IllegalStateException if base url can't be detected
+     */
+    public static String getBaseUrl(final String url) throws IllegalStateException {
+        int idx = getNameSeparatorPos(url);
         if (idx > 0) {
             return url.substring(0, idx + 1);
         } else {
@@ -71,31 +83,72 @@ public final class UrlUtils {
         }
     }
 
-    public static String getServerRoot(final String url) {
+    /**
+     * Resolve root server url from url (host + port part).
+     *
+     * @param url url to resolve server url on
+     * @return root server url
+     * @throws java.lang.IllegalStateException if root url can't be detected
+     */
+    public static String getServerRoot(final String url) throws IllegalStateException {
         final Matcher matcher = URL_BASE.matcher(url);
-        return matcher.find() ? matcher.group(0) : null;
+        if (matcher.find()) {
+            return matcher.group(0);
+        }
+        throw new IllegalStateException("Failed to detect server root in url: " + url);
     }
 
+    /**
+     * Search for the separator before file name (assuming file url used).
+     *
+     * @param url url to find filename start
+     * @return > 0 if separator found, < 0 if not found
+     */
     public static int getNameSeparatorPos(final String url) {
         int idx = url.lastIndexOf('/');
-        if (idx == 0) {
+        if (idx <= 0) {
             idx = url.lastIndexOf('\\');
         }
         return idx;
     }
 
+    /**
+     * Checks if file url contains extension (must end to ".something"). Extension length can't be longer then 4.
+     *
+     * @param url url to check file extension in
+     * @return true if file extension present, false otherwise
+     */
     public static boolean hasExtension(final String url) {
-        String name = getFileName(url);
+        String clean = clearParams(url);
+        String name = getFileName(clean);
         int idx = name.lastIndexOf('.');
         return name.length() - idx <= 4;
     }
 
-    public static String getFileName(final String url) {
-        int idx = getNameSeparatorPos(url);
-        String res = url;
+    /**
+     * Extracts file name from url.
+     *
+     * @param url url to extract file name
+     * @return file name
+     * @throws java.lang.IllegalStateException if name can't be extracted
+     */
+    public static String getFileName(final String url) throws IllegalStateException {
+        String res = clearParams(url);
+        final int idx = getNameSeparatorPos(res);
         if (idx > 0) {
-            res = res.substring(idx + 1);
+            return res.substring(idx + 1);
         }
+        throw new IllegalStateException("Failed to extract file name from url: " + url);
+    }
+
+    /**
+     * Remove '?' and '#' parts from url.
+     *
+     * @param url url to purify
+     * @return url without parameters part
+     */
+    public static String clearParams(String url) {
+        String res = url;
         // cut off possible redundant parts (maybe default anti-cache)
         for (char sep : Arrays.asList('?', '#')) {
             int i = res.indexOf(sep);
@@ -106,6 +159,15 @@ public final class UrlUtils {
         return res;
     }
 
+    /**
+     * Download file, renaming if file already exists. After download compares with existing file (MD5) and removes
+     * duplicate.
+     *
+     * @param url    file url
+     * @param target local file to download into
+     * @return downloaded (local) file
+     * @throws Exception on load error
+     */
     public static File smartDownload(final String url, final File target) throws Exception {
         File res = ru.vyarus.gradle.frontend.core.util.FileUtils
                 .selectNotExistingFile(target.getParentFile(), target.getName());
@@ -114,19 +176,38 @@ public final class UrlUtils {
             if (res.length() == target.length() &&
                     ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(res)
                             .equals(ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(target))) {
-                System.out.println("Downloaded file is the same as already existing file, using existing file");
+                System.out.println("\tDownloaded file is the same as already existing file, using existing file");
                 // same as existing file, remove downloaded
                 res.delete();
                 res = target;
+            } else {
+                System.out.println("\tDownloaded file stored as " + res.getName() + " because " + target.getName()
+                        + " already exists with different content");
             }
         }
         return res;
     }
 
-    public static void download(final String urlStr, final File file) throws Exception {
-        download(urlStr, file, "");
+    /**
+     * Download url into local file.
+     * Shortcut for {@link #download(String, java.io.File, String)}.
+     *
+     * @param url  file url
+     * @param file local file to store in
+     * @throws Exception on download error
+     */
+    public static void download(final String url, final File file) throws Exception {
+        download(url, file, "");
     }
 
+    /**
+     * Download url into local file. Overwrites already existing file.
+     *
+     * @param urlStr    url file url
+     * @param file      local file to store in
+     * @param logPrefix prefix for all messages (used to show "in context" of something)
+     * @throws Exception on download error
+     */
     public static void download(final String urlStr, final File file, final String logPrefix) throws Exception {
         System.out.print(logPrefix + "Download ");
         try {

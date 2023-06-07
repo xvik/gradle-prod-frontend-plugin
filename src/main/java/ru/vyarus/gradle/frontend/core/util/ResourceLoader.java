@@ -16,7 +16,7 @@ public final class ResourceLoader {
                                 final boolean sourceMaps,
                                 final File targetDir) {
         // check redirects only when target file is unknown (folder references)
-        String realUrl = UrlUtils.hasExtension(url) ? url : UrlUtils.checkRedirect(url);
+        String realUrl = UrlUtils.hasExtension(url) ? url : UrlUtils.followRedirects(url);
         String name = UrlUtils.getFileName(realUrl);
         final String minName = FileUtils.getMinName(name);
         File res = null;

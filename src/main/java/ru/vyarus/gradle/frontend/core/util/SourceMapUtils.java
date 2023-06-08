@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Source maps utils.
+ *
  * @author Vyacheslav Rusakov
  * @since 02.03.2023
  */
@@ -32,12 +34,25 @@ public class SourceMapUtils {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
+    /**
+     * Looks for source map reference in file.
+     * Assumption: source map reference would be in the last line (ignoring empty lines).
+     *
+     * @param file file to find source map reference
+     * @return source map url or null if not found
+     */
     public static String getSourceMapReference(final File file) {
         final String line = ru.vyarus.gradle.frontend.core.util.FileUtils.readLastLine(file);
         return line == null ? null : getSourceMapReference(line);
     }
 
-    public static String getSourceMapReference(String line) {
+    /**
+     * Looks for source map reference in line.
+     *
+     * @param line line to search for reference
+     * @return source map url or null if not found
+     */
+    public static String getSourceMapReference(final String line) {
         final Matcher matcher = SOURCE_URL.matcher(line);
         if (matcher.find()) {
             return matcher.group(1);
@@ -45,8 +60,15 @@ public class SourceMapUtils {
         return null;
     }
 
+    /**
+     * Download sources, declared in source map and add them directly inside map. Do nothing if source map
+     * already contain embedded sources.
+     *
+     * @param sourceMap source map file
+     * @param baseUrl   base url for source map (from where source map was downloaded)
+     */
     public static void includeRemoteSources(final File sourceMap, final String baseUrl) {
-        SourceMap map = parse(sourceMap);
+        final SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
             System.out.println("\tSource map " + sourceMap.getName() + " already contain sources");
             // do nothing - content already included
@@ -78,6 +100,11 @@ public class SourceMapUtils {
                 + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
     }
 
+    /**
+     * Include local sources into source map. Do nothing if sources already embedded.
+     *
+     * @param sourceMap source map file
+     */
     public static void includeSources(final File sourceMap) {
         SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
@@ -89,7 +116,7 @@ public class SourceMapUtils {
         final File baseDir = sourceMap.getParentFile();
 
         // repackage sources to use relative paths (e.g. google-closure puts absolute paths)
-        List<String> outSrc = new ArrayList<>();
+        final List<String> outSrc = new ArrayList<>();
         for (String src : map.getSources()) {
             try {
                 // could be absolute path
@@ -116,6 +143,12 @@ public class SourceMapUtils {
                 + FileUtils.byteCountToDisplaySize(sourceMap.length()) + ")");
     }
 
+    /**
+     * Parse source map file.
+     *
+     * @param sourceMap source map file
+     * @return parsed source map object
+     */
     public static SourceMap parse(final File sourceMap) {
         try {
             return MAPPER.readValue(sourceMap, SourceMap.class);
@@ -124,6 +157,12 @@ public class SourceMapUtils {
         }
     }
 
+    /**
+     * Write source map into file (overriding existing).
+     *
+     * @param map  source map object
+     * @param file target file
+     */
     public static void write(final SourceMap map, final File file) {
         try {
             MAPPER.writeValue(file, map);
@@ -132,7 +171,11 @@ public class SourceMapUtils {
         }
     }
 
-    // https://sourcemaps.info/spec.html#h.mofvlxcwqzej
+    /**
+     * Source map object.
+     *
+     * @see <a href="https://sourcemaps.info/spec.html#h.mofvlxcwqzej">format</a>
+     */
     public static class SourceMap {
         /**
          * File version (always the first entry in the object) and must be a positive integer.
@@ -166,59 +209,80 @@ public class SourceMapUtils {
          */
         private String mappings;
 
+        /**
+         * @return format version
+         */
         public Integer getVersion() {
             return version;
         }
 
-        public void setVersion(Integer version) {
+        public void setVersion(final Integer version) {
             this.version = version;
         }
 
+        /**
+         * @return name of the generated code that this source map is associated with or null
+         */
         public String getFile() {
             return file;
         }
 
-        public void setFile(String file) {
+        public void setFile(final String file) {
             this.file = file;
         }
 
+        /**
+         * @return sources root directory or null
+         */
         public String getSourceRoot() {
             return sourceRoot;
         }
 
-        public void setSourceRoot(String sourceRoot) {
+        public void setSourceRoot(final String sourceRoot) {
             this.sourceRoot = sourceRoot;
         }
 
+        /**
+         * @return list of original sources or null
+         */
         public List<String> getSources() {
             return sources;
         }
 
-        public void setSources(List<String> sources) {
+        public void setSources(final List<String> sources) {
             this.sources = sources;
         }
 
+        /**
+         * @return list of embedded sources (content) or null
+         */
         public List<String> getSourcesContent() {
             return sourcesContent;
         }
 
-        public void setSourcesContent(List<String> sourcesContent) {
+        public void setSourcesContent(final List<String> sourcesContent) {
             this.sourcesContent = sourcesContent;
         }
 
+        /**
+         * @return list of symbol names used by the “mappings” entry
+         */
         public List<String> getNames() {
             return names;
         }
 
-        public void setNames(List<String> names) {
+        public void setNames(final List<String> names) {
             this.names = names;
         }
 
+        /**
+         * @return string with the encoded mapping data
+         */
         public String getMappings() {
             return mappings;
         }
 
-        public void setMappings(String mappings) {
+        public void setMappings(final String mappings) {
             this.mappings = mappings;
         }
     }

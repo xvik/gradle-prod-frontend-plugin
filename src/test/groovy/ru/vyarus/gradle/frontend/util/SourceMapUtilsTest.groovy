@@ -35,10 +35,10 @@ class SourceMapUtilsTest extends AbstractTest {
         File file = fileFromClasspath("bootstrap.bundle.min.js.map", '/sourcemap/bootstrap.bundle.min.js.map')
         long size = file.length()
 
-        when: "download and embed content"
+        when: "detect sources already embedded"
         SourceMapUtils.includeRemoteSources(file, "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/")
 
-        then: "map updated"
+        then: "map not updated"
         def parse = SourceMapUtils.parse(file)
         parse.sourcesContent.size() == parse.sources.size()
         file.length() == size

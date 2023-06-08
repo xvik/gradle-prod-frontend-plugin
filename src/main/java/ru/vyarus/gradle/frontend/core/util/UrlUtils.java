@@ -102,7 +102,7 @@ public final class UrlUtils {
      * Search for the separator before file name (assuming file url used).
      *
      * @param url url to find filename start
-     * @return > 0 if separator found, < 0 if not found
+     * @return &gt; 0 if separator found, &lt; 0 if not found
      */
     public static int getNameSeparatorPos(final String url) {
         int idx = url.lastIndexOf('/');

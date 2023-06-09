@@ -88,7 +88,7 @@ public class SourceMapUtils {
                 UrlUtils.download(base + src, tmp, "\t");
                 content.add(Files.readString(tmp.toPath(), StandardCharsets.UTF_8));
                 System.out.println("\t" + src + " (" + FileUtils.byteCountToDisplaySize(tmp.length())
-                        + ") embedded into " + sourceMap.getName() + " source map");
+                        + ") embedded into " + sourceMap.getName());
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to load source files for source map " + sourceMap.getName());
             }
@@ -130,7 +130,7 @@ public class SourceMapUtils {
                 outSrc.add(ru.vyarus.gradle.frontend.core.util.FileUtils.relative(sourceMap, source));
                 content.add(Files.readString(source.toPath(), StandardCharsets.UTF_8));
                 System.out.println("\t " + source.getName() + " (" + FileUtils.byteCountToDisplaySize(source.length())
-                        + ") embedded into " + sourceMap.getName() + " source map");
+                        + ") embedded into " + sourceMap.getName());
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to read source file content for source map "
                         + sourceMap.getName(), e);

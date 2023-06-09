@@ -130,15 +130,16 @@ public final class UrlUtils {
      *
      * @param url url to extract file name
      * @return file name
-     * @throws java.lang.IllegalStateException if name can't be extracted
      */
-    public static String getFileName(final String url) throws IllegalStateException {
+    public static String getFileName(final String url) {
         String res = clearParams(url);
         final int idx = getNameSeparatorPos(res);
-        if (idx > 0) {
+        if (idx >= 0) {
             return res.substring(idx + 1);
+        } else {
+            // not url, direct file name
+            return url;
         }
-        throw new IllegalStateException("Failed to extract file name from url: " + url);
     }
 
     /**

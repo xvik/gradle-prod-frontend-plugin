@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * https://jsoup.org/
+ * <a href="ttps://jsoup.org/">Jsoup</a> based html parser.
  *
  * @author Vyacheslav Rusakov
  * @since 09.02.2023
@@ -25,7 +25,19 @@ public final class HtmlParser {
     private HtmlParser() {
     }
 
-    public static ParseResult parse(File file) {
+    /**
+     * Parse html file (or template, containing html tags). Jsoup is good at parsing html-like structures - it would
+     * correctly find resource tags. But, for non-html templates, jsoup can't be used to modify resource tags
+     * (because it may corrupt template by redundant tags addition or damaging template-specific constructs).
+     * To work around it, exact source tag declaration is extracted so later updated tag could be simply replaced.
+     * <p>
+     * Currently, there is problem with end &lt;/script&gt tag detection: source string would not contain it
+     * (must be counted in further replacements).
+     *
+     * @param file html (template) file
+     * @return parse result (with detected resource tags)
+     */
+    public static ParseResult parse(final File file) {
         try {
             final List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
             final Parser parser = Parser.htmlParser();
@@ -70,6 +82,9 @@ public final class HtmlParser {
         return String.join(System.lineSeparator(), res);
     }
 
+    /**
+     * Html parse result: contains jsoup document tree and extracted js and css elements.
+     */
     public static class ParseResult {
         private final Document document;
         private final List<SourceElement> css;
@@ -81,32 +96,52 @@ public final class HtmlParser {
             this.js = js;
         }
 
+        /**
+         * @return parsed jsoup document
+         */
         public Document getDocument() {
             return document;
         }
 
+        /**
+         * @return css resource reference tags
+         */
         public List<SourceElement> getCss() {
             return css;
         }
 
+        /**
+         * @return js resource reference tags
+         */
         public List<SourceElement> getJs() {
             return js;
         }
     }
 
+    /**
+     * External resource link (jsoup) element with exact source declaration for further replacement.
+     */
     public static class SourceElement {
         private Element element;
         private String source;
 
-        public SourceElement(Element element, String source) {
+        public SourceElement(final Element element, final String source) {
             this.element = element;
             this.source = source;
         }
 
+        /**
+         * @return jsoup element for resource tag
+         */
         public Element getElement() {
             return element;
         }
 
+        /**
+         * NOTE: for script tags, closing tag would not be included (jsoup parsing specific).
+         *
+         * @return tag declaration string
+         */
         public String getSource() {
             return source;
         }

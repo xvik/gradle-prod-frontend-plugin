@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
+ * Hash utilities.
+ *
  * @author Vyacheslav Rusakov
  * @since 22.02.2023
  */
@@ -35,18 +37,40 @@ public class DigestUtils {
         return new SriToken(alg, Base64.getDecoder().decode(token));
     }
 
+    /**
+     * Computes file integrity hash with the same algorithm as specified in integrity string (attribute) and
+     * compares with provided hash.
+     *
+     * @param file      file to check integrity
+     * @param integrity integrity string
+     * @return true if validation token correct (from integrity), false otherwise
+     * @see <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">docs</a>
+     */
     public static boolean validateSriToken(final File file, final String integrity) {
         final SriToken token = parseSri(integrity);
         byte[] hash = hash(file, token.getAlg());
         return Arrays.equals(token.getToken(), hash);
     }
 
+    /**
+     * @param file file to build integrity token for
+     * @param alg  token algorithm (e.g. SHA-384)
+     * @return computed integrity string
+     * @see <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">docs</a>
+     */
     public static String buildSri(final File file, final String alg) {
         byte[] hash = hash(file, alg);
         String res = Base64.getEncoder().encodeToString(hash);
         return alg.replace("-", "").toLowerCase() + "-" + res;
     }
 
+    /**
+     * Build hash with specified algorithm for provided file (not complete SRI token!).
+     *
+     * @param file file to build hash for
+     * @param alg  hash algorithm
+     * @return hash bytes (better for further manipulations, comparing to pure string)
+     */
     public static byte[] hash(final File file, final String alg) {
         byte[] data;
         try {
@@ -61,6 +85,9 @@ public class DigestUtils {
         }
     }
 
+    /**
+     * SRI token object.
+     */
     public static class SriToken {
         private final String alg;
         private final byte[] token;
@@ -70,14 +97,25 @@ public class DigestUtils {
             this.token = token;
         }
 
+        /**
+         * @return token encoding algorithm
+         */
         public String getAlg() {
             return alg;
         }
 
+        /**
+         * @return token bytes
+         */
         public byte[] getToken() {
             return token;
         }
 
+        /**
+         * For logging purposes.
+         *
+         * @return token in string form
+         */
         public String getTokenString() {
             return new String(token, StandardCharsets.UTF_8);
         }

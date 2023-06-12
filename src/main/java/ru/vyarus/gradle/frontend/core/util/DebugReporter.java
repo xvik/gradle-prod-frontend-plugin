@@ -7,13 +7,21 @@ import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.model.root.JsResource;
 
 /**
+ * Debug output reporter. Used to print intermediate optimization state.
+ *
  * @author Vyacheslav Rusakov
  * @since 10.02.2023
  */
 public class DebugReporter {
 
-    public static String buildReport(HtmlPage html) {
-        StringBuilder res = new StringBuilder(FileUtils.relative(html.getBaseDir(), html.getFile())).append("\n");
+    /**
+     * Prints detected resources for html page.
+     *
+     * @param html html page object
+     * @return html file and related resources report
+     */
+    public static String buildReport(final HtmlPage html) {
+        final StringBuilder res = new StringBuilder(FileUtils.relative(html.getBaseDir(), html.getFile())).append("\n");
         for (JsResource js : html.getJs()) {
             res.append("\t").append(js.getTarget());
             appendIgnored(res, js);

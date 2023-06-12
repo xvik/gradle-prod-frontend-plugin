@@ -5,8 +5,8 @@ import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
-import ru.vyarus.gradle.frontend.core.util.UrlUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
+import ru.vyarus.gradle.frontend.core.util.UrlUtils;
 
 import java.io.File;
 
@@ -108,7 +108,7 @@ public class RelativeCssResource extends OptimizedEntity implements SubResourceI
             recordChange(url + " -> " + this.target);
         } else {
             // local file
-            file = new File(css.getFile().getParentFile(), FileUtils.unhash(url));
+            file = new File(css.getFile().getParentFile(), UrlUtils.clearParams(url));
             if (!file.exists()) {
                 System.out.println("WARNING: " + file.getAbsolutePath() + " referenced from "
                         + css.getFile().getAbsolutePath() + " not found");
@@ -133,7 +133,7 @@ public class RelativeCssResource extends OptimizedEntity implements SubResourceI
         if (file != null && file.exists()) {
             String md5 = FileUtils.computeMd5(file);// md5 might be already applied
             if (!getTarget().endsWith(md5)) {
-                String upd = FileUtils.unhash(getTarget()) + "?" + md5;
+                String upd = UrlUtils.clearParams(getTarget()) + "?" + md5;
                 recordChange(target + " -> " + upd);
                 target = upd;
             }

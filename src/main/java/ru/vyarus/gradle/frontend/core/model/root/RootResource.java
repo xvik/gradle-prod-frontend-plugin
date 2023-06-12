@@ -1,16 +1,17 @@
 package ru.vyarus.gradle.frontend.core.model.root;
 
 import org.jsoup.nodes.Element;
+import ru.vyarus.gradle.frontend.core.OptimizationFlow;
+import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
 import ru.vyarus.gradle.frontend.core.stat.Stat;
-import ru.vyarus.gradle.frontend.core.OptimizationFlow;
-import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.util.DigestUtils;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.core.util.SizeFormatter;
 import ru.vyarus.gradle.frontend.core.util.SourceMapUtils;
+import ru.vyarus.gradle.frontend.core.util.UrlUtils;
 import ru.vyarus.gradle.frontend.core.util.minify.MinifyResult;
 import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 
@@ -141,7 +142,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
             }
         } else {
             // local file
-            file = new File(html.getHtmlDir(), FileUtils.unhash(target));
+            file = new File(html.getHtmlDir(), UrlUtils.clearParams(target));
             if (!file.exists()) {
                 System.out.println("WARNING: " + FileUtils.relative(html.getFile(), file) + " (referenced from "
                         + FileUtils.relative(html.getBaseDir(), html.getFile())
@@ -219,7 +220,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
             String md5 = FileUtils.computeMd5(file);
             // md5 might be already applied
             if (!getTarget().endsWith(md5)) {
-                changeTarget(FileUtils.unhash(getTarget()) + "?" + md5);
+                changeTarget(UrlUtils.clearParams(getTarget()) + "?" + md5);
             }
         }
     }

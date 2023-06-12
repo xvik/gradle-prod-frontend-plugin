@@ -1,8 +1,8 @@
 package ru.vyarus.gradle.frontend.core.util;
 
 import org.apache.commons.io.FileUtils;
-import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.info.OptimizationInfo;
+import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
@@ -46,17 +46,15 @@ public final class StatsPrinter {
             writeChanges(debug, html, "", res);
 
             for (ResourceInfo js : html.getJs()) {
-                res.append(String.format("%-70s %s%n",
-                        "  " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(js.getTarget()), formatSizes(js)));
+                res.append(String.format("%-70s %s%n", "  " + UrlUtils.clearParams(js.getTarget()), formatSizes(js)));
                 writeChanges(debug, js, "  ", res);
             }
             for (ResourceInfo css : html.getCss()) {
-                res.append(String.format("%-70s %s%n",
-                        "  " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(css.getTarget()), formatSizes(css)));
+                res.append(String.format("%-70s %s%n", "  " + UrlUtils.clearParams(css.getTarget()), formatSizes(css)));
                 writeChanges(debug, css, "  ", res);
                 for (SubResourceInfo resource : css.getSubResources()) {
                     res.append(String.format("%-70s   %s%n",
-                            "    " + ru.vyarus.gradle.frontend.core.util.FileUtils.unhash(resource.getTarget()), formatSizes(resource)));
+                            "    " + UrlUtils.clearParams(resource.getTarget()), formatSizes(resource)));
                     writeChanges(debug, resource, "    ", res);
                 }
             }

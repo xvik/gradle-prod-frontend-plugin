@@ -12,7 +12,10 @@ import ru.vyarus.gradle.frontend.core.model.root.JsResource;
  * @author Vyacheslav Rusakov
  * @since 10.02.2023
  */
-public class DebugReporter {
+public final class DebugReporter {
+
+    private DebugReporter() {
+    }
 
     /**
      * Prints detected resources for html page.

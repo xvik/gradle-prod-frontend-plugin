@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * @author Vyacheslav Rusakov
  * @since 02.03.2023
  */
-public class SourceMapUtils {
+public final class SourceMapUtils {
 
     /**
      * Source map reference in minified file.
@@ -33,6 +33,9 @@ public class SourceMapUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+    private SourceMapUtils() {
+    }
 
     /**
      * Looks for source map reference in file.

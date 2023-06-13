@@ -13,7 +13,10 @@ import java.util.Base64;
  * @author Vyacheslav Rusakov
  * @since 22.02.2023
  */
-public class DigestUtils {
+public final class DigestUtils {
+
+    private DigestUtils() {
+    }
 
     /**
      * Parse SRI token (integrity attribute in script and link tags). Token consists of two parts: encoding

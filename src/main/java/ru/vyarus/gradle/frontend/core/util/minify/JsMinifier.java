@@ -25,25 +25,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * https://github.com/google/closure-compiler
+ * Js minification with <a href="https://github.com/google/closure-compiler">closure-compiler</a>.
  *
  * @author Vyacheslav Rusakov
  * @since 31.01.2023
  */
 public class JsMinifier implements ResourceMinifier {
 
+    /**
+     * Minify js file.
+     *
+     * @param file       file to minify
+     * @param sourceMaps true to generate source map
+     * @return minification result
+     */
     @Override
     public MinifyResult minify(final File file, final boolean sourceMaps) {
-        String name = file.getName();
-        // if source maps used preserving original file
-        name = FileUtils.getMinName(name);
-        final File target = new File(file.getParentFile(), name);
-        final File sourceMap = new File(target.getAbsolutePath() + ".map");
+        final File target = new File(file.getParentFile(), FileUtils.getMinName(file.getName()));
+        final File sourceMap = sourceMaps ? new File(target.getAbsolutePath() + ".map") : null;
 
         final Compiler compiler = new Compiler();
         // hide errors from log (log manually from result)
-        ErrorManager errors = new ErrorManager(compiler);
+        final ErrorManager errors = new ErrorManager(compiler);
         compiler.setErrorManager(errors);
+        final CompilerOptions options = buildOptions(target, sourceMap);
+        final List<SourceFile> externs = buildExterns(options);
+
+        final Result result = compiler.compile(
+                externs, Collections.singletonList(SourceFile.fromFile(file.getAbsolutePath())), options);
+
+        final String errorsLog = prepareErrorsLog(errors.getMessages());
+
+        if (result.success) {
+            writeFiles(target, sourceMap, compiler.toSource(), result);
+        } else {
+            throw new IllegalStateException("Failed to minify js: " + file.getAbsolutePath() + "\n" + errorsLog);
+        }
+        return new MinifyResult(target, sourceMap, errorsLog.isEmpty() ? null : errorsLog);
+    }
+
+    private CompilerOptions buildOptions(final File target, final File sourceMap) {
         final CompilerOptions options = new CompilerOptions();
         options.setEnvironment(CompilerOptions.Environment.BROWSER);
 
@@ -64,58 +85,64 @@ public class JsMinifier implements ResourceMinifier {
         options.setModuleResolutionMode(ModuleLoader.ResolutionMode.BROWSER);
         options.setProcessCommonJSModules(false);
 
-        if (sourceMaps) {
+        if (sourceMap != null) {
             options.setSourceMapOutputPath(sourceMap.getAbsolutePath());
             // avoid absolute paths in source map
             options.setSourceMapLocationMappings(List.of(
-                    new SourceMap.PrefixLocationMapping(file.getParentFile().getAbsolutePath() + "/", "")));
+                    new SourceMap.PrefixLocationMapping(target.getParentFile().getAbsolutePath() + "/", "")));
         }
 
-        final List<SourceFile> externs;
+        return options;
+    }
+
+    private List<SourceFile> buildExterns(final CompilerOptions options) {
         try {
-            externs = AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment());
+            return AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment());
         } catch (IOException e) {
             throw new IllegalStateException("Failed to prepare built-in externs for closure compiler", e);
         }
-        final Result result = compiler.compile(
-                externs, Collections.singletonList(SourceFile.fromFile(file.getAbsolutePath())), options);
+    }
 
-        String extraLog = String.join("\n", errors.getMessages());
+    private String prepareErrorsLog(final List<String> errors) {
+        String extraLog = String.join("\n", errors);
         if (!extraLog.isEmpty()) {
             extraLog = Arrays.stream(extraLog.split("\n")).map(s -> "\t" + s).collect(Collectors.joining("\n"));
         }
-
-        if (result.success) {
-            String content = compiler.toSource();
-
-            if (sourceMaps) {
-                StringBuilder sm = new StringBuilder();
-                try {
-                    result.sourceMap.appendTo(sm, target.getName());
-                } catch (IOException e) {
-                    throw new IllegalStateException("Failed to generate source maps", e);
-                }
-                FileUtils.writeFile(sourceMap, sm.toString());
-                content += "\n//# sourceMappingURL=" + sourceMap.getName();
-            }
-
-            FileUtils.writeFile(target, content);
-        } else {
-            throw new IllegalStateException("Failed to minify js: " + file.getAbsolutePath() + "\n" + extraLog);
-        }
-        return new MinifyResult(target, sourceMaps ? sourceMap : null, extraLog.isEmpty() ? null : extraLog);
+        return extraLog;
     }
 
+    private void writeFiles(final File target,
+                            final File sourceMap,
+                            final String minified,
+                            final Result minificationData) {
+        String content = minified;
+        if (sourceMap != null) {
+            final StringBuilder sm = new StringBuilder();
+            try {
+                minificationData.sourceMap.appendTo(sm, target.getName());
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to generate source maps", e);
+            }
+            FileUtils.writeFile(sourceMap, sm.toString());
+            content += "\n//# sourceMappingURL=" + sourceMap.getName();
+        }
+        FileUtils.writeFile(target, content);
+    }
+
+    /**
+     * Custom errors manager to avoid "leaking" errors directly in output. Instead, all messages are aggregated
+     * to be appended later into error message.
+     */
     private static class ErrorManager extends BasicErrorManager {
         private final MessageFormatter formatter;
         private final List<String> messages = new ArrayList<>();
 
-        public ErrorManager(Compiler compiler) {
+        public ErrorManager(final Compiler compiler) {
             formatter = new LightweightMessageFormatter(compiler);
         }
 
         @Override
-        public void println(CheckLevel level, JSError error) {
+        public void println(final CheckLevel level, final JSError error) {
             if (level != CheckLevel.OFF) {
                 final String msg = error.format(level, formatter);
                 messages.add(msg);

@@ -2,11 +2,11 @@ package ru.vyarus.gradle.frontend.core.model;
 
 import org.jsoup.nodes.Document;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
+import ru.vyarus.gradle.frontend.core.info.Stat;
 import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
 import ru.vyarus.gradle.frontend.core.model.root.JsResource;
 import ru.vyarus.gradle.frontend.core.model.root.RootResource;
-import ru.vyarus.gradle.frontend.core.stat.Stat;
 import ru.vyarus.gradle.frontend.core.util.DebugReporter;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.HtmlParser;

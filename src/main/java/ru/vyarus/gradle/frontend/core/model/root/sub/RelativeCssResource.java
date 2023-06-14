@@ -3,7 +3,7 @@ package ru.vyarus.gradle.frontend.core.model.root.sub;
 import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
 import ru.vyarus.gradle.frontend.core.model.root.CssResource;
-import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.Stat;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
 import ru.vyarus.gradle.frontend.core.util.UrlUtils;

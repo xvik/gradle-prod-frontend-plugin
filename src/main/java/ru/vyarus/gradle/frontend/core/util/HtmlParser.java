@@ -122,8 +122,8 @@ public final class HtmlParser {
      * External resource link (jsoup) element with exact source declaration for further replacement.
      */
     public static class SourceElement {
-        private Element element;
-        private String source;
+        private final Element element;
+        private final String source;
 
         public SourceElement(final Element element, final String source) {
             this.element = element;

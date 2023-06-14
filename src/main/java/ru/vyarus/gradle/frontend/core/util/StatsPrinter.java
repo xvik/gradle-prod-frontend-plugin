@@ -6,7 +6,7 @@ import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
-import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.Stat;
 
 import java.io.File;
 import java.util.Arrays;

@@ -1,6 +1,6 @@
 package ru.vyarus.gradle.frontend.core.model;
 
-import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.Stat;
 import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
 
 import java.util.ArrayList;

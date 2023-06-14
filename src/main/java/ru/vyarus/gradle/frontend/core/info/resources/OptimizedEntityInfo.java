@@ -1,6 +1,6 @@
 package ru.vyarus.gradle.frontend.core.info.resources;
 
-import ru.vyarus.gradle.frontend.core.stat.Stat;
+import ru.vyarus.gradle.frontend.core.info.Stat;
 
 import java.util.List;
 import java.util.Map;

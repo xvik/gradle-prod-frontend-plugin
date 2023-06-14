@@ -52,7 +52,7 @@ public final class ResourceLoader {
         File res = null;
         try {
             res = UrlUtils.smartDownload(url, new File(targetDir, name));
-            if (res != null) {
+            if (res.exists() && res.length() > 0) {
                 System.out.println("\tMinified version found and downloaded");
             }
         } catch (Exception ex) {

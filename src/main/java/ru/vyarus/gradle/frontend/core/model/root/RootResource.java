@@ -5,7 +5,7 @@ import ru.vyarus.gradle.frontend.core.OptimizationFlow;
 import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
-import ru.vyarus.gradle.frontend.core.info.Stat;
+import ru.vyarus.gradle.frontend.core.info.SizeType;
 import ru.vyarus.gradle.frontend.core.util.DigestUtils;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
@@ -18,21 +18,57 @@ import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 import java.io.File;
 
 /**
+ * Root css or js resource (declared in html page).
+ *
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
 public abstract class RootResource extends OptimizedEntity implements ResourceInfo {
 
+    /**
+     * "integrity" attribute.
+     */
     public static final String INTEGRITY_ATTR = "integrity";
+    /**
+     * "crossorigin" attribute.
+     */
+    public static final String CROSSORIGIN_ATTR = "crossorigin";
+    /**
+     * Html pare, referenced this resource.
+     */
     protected final HtmlPage html;
+    /**
+     * Resource tag element (from jsoup tree).
+     */
     protected final Element element;
+    /**
+     * Local resource file (may be null for not yet downloaded or absent resource).
+     */
     protected File file;
+    /**
+     * Source map file (may be null for not yet downloaded or if source map disabled).
+     */
     protected File sourceMap;
+    /**
+     * Gzip file (may be null if not yet generated)
+     */
     protected File gzip;
+    /**
+     * Url attribute name (to support both js and css tags).
+     */
     protected final String attr;
+    /**
+     * Directory to store downloaded resource.
+     */
     protected final File dir;
-
+    /**
+     * True for remote resource (download required).
+     */
     protected boolean remote;
+    /**
+     * Resource tag declaration in the original html file (for further replacement).
+     * Note that script tag may miss closing tag (due to jsoup specifics).
+     */
     protected final String sourceDeclaration;
 
     public RootResource(final HtmlPage html,
@@ -47,10 +83,17 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         this.sourceDeclaration = sourceDeclaration;
     }
 
+    /**
+     * @return html page declared link to this resource
+     */
     public HtmlPage getHtml() {
         return html;
     }
 
+    /**
+     *
+     * @return optimization settings (immutable)
+     */
     public OptimizationFlow.Settings getSettings() {
         return getHtml().getSettings();
     }
@@ -82,7 +125,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
 
     @Override
     public String getIntegrity() {
-        final String integrity = element.attr("integrity");
+        final String integrity = element.attr(INTEGRITY_ATTR);
         return integrity.isEmpty() ? null : integrity;
     }
 
@@ -96,50 +139,16 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         return gzip;
     }
 
+    // ACTIONS ---------------------------------------------------------------------
+
+    /**
+     * Download remote resource or check local file for existence.
+     */
     public void resolve() {
         final String target = getTarget();
 
         if (target.toLowerCase().startsWith("http")) {
-            remote = true;
-            if (getSettings().isDownloadResources()) {
-                // url - just downloading it to local directory here (as-is)
-                file = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
-                        getSettings().isDownloadSourceMaps(), dir);
-                if (file == null) {
-                    // leave link as is - no optimizations
-                    System.out.println("WARNING: failed to download resource " + target);
-                    ignore("download fail");
-                } else {
-                    // if integrity tag specified - validate loaded file
-                    if (getIntegrity() != null) {
-                        if (!DigestUtils.validateSriToken(file, getIntegrity())) {
-                            final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
-                            final String validSri = DigestUtils.buildSri(file, alg);
-                            System.out.println("Loaded file deleted because of integrity tag validation fail: "
-                                    + file.getAbsolutePath());
-                            // delete invalid file
-                            file.delete();
-                            throw new IllegalStateException("Integrity check failed for downloaded file " + target
-                                    + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + validSri);
-                        }
-                        System.out.println("Integrity check for " + target + " OK");
-                    }
-                    // update target
-                    changeTarget(FileUtils.relative(html.getFile(), file));
-
-                    // removing crossorigin and integrity attributes (e.g. bootstrap example suggest using them)
-                    if (element.hasAttr("crossorigin")) {
-                        element.removeAttr("crossorigin");
-                        recordChange("crossorigin removed");
-                    }
-                    if (element.hasAttr(INTEGRITY_ATTR)) {
-                        element.removeAttr(INTEGRITY_ATTR);
-                        recordChange("integrity removed");
-                    }
-                }
-            } else {
-                ignore("remote resource");
-            }
+           download(target);
         } else {
             // local file
             file = new File(html.getHtmlDir(), UrlUtils.clearParams(target));
@@ -162,22 +171,30 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         }
 
         if (file != null && file.exists()) {
-            recordStat(Stat.ORIGINAL, file.length());
+            recordSize(SizeType.ORIGINAL, file.length());
         }
     }
 
-    public void changeTarget(String url) {
+    /**
+     * Replace file url (usually, after download to local file path).
+     *
+     * @param url new url
+     */
+    public void changeTarget(final String url) {
         final String old = element.attr(attr);
         element.attr(attr, url);
         recordChange(old + " -> " + url);
     }
 
+    /**
+     * Minify file, if it's not already minified (has no ".min" in its name).
+     */
     public void minify() {
         if (isIgnored() || file.getName().toLowerCase().contains(".min.")) {
             // already minified
             return;
         }
-        long size = file.length();
+        final long size = file.length();
         System.out.print("Minify " + FileUtils.relative(html.getBaseDir(), file));
         try {
             final MinifyResult min = getMinifier().minify(file, getSettings().isGenerateSourceMaps());
@@ -197,7 +214,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
             changeFile(min.getMinified());
             sourceMap(min.getSourceMap());
 
-            recordStat(Stat.MODIFIED, min.getMinified().length());
+            recordSize(SizeType.MODIFIED, min.getMinified().length());
             recordChange("minified");
         } catch (RuntimeException ex) {
             System.out.println(" FAILED");
@@ -205,6 +222,9 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         }
     }
 
+    /**
+     * Compute SRI token and add integrity attribute.
+     */
     public void applyIntegrity() {
         // if integrity tag exists then it is assumed to be already validated (during resolve)
         if (!isIgnored() && getIntegrity() == null) {
@@ -214,7 +234,14 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         }
     }
 
-    // IMPORTANT must be applied after possible minification (last steps!)
+    /**
+     * Compute MD5 for js and css files and apply it into urls.
+     * NOTE: MD5 applied to urls in css sub resources under {@link #resolve()} (because without it impossible
+     * to properly apply integrity and md5 for root css).
+     * <p>
+     * IMPORTANT must be applied after possible minification (last steps!) because, obviously, any further
+     * modifications would make generated md5 invalid.
+     */
     public void applyMd5() {
         if (file != null && file.exists()) {
             String md5 = FileUtils.computeMd5(file);
@@ -225,11 +252,15 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         }
     }
 
-    // IMPORTANT must be applied after possible minification (last steps!)
+    /**
+     * Generate gzip files for html and all related resources.
+     * IMPORTANT must be applied after possible minification (last steps!) because, obviously, any further
+     * modifications would make generated gzip invalid.
+     */
     public void gzip() {
         if (file != null && file.exists()) {
             gzip = FileUtils.gzip(file, html.getBaseDir());
-            recordStat(Stat.GZIP, gzip.length());
+            recordSize(SizeType.GZIPPED, gzip.length());
         }
         // gzip source map file (remote source maps would contain all sources)
         if (sourceMap != null && sourceMap.exists()) {
@@ -237,7 +268,54 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         }
     }
 
+    /**
+     *
+     * @return resource minifier implementation
+     */
     protected abstract ResourceMinifier getMinifier();
+
+    private void download(final String target) {
+        remote = true;
+        if (getSettings().isDownloadResources()) {
+            // url - just downloading it to local directory here (as-is)
+            file = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
+                    getSettings().isDownloadSourceMaps(), dir);
+            if (file == null) {
+                // leave link as is - no optimizations
+                System.out.println("WARNING: failed to download resource " + target);
+                ignore("download fail");
+            } else {
+                // if integrity tag specified - validate loaded file
+                if (getIntegrity() != null) {
+                    if (!DigestUtils.validateSriToken(file, getIntegrity())) {
+                        final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
+                        final String validSri = DigestUtils.buildSri(file, alg);
+                        System.out.println("Loaded file deleted because of integrity tag validation fail: "
+                                + file.getAbsolutePath());
+                        // delete invalid file
+                        file.delete();
+                        throw new IllegalStateException("Integrity check failed for downloaded file " + target
+                                + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + validSri);
+                    }
+                    System.out.println("Integrity check for " + target + " OK");
+                }
+                // update target
+                changeTarget(FileUtils.relative(html.getFile(), file));
+
+                // removing crossorigin and integrity attributes (e.g. bootstrap example suggest using them)
+                if (element.hasAttr(CROSSORIGIN_ATTR)) {
+                    element.removeAttr(CROSSORIGIN_ATTR);
+                    recordChange("crossorigin removed");
+                }
+                if (element.hasAttr(INTEGRITY_ATTR)) {
+                    element.removeAttr(INTEGRITY_ATTR);
+                    recordChange("integrity removed");
+                }
+            }
+        } else {
+            ignore("remote resource");
+        }
+    }
 
     private void changeFile(final File file) {
         if (!this.file.equals(file)) {

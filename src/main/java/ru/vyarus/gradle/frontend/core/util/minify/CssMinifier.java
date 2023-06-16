@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
  * Csso is a js tool, executed using <a href="https://www.graalvm.org/latest/security-guide/polyglot-sandbox/">graalvm
  * </a>, so no local nodejs required.
  * <p>
+ * NOTE: Relative resources are not minified! (even css from import). Small images are not converted into data-urls!
+ * <p>
  * Csso js is bundled inside jar. The latest csso version could be loaded from
  * <a href="https://cdn.jsdelivr.net/npm/csso">cdn</a>.
  *

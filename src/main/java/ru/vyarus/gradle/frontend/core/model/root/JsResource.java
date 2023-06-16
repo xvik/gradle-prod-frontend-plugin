@@ -10,12 +10,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * JS root resource (referenced from html).
  *
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
 public class JsResource extends RootResource {
 
+    /**
+     * Script tag attribute with url.
+     */
     public static final String ATTR = "src";
 
     public JsResource(final HtmlPage html, final Element element, final String sourceDeclaration) {

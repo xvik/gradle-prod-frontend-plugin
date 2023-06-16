@@ -2,7 +2,7 @@ package ru.vyarus.gradle.frontend.core.model.root;
 
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
-import ru.vyarus.gradle.frontend.core.model.root.sub.RelativeCssResource;
+import ru.vyarus.gradle.frontend.core.model.root.sub.CssSubResource;
 import ru.vyarus.gradle.frontend.core.util.CssUtils;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.UrlUtils;
@@ -19,15 +19,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * relative resources are not minified! (even css from import)
- * small images are not converted into data-urls!
+ * CSS root resource (referenced from html). Css resource may have relative resources like fonts or images.
+ * Relative resources must be also downloaded and urls inside css must be updated with MD5 hashes.
+ * This must be performed before further processing because this assumes root css file modification (which affects
+ * its MD5 and SRI calculation).
+ * <p>
+ * NOTE: Relative resources are not minified! (even css from import). Small images are not converted into data-urls!
  *
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
 public class CssResource extends RootResource {
-    // link to relative file reference
-    private final List<RelativeCssResource> urls = new ArrayList<>();
+    /**
+     * Sub resources (fonts, images etc).
+     */
+    private final List<CssSubResource> urls = new ArrayList<>();
+    /**
+     * Link tag attribute with url.
+     */
     public static final String ATTR = "href";
 
     public CssResource(final HtmlPage html, final Element element, final String sourceDeclaration) {
@@ -45,14 +54,14 @@ public class CssResource extends RootResource {
             resolveSubLinks(url);
 
             // overwrite css with new links
-            final List<RelativeCssResource> overrides = urls.stream()
+            final List<CssSubResource> overrides = urls.stream()
                     .filter(resource -> resource.isRemote() && !resource.isIgnored())
                     .collect(Collectors.toList());
             if (!overrides.isEmpty()) {
                 try {
                     // replacing like this to not harm minification
                     String content = Files.readString(file.toPath());
-                    for (RelativeCssResource resource : overrides) {
+                    for (CssSubResource resource : overrides) {
                         if (getSettings().isApplyAntiCache()) {
                             resource.applyMd5();
                         }
@@ -78,11 +87,12 @@ public class CssResource extends RootResource {
     @Override
     public void gzip() {
         super.gzip();
-        urls.forEach(RelativeCssResource::gzip);
+        // gzip also all sub-resources
+        urls.forEach(CssSubResource::gzip);
     }
 
     @Override
-    public List<RelativeCssResource> getSubResources() {
+    public List<CssSubResource> getSubResources() {
         return urls;
     }
 
@@ -93,7 +103,7 @@ public class CssResource extends RootResource {
 
     private void resolveSubLinks(final String url) {
         // css could link other css (@import), fonts and images
-        CssUtils.findLinks(file).forEach(link -> urls.add(new RelativeCssResource(this, link)));
+        CssUtils.findLinks(file).forEach(link -> urls.add(new CssSubResource(this, link)));
         // if css was loaded, relative resources must be also loaded
         final String urlBase = remote ? UrlUtils.getBaseUrl(url) : null;
         urls.forEach(relativeCssResource -> relativeCssResource.resolve(getSettings().isDownloadResources(), urlBase));
@@ -101,10 +111,10 @@ public class CssResource extends RootResource {
         // check for duplicates (e.g. there might be similar links to web-font files)
         // remove duplicates only with exactly the same url!, preserving different urls for the same file
         // (important for proper replacement in css)
-        final Iterator<RelativeCssResource> it = urls.iterator();
+        final Iterator<CssSubResource> it = urls.iterator();
         final Set<String> added = new HashSet<>();
         while (it.hasNext()) {
-            final RelativeCssResource res = it.next();
+            final CssSubResource res = it.next();
             if (res.getFile() != null) {
                 final String path = res.getUrl();
                 if (added.contains(path)) {

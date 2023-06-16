@@ -6,7 +6,7 @@ package ru.vyarus.gradle.frontend.core.info;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public enum Stat {
+public enum SizeType {
 
     /**
      * Original file size. For downloaded file might be already minified size, if minified version loaded from cdn.
@@ -19,5 +19,5 @@ public enum Stat {
     /**
      * Gzipped file size.
      */
-    GZIP
+    GZIPPED
 }

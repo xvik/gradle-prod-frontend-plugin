@@ -1,6 +1,6 @@
 package ru.vyarus.gradle.frontend.core.info.resources;
 
-import ru.vyarus.gradle.frontend.core.info.Stat;
+import ru.vyarus.gradle.frontend.core.info.SizeType;
 
 import java.util.List;
 import java.util.Map;
@@ -37,5 +37,5 @@ public interface OptimizedEntityInfo {
     /**
      * @return recorded entity stats (original size - optimized size)
      */
-    Map<Stat, Long> getStats();
+    Map<SizeType, Long> getStats();
 }

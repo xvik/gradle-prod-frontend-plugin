@@ -6,7 +6,7 @@ import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.info.resources.root.sub.SubResourceInfo;
-import ru.vyarus.gradle.frontend.core.info.Stat;
+import ru.vyarus.gradle.frontend.core.info.SizeType;
 
 import java.io.File;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public final class StatsPrinter {
             if (!html.getCss().isEmpty() || html.getJs().isEmpty()) {
                 res.append(String.format("%-70s %s", "", sumLine));
                 res.append(String.format("%-70s %-15s%-15s%-15s%n", "",
-                        sum(html, Stat.ORIGINAL), sum(html, Stat.MODIFIED), sum(html, Stat.GZIP)));
+                        sum(html, SizeType.ORIGINAL), sum(html, SizeType.MODIFIED), sum(html, SizeType.GZIPPED)));
             }
         }
         return res.toString();
@@ -72,12 +72,12 @@ public final class StatsPrinter {
         if (file.isIgnored()) {
             return file.getIgnoreReason();
         }
-        return formatSizes(file.getStats(), Stat.ORIGINAL, Stat.MODIFIED, Stat.GZIP);
+        return formatSizes(file.getStats(), SizeType.ORIGINAL, SizeType.MODIFIED, SizeType.GZIPPED);
     }
 
-    private static String formatSizes(final Map<Stat, Long> stats, final Stat... sequence) {
+    private static String formatSizes(final Map<SizeType, Long> stats, final SizeType... sequence) {
         final StringBuilder res = new StringBuilder();
-        for (Stat stat : sequence) {
+        for (SizeType stat : sequence) {
             // use whitespace to keep table columns for files without minifiction
             res.append(String.format("%-15s", stats.containsKey(stat)
                     ? FileUtils.byteCountToDisplaySize(stats.get(stat)) : ""));
@@ -85,28 +85,28 @@ public final class StatsPrinter {
         return res.toString();
     }
 
-    private static String sum(final HtmlInfo html, final Stat stat) {
+    private static String sum(final HtmlInfo html, final SizeType stat) {
         long res = getStat(html, stat);
         for (ResourceInfo css : html.getCss()) {
             // avoid ignored
-            if (css.getStats().containsKey(Stat.ORIGINAL)) {
+            if (css.getStats().containsKey(SizeType.ORIGINAL)) {
                 res += getStat(css, stat);
             }
         }
         for (ResourceInfo js : html.getJs()) {
             // avoid ignored
-            if (js.getStats().containsKey(Stat.ORIGINAL)) {
+            if (js.getStats().containsKey(SizeType.ORIGINAL)) {
                 res += getStat(js, stat);
             }
         }
         return String.format("%-15s", FileUtils.byteCountToDisplaySize(res));
     }
 
-    private static long getStat(final OptimizedEntityInfo item, final Stat stat) {
-        Stat target = stat;
+    private static long getStat(final OptimizedEntityInfo item, final SizeType stat) {
+        SizeType target = stat;
         // going backward for stats because something might be missing (e.g. minification if file already minimized)
         while (!item.getStats().containsKey(target)) {
-            target = Stat.values()[target.ordinal() - 1];
+            target = SizeType.values()[target.ordinal() - 1];
         }
         return item.getStats().get(target);
     }

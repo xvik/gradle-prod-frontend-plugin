@@ -31,7 +31,7 @@ public final class HtmlParser {
      * (because it may corrupt template by redundant tags addition or damaging template-specific constructs).
      * To work around it, exact source tag declaration is extracted so later updated tag could be simply replaced.
      * <p>
-     * Currently, there is problem with end &lt;/script&gt tag detection: source string would not contain it
+     * Currently, there is problem with end &lt;/script&gt; tag detection: source string would not contain it
      * (must be counted in further replacements).
      *
      * @param file html (template) file

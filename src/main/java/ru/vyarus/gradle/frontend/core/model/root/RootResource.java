@@ -23,6 +23,7 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
+@SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.SystemPrintln"})
 public abstract class RootResource extends OptimizedEntity implements ResourceInfo {
 
     /**
@@ -50,7 +51,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
      */
     protected File sourceMap;
     /**
-     * Gzip file (may be null if not yet generated)
+     * Gzip file (may be null if not yet generated).
      */
     protected File gzip;
     /**
@@ -91,7 +92,6 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
     }
 
     /**
-     *
      * @return optimization settings (immutable)
      */
     public OptimizationFlow.Settings getSettings() {
@@ -148,7 +148,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         final String target = getTarget();
 
         if (target.toLowerCase().startsWith("http")) {
-           download(target);
+            download(target);
         } else {
             // local file
             file = new File(html.getHtmlDir(), UrlUtils.clearParams(target));
@@ -244,7 +244,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
      */
     public void applyMd5() {
         if (file != null && file.exists()) {
-            String md5 = FileUtils.computeMd5(file);
+            final String md5 = FileUtils.computeMd5(file);
             // md5 might be already applied
             if (!getTarget().endsWith(md5)) {
                 changeTarget(UrlUtils.clearParams(getTarget()) + "?" + md5);
@@ -269,7 +269,6 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
     }
 
     /**
-     *
      * @return resource minifier implementation
      */
     protected abstract ResourceMinifier getMinifier();
@@ -320,7 +319,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
     private void changeFile(final File file) {
         if (!this.file.equals(file)) {
             // assuming files are in the same directory
-            String url = getTarget().replace(this.file.getName(), file.getName());
+            final String url = getTarget().replace(this.file.getName(), file.getName());
             this.file = file;
             changeTarget(url);
         }

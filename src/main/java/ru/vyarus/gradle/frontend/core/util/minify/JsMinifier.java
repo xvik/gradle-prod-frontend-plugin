@@ -75,7 +75,7 @@ public class JsMinifier implements ResourceMinifier {
 
         final CompilationLevel level = CompilationLevel.SIMPLE_OPTIMIZATIONS;
         level.setOptionsForCompilationLevel(options);
-//        level.setDebugOptionsForCompilationLevel(options);
+        // level.setDebugOptionsForCompilationLevel(options);
 
         // files compiled separately - no way to properly apply
         options.setRemoveDeadCode(false);
@@ -137,7 +137,7 @@ public class JsMinifier implements ResourceMinifier {
         private final MessageFormatter formatter;
         private final List<String> messages = new ArrayList<>();
 
-        public ErrorManager(final Compiler compiler) {
+        ErrorManager(final Compiler compiler) {
             formatter = new LightweightMessageFormatter(compiler);
         }
 
@@ -151,6 +151,7 @@ public class JsMinifier implements ResourceMinifier {
 
         @Override
         protected void printSummary() {
+            // no need
         }
 
         public List<String> getMessages() {

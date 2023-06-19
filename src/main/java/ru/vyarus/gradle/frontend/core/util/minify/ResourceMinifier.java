@@ -15,5 +15,5 @@ public interface ResourceMinifier {
      * @param sourceMap true to generate source map
      * @return minification result
      */
-    MinifyResult minify(final File file, final boolean sourceMap);
+    MinifyResult minify(File file, boolean sourceMap);
 }

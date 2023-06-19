@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  * @author Vyacheslav Rusakov
  * @since 02.03.2023
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public final class SourceMapUtils {
 
     /**
@@ -28,7 +29,7 @@ public final class SourceMapUtils {
     private static final Pattern SOURCE_URL = Pattern.compile("sourceMappingURL=([^ *]+)");
 
     /**
-     * Pure jackson used for source map read/write
+     * Pure jackson used for source map read/write.
      */
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -77,15 +78,15 @@ public final class SourceMapUtils {
             // do nothing - content already included
             return;
         }
-        final List<String> content = new ArrayList<>();
-        File tmp;
+        final File tmp;
         try {
             tmp = Files.createTempFile("sourceMapSource", "download").toFile();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to create tmp file for download", e);
         }
 
         final String base = baseUrl + (map.getSourceRoot() == null ? "" : map.getSourceRoot());
+        final List<String> content = new ArrayList<>();
         for (String src : map.getSources()) {
             try {
                 UrlUtils.download(base + src, tmp, "\t");
@@ -93,7 +94,7 @@ public final class SourceMapUtils {
                 System.out.println("\t" + src + " (" + FileUtils.byteCountToDisplaySize(tmp.length())
                         + ") embedded into " + sourceMap.getName());
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to load source files for source map " + sourceMap.getName());
+                throw new IllegalStateException("Failed to load source files for source map " + sourceMap.getName(), e);
             }
         }
         tmp.delete();
@@ -109,7 +110,7 @@ public final class SourceMapUtils {
      * @param sourceMap source map file
      */
     public static void includeSources(final File sourceMap) {
-        SourceMap map = parse(sourceMap);
+        final SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {
             System.out.println("\tSource map " + sourceMap.getName() + " already contain sources");
             // do nothing - content already included

@@ -36,7 +36,7 @@ public final class DigestUtils {
         if (!alg.contains("-") && alg.toLowerCase().startsWith("sha")) {
             alg = "SHA-" + alg.substring(3);
         }
-        String token = integrity.substring(idx + 1);
+        final String token = integrity.substring(idx + 1);
         return new SriToken(alg, Base64.getDecoder().decode(token));
     }
 
@@ -51,7 +51,7 @@ public final class DigestUtils {
      */
     public static boolean validateSriToken(final File file, final String integrity) {
         final SriToken token = parseSri(integrity);
-        byte[] hash = hash(file, token.getAlg());
+        final byte[] hash = hash(file, token.getAlg());
         return Arrays.equals(token.getToken(), hash);
     }
 
@@ -62,8 +62,8 @@ public final class DigestUtils {
      * @see <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">docs</a>
      */
     public static String buildSri(final File file, final String alg) {
-        byte[] hash = hash(file, alg);
-        String res = Base64.getEncoder().encodeToString(hash);
+        final byte[] hash = hash(file, alg);
+        final String res = Base64.getEncoder().encodeToString(hash);
         return alg.replace("-", "").toLowerCase() + "-" + res;
     }
 
@@ -75,7 +75,7 @@ public final class DigestUtils {
      * @return hash bytes (better for further manipulations, comparing to pure string)
      */
     public static byte[] hash(final File file, final String alg) {
-        byte[] data;
+        final byte[] data;
         try {
             data = Files.readAllBytes(file.toPath());
         } catch (Exception e) {
@@ -84,7 +84,8 @@ public final class DigestUtils {
         try {
             return MessageDigest.getInstance(alg).digest(data);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to calculate " + alg + " hash for file " + file.getAbsolutePath(), e);
+            throw new IllegalStateException("Failed to calculate " + alg + " hash for file "
+                    + file.getAbsolutePath(), e);
         }
     }
 
@@ -110,6 +111,7 @@ public final class DigestUtils {
         /**
          * @return token bytes
          */
+        @SuppressWarnings("PMD.MethodReturnsInternalArray")
         public byte[] getToken() {
             return token;
         }

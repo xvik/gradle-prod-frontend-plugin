@@ -24,13 +24,13 @@ public final class DebugReporter {
      * @return html file and related resources report
      */
     public static String buildReport(final HtmlPage html) {
-        final StringBuilder res = new StringBuilder(FileUtils.relative(html.getBaseDir(), html.getFile())).append("\n");
+        final StringBuilder res = new StringBuilder(FileUtils.relative(html.getBaseDir(), html.getFile())).append('\n');
         for (JsResource js : html.getJs()) {
-            res.append("\t").append(js.getTarget());
+            res.append('\t').append(js.getTarget());
             appendIgnored(res, js);
         }
         for (CssResource css : html.getCss()) {
-            res.append("\t").append(css.getTarget());
+            res.append('\t').append(css.getTarget());
             appendIgnored(res, css);
             if (!css.getSubResources().isEmpty()) {
                 for (SubResourceInfo rel : css.getSubResources()) {
@@ -44,8 +44,8 @@ public final class DebugReporter {
 
     private static void appendIgnored(final StringBuilder res, final OptimizedEntityInfo item) {
         if (item.isIgnored()) {
-            res.append(" (").append(item.getIgnoreReason()).append(")");
+            res.append(" (").append(item.getIgnoreReason()).append(')');
         }
-        res.append("\n");
+        res.append('\n');
     }
 }

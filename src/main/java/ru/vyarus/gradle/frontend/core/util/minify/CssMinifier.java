@@ -49,7 +49,7 @@ public class CssMinifier implements ResourceMinifier {
 
         File localCsso = null;
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (final Context context = Context.newBuilder("js")
+        try (Context context = Context.newBuilder("js")
                 .currentWorkingDirectory(file.getParentFile().toPath())
                 .out(output)
                 .err(output)
@@ -82,26 +82,26 @@ public class CssMinifier implements ResourceMinifier {
 
     private File copyCsso(final File target) throws IOException {
         final File localCsso = new File(target.getParentFile(), LOCAL_CSSO);
-        InputStream in = CssMinifier.class.getResourceAsStream("/csso.js");
+        final InputStream in = CssMinifier.class.getResourceAsStream("/csso.js");
         Files.write(localCsso.toPath(), in.readAllBytes());
         in.close();
         return localCsso;
     }
 
     private String buildExecutionCode(final String sourceFileName, final boolean generateSourceMap) {
-        String options;
+        final String options;
         if (generateSourceMap) {
             options = "{ sourceMap: true, filename: '" + sourceFileName + "'}";
         } else {
             options = "{}";
         }
 
-        return "import { minify } from '" + LOCAL_CSSO + "';" +
-                "var res = minify(css, " + options + ");" +
-                "if (res.map) {" +
-                "   res.sourceMap = res.map.toString();" +
-                "}" +
-                "res;";
+        return "import { minify } from '" + LOCAL_CSSO + "';"
+                + "var res = minify(css, " + options + ");"
+                + "if (res.map) {"
+                + "   res.sourceMap = res.map.toString();"
+                + "}"
+                + "res;";
     }
 
     private String formatOutput(final ByteArrayOutputStream stream) {
@@ -115,8 +115,8 @@ public class CssMinifier implements ResourceMinifier {
 
     private void writeFiles(final File target, final File sourceMap, final Value res) throws IOException {
         String minified = res.getMember("css").asString();
-        final String sourceMapContent = res.getMember("sourceMap") != null ?
-                res.getMember("sourceMap").asString() : null;
+        final String sourceMapContent = res.getMember("sourceMap") != null
+                ? res.getMember("sourceMap").asString() : null;
 
         if (sourceMapContent != null) {
             minified += "\n/*# sourceMappingURL=" + sourceMap.getName() + "*/";

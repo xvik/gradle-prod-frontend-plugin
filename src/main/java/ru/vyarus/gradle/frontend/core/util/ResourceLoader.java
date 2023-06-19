@@ -8,6 +8,7 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 03.02.2023
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public final class ResourceLoader {
 
     private ResourceLoader() {

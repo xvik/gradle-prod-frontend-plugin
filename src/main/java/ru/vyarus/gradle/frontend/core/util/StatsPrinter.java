@@ -29,6 +29,7 @@ public final class StatsPrinter {
      * @param result optimization info
      * @return rendered stats table
      */
+    @SuppressWarnings("checkstyle:MultipleStringLiterals")
     public static String print(final OptimizationInfo result) {
         final File baseDir = result.getSettings().getBaseDir();
         final String basePath = baseDir.getAbsolutePath() + "/";
@@ -131,9 +132,9 @@ public final class StatsPrinter {
                                      final StringBuilder res) {
         if (debug && item.hasChanges()) {
             res.append(prefix).append("| changes:\n");
-            item.getChanges().forEach(s -> res.append(prefix).append("| \t").append(s).append("\n"));
+            item.getChanges().forEach(s -> res.append(prefix).append("| \t").append(s).append('\n'));
             // extra line to separate from the following items
-            res.append("\n");
+            res.append('\n');
         }
     }
 }

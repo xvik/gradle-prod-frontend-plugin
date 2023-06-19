@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  * @author Vyacheslav Rusakov
  * @since 04.02.2023
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public final class UrlUtils {
 
     private static final Pattern URL_BASE = Pattern.compile("https?://[^/:]+(:\\d+)?");
@@ -75,7 +76,7 @@ public final class UrlUtils {
      * @throws java.lang.IllegalStateException if base url can't be detected
      */
     public static String getBaseUrl(final String url) throws IllegalStateException {
-        int idx = getNameSeparatorPos(url);
+        final int idx = getNameSeparatorPos(url);
         if (idx > 0) {
             return url.substring(0, idx + 1);
         } else {
@@ -119,9 +120,8 @@ public final class UrlUtils {
      * @return true if file extension present, false otherwise
      */
     public static boolean hasExtension(final String url) {
-        String clean = clearParams(url);
-        String name = getFileName(clean);
-        int idx = name.lastIndexOf('.');
+        final String name = getFileName(clearParams(url));
+        final int idx = name.lastIndexOf('.');
         return name.length() - idx <= 4;
     }
 
@@ -132,7 +132,7 @@ public final class UrlUtils {
      * @return file name
      */
     public static String getFileName(final String url) {
-        String res = clearParams(url);
+        final String res = clearParams(url);
         final int idx = getNameSeparatorPos(res);
         if (idx >= 0) {
             return res.substring(idx + 1);
@@ -148,11 +148,11 @@ public final class UrlUtils {
      * @param url url to purify
      * @return url without parameters part
      */
-    public static String clearParams(String url) {
+    public static String clearParams(final String url) {
         String res = url;
         // cut off possible redundant parts (maybe default anti-cache)
         for (char sep : Arrays.asList('?', '#')) {
-            int i = res.indexOf(sep);
+            final int i = res.indexOf(sep);
             if (i > 0) {
                 res = res.substring(0, i);
             }
@@ -174,9 +174,9 @@ public final class UrlUtils {
                 .selectNotExistingFile(target.getParentFile(), target.getName());
         download(url, res);
         if (!res.getName().equals(target.getName())) {
-            if (res.length() == target.length() &&
-                    ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(res)
-                            .equals(ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(target))) {
+            if (res.length() == target.length()
+                    && ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(res)
+                    .equals(ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(target))) {
                 System.out.println("\tDownloaded file is the same as already existing file, using existing file");
                 // same as existing file, remove downloaded
                 res.delete();
@@ -209,10 +209,11 @@ public final class UrlUtils {
      * @param logPrefix prefix for all messages (used to show "in context" of something)
      * @throws Exception on download error
      */
+    @SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance", "PMD.AvoidFileStream"})
     public static void download(final String urlStr, final File file, final String logPrefix) throws Exception {
         System.out.print(logPrefix + "Download ");
         try {
-            long time = System.currentTimeMillis();
+            final long time = System.currentTimeMillis();
             // remove ../ parts in url
             final URL url = new URI(urlStr).normalize().toURL();
             System.out.print(url);

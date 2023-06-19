@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public final class CssUtils {
 
     /**
-     * Url extractor pattern (inside CSS)ю
+     * Url extractor pattern (inside CSS).
      */
     public static final Pattern URL_PATTERN = Pattern.compile(
             "url\\s*\\(\\s*['\"]?(?<url>[^'\")]*)\\s*['\"]?", Pattern.DOTALL);
@@ -32,7 +32,7 @@ public final class CssUtils {
      * @return found urls or empty list
      */
     public static List<String> findLinks(final File file) {
-        String content;
+        final String content;
         try {
             content = Files.readString(file.toPath());
         } catch (IOException e) {

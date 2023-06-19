@@ -30,14 +30,15 @@ import java.util.stream.Collectors;
  * @since 30.01.2023
  */
 public class CssResource extends RootResource {
-    /**
-     * Sub resources (fonts, images etc).
-     */
-    private final List<CssSubResource> urls = new ArrayList<>();
+
     /**
      * Link tag attribute with url.
      */
     public static final String ATTR = "href";
+    /**
+     * Sub resources (fonts, images etc).
+     */
+    private final List<CssSubResource> urls = new ArrayList<>();
 
     public CssResource(final HtmlPage html, final Element element, final String sourceDeclaration) {
         super(html, element, sourceDeclaration, ATTR, html.getSettings().getCssDir());
@@ -47,7 +48,7 @@ public class CssResource extends RootResource {
     @Override
     public void resolve() {
         // important to remember root css url before resolution (when it would be loaded locally)
-        String url = getTarget();
+        final String url = getTarget();
         super.resolve();
 
         if (!isIgnored()) {

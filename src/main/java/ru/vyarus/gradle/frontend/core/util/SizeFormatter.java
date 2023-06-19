@@ -17,11 +17,11 @@ public final class SizeFormatter {
      * @return percent of size change (increased, decreased, not changed)
      */
     public static String formatChangePercent(final long originalSize, final long size) {
-        long percent = (originalSize - size) * 100 / originalSize;
+        final long percent = (originalSize - size) * 100 / originalSize;
         if (percent == 0) {
             return "not changed";
         } else {
-            boolean decrease = percent > 0;
+            final boolean decrease = percent > 0;
             return Math.abs(percent) + "% size " + (decrease ? "decrease" : "increase(!)");
         }
     }

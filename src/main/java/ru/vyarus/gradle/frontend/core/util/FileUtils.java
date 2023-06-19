@@ -3,7 +3,6 @@ package ru.vyarus.gradle.frontend.core.util;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -22,6 +21,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public final class FileUtils {
 
     private FileUtils() {
@@ -43,7 +43,7 @@ public final class FileUtils {
                     return false;
                 }
                 final String name = fl.getName().toLowerCase();
-                int dot = name.lastIndexOf('.');
+                final int dot = name.lastIndexOf('.');
                 return dot > 0 && extensions.contains(name.substring(dot + 1).toLowerCase());
             }).map(Path::toFile).collect(Collectors.toList());
         } catch (IOException ex) {
@@ -138,10 +138,10 @@ public final class FileUtils {
      * @return md5 of file content
      */
     public static String computeMd5(final File file) {
-        byte[] data;
+        final byte[] data;
         try {
             data = Files.readAllBytes(file.toPath());
-            byte[] hash = MessageDigest.getInstance("MD5").digest(data);
+            final byte[] hash = MessageDigest.getInstance("MD5").digest(data);
             return new BigInteger(1, hash).toString(16);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to calculate MD5 for file " + file.getAbsolutePath(), e);
@@ -192,8 +192,7 @@ public final class FileUtils {
             // avoid redundant  re-generation
             return target;
         }
-        try (CustomGzipStream gos = new CustomGzipStream(
-                new FileOutputStream(target))) {
+        try (CustomGzipStream gos = new CustomGzipStream(Files.newOutputStream(target.toPath()))) {
             Files.copy(source.toPath(), gos);
         } catch (Exception ex) {
             throw new IllegalStateException("Failed to gzip file " + source.getAbsolutePath(), ex);
@@ -209,7 +208,7 @@ public final class FileUtils {
         try (ReversedLinesFileReader reader = ReversedLinesFileReader.builder()
                 .setCharset(StandardCharsets.UTF_8)
                 .setFile(file).get()) {
-            String line = "";
+            String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 if (!line.isEmpty()) {
@@ -227,7 +226,7 @@ public final class FileUtils {
      */
     private static class CustomGzipStream extends GZIPOutputStream {
 
-        public CustomGzipStream(final OutputStream out) throws IOException {
+        CustomGzipStream(final OutputStream out) throws IOException {
             super(out);
             def.setLevel(9);
         }

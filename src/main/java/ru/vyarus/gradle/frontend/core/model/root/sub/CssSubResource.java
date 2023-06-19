@@ -17,6 +17,7 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 06.02.2023
  */
+@SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.SystemPrintln"})
 public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
 
     /**
@@ -135,7 +136,7 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
             // md5 might be already applied
             if (!getTarget().endsWith(md5)) {
                 final String upd = UrlUtils.clearParams(getTarget()) + "?" + md5;
-                recordChange(target + " -> " + upd);
+                recordChange(formatChange(target, upd));
                 target = upd;
             }
         }
@@ -152,13 +153,14 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
                 ignore("download fail");
             } else {
                 target = FileUtils.relative(css.getFile(), file);
-                recordChange(url + " -> " + target);
+                recordChange(formatChange(url, target));
             }
         } else {
             ignore("remote resource");
         }
     }
 
+    @SuppressWarnings("PMD.InefficientEmptyStringCheck")
     private void downloadRelative(final String baseUrl) {
         remote = true;
         // css was loaded and all relative resources must be also loaded
@@ -167,10 +169,10 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
 
         // trying to preserve folder structure, but without going upper css location
         // name extraction required to get rid of anti-cache part (?v=132)
-        String name = UrlUtils.getFileName(url);
+        final String name = UrlUtils.getFileName(url);
         String folder = null;
         // extracting folder from relative path
-        int idx = UrlUtils.getNameSeparatorPos(url);
+        final int idx = UrlUtils.getNameSeparatorPos(url);
         if (idx > 0) {
             folder = url.substring(0, idx).replace("../", "");
             if (folder.startsWith("/")) {
@@ -189,6 +191,10 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
         }
         file = target;
         this.target = FileUtils.relative(css.getFile(), file);
-        recordChange(url + " -> " + this.target);
+        recordChange(formatChange(url, this.target));
+    }
+
+    private String formatChange(final String from, final String to) {
+        return from + " -> " + to;
     }
 }

@@ -64,10 +64,15 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-public class OptimizationFlow implements OptimizationInfo {
+@SuppressWarnings({"PMD.ExcessivePublicCount", "PMD.SystemPrintln"})
+public final class OptimizationFlow implements OptimizationInfo {
 
     private final Settings settings;
     private final List<HtmlPage> htmls = new ArrayList<>();
+
+    private OptimizationFlow(final Settings settings) {
+        this.settings = settings;
+    }
 
     /**
      * After configuration simply call {@code .run()}.
@@ -81,15 +86,12 @@ public class OptimizationFlow implements OptimizationInfo {
         return new Builder(baseDir);
     }
 
-    private OptimizationFlow(final Settings settings) {
-        this.settings = settings;
-    }
-
     /**
      * Available after {@link #findFiles()}.
      *
      * @return all detected html pages
      */
+    @Override
     public List<HtmlPage> getHtmls() {
         return htmls;
     }
@@ -230,6 +232,7 @@ public class OptimizationFlow implements OptimizationInfo {
     /**
      * Optimization settings.
      */
+    @SuppressWarnings("PMD.TooManyFields")
     public static class Settings {
         private final File baseDir;
         private File jsDir;
@@ -381,6 +384,7 @@ public class OptimizationFlow implements OptimizationInfo {
      * For all builder methods null is ignored (specially for case when configuration applied from some nullable
      * source, like {@code builder.jsDir(System.getProperty("custom.js.dir))}).
      */
+    @SuppressWarnings({"PMD.GodClass", "PMD.TooManyMethods"})
     public static class Builder {
         private final Settings settings;
 

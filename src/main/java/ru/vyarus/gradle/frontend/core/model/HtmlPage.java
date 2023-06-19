@@ -24,6 +24,7 @@ import java.util.List;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
+@SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidFieldNameMatchingMethodName"})
 public class HtmlPage extends OptimizedEntity implements HtmlInfo {
     /**
      * Optimization settings (can't change in time of optimization).
@@ -267,7 +268,7 @@ public class HtmlPage extends OptimizedEntity implements HtmlInfo {
         if (getSettings().isMinifyHtml()) {
             // using file length because content would contain DIFFERENT output and on consequent runs result could
             // be the same
-            long size = file.length();
+            final long size = file.length();
             System.out.print("Minify " + FileUtils.relative(getBaseDir(), file));
             content = HtmlMinifier.minify(content, settings.isMinifyHtmlCss(), settings.isMinifyHtmlJs());
             // html size MIGHT increase due to added integrity tags (if overall html was very small)

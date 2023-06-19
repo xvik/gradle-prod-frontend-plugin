@@ -62,7 +62,7 @@ public final class DurationFormatter {
         }
 
         if (!secs && remain > 0) {
-            result.append(remain + "ms");
+            result.append(remain).append("ms");
         }
 
         return result.toString();

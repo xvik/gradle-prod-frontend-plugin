@@ -13,6 +13,7 @@ import java.util.List;
  * @author Vyacheslav Rusakov
  * @since 28.01.2023
  */
+@SuppressWarnings({"checkstyle:AvoidFieldNameMatchingMethodName", "PMD.AvoidFieldNameMatchingMethodName"})
 public class ProdFrontendExtension {
 
     /**
@@ -40,9 +41,9 @@ public class ProdFrontendExtension {
      */
     private List<String> htmlExtensions = new ArrayList<>(Arrays.asList("html", "htm"));
 
-    private Download download = new Download();
+    private final Download download = new Download();
 
-    private Minify minify = new Minify();
+    private final Minify minify = new Minify();
 
     /**
      * Apply MD5 hash into js and css urls (including inner css urls).
@@ -55,7 +56,7 @@ public class ProdFrontendExtension {
     private boolean applyIntegrity = true;
 
     /**
-     * Create ".gz" versions for all resources
+     * Create ".gz" versions for all resources.
      */
     private boolean gzip = true;
 
@@ -202,7 +203,7 @@ public class ProdFrontendExtension {
         private boolean enabled = true;
 
         /**
-         * Try to download ".min" resource version first (applicable for cdn links)
+         * Try to download ".min" resource version first (applicable for cdn links).
          */
         private boolean preferMin = true;
 

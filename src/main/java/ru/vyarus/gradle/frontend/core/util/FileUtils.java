@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.core.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 
 import java.io.File;
@@ -146,6 +147,27 @@ public final class FileUtils {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to calculate MD5 for file " + file.getAbsolutePath(), e);
         }
+    }
+
+    /**
+     * Remove duplicate file if files are the same (MD5). Used to avoid duplicates after downloading file
+     * (appeared, usually, after executions on already processed folder). If duplicate detected, downloaded file
+     * is removed.
+     *
+     * @param file     downloaded file to check for duplicates
+     * @param existing existing file
+     * @return true if duplicate file removed, false otherwise
+     */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    public static boolean removeDuplicate(final File file, final File existing, final String prefix) {
+        if (!file.getName().equals(existing.getName())
+                && file.length() == existing.length() && computeMd5(file).equals(computeMd5(existing))) {
+            System.out.println(prefix + "Duplicate file '" + file.getName() + "' removed in favour of existing '"
+                    + existing.getName() + "'");
+            file.delete();
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -3,6 +3,7 @@ package ru.vyarus.gradle.frontend.core.util;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -71,6 +72,7 @@ public final class SourceMapUtils {
      * @param sourceMap source map file
      * @param baseUrl   base url for source map (from where source map was downloaded)
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public static void includeRemoteSources(final File sourceMap, final String baseUrl) {
         final SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {

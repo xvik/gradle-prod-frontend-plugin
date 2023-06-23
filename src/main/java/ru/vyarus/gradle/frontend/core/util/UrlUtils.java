@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.core.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -174,14 +175,10 @@ public final class UrlUtils {
                 .selectNotExistingFile(target.getParentFile(), target.getName());
         download(url, res);
         if (!res.getName().equals(target.getName())) {
-            if (res.length() == target.length()
-                    && ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(res)
-                    .equals(ru.vyarus.gradle.frontend.core.util.FileUtils.computeMd5(target))) {
-                System.out.println("\tDownloaded file is the same as already existing file, using existing file");
-                // same as existing file, remove downloaded
-                res.delete();
+            if (ru.vyarus.gradle.frontend.core.util.FileUtils.removeDuplicate(res, target, "\t")) {
                 res = target;
             } else {
+                // duplicate not detected
                 System.out.println("\tDownloaded file stored as " + res.getName() + " because " + target.getName()
                         + " already exists with different content");
             }
@@ -209,6 +206,7 @@ public final class UrlUtils {
      * @param logPrefix prefix for all messages (used to show "in context" of something)
      * @throws Exception on download error
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance", "PMD.AvoidFileStream"})
     public static void download(final String urlStr, final File file, final String logPrefix) throws Exception {
         System.out.print(logPrefix + "Download ");
@@ -218,7 +216,7 @@ public final class UrlUtils {
             final URL url = new URI(urlStr).normalize().toURL();
             System.out.print(url);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(1000);
+            connection.setConnectTimeout(3000);
             connection.addRequestProperty("User-Agent", "Mozilla");
             final ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
             file.getParentFile().mkdirs();

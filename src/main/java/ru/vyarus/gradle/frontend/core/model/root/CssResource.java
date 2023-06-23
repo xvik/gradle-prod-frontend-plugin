@@ -9,6 +9,7 @@ import ru.vyarus.gradle.frontend.core.util.UrlUtils;
 import ru.vyarus.gradle.frontend.core.util.minify.CssMinifier;
 import ru.vyarus.gradle.frontend.core.util.minify.ResourceMinifier;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -73,14 +74,7 @@ public class CssResource extends RootResource {
                     throw new IllegalStateException("Failed to update css file links", e);
                 }
 
-                // downloaded css file may appear different with existing file just after download due to
-                // changed urls inside css, so checking one more time after url changes were applied
-                // Situation: html was overridden in already optimized folder (with loaded and processes css) so
-                // css was loaded again on current processing into different file
-                if (remote) {
-                    // todo IMPLEMENT
-                    // todo implement additional check after minification (for JS TOO!)
-                }
+                checkDuplicates();
             }
         }
     }
@@ -123,6 +117,22 @@ public class CssResource extends RootResource {
                     it.remove();
                 } else {
                     added.add(path);
+                }
+            }
+        }
+    }
+
+    private void checkDuplicates() {
+        // downloaded css file may appear different with existing file just after download due to
+        // changed urls inside css, so checking one more time after url changes were applied
+        // Situation: html was overridden in already optimized folder (with loaded and processes css) so
+        // css was loaded again on current processing into different file, but after optimizations files
+        // would become identical and duplicate must be removed
+        if (remote) {
+            for (File cand : file.getParentFile().listFiles()) {
+                if (FileUtils.removeDuplicate(file, cand, "")) {
+                    changeFile(cand);
+                    break;
                 }
             }
         }

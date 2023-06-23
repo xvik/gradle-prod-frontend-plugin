@@ -183,11 +183,11 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
             folder = "resources";
         }
         File target = new File(css.getFile().getParentFile().getAbsolutePath() + "/" + folder + "/" + name);
+        final String targetUrl = baseUrl + url;
         try {
-            final String targetUrl = baseUrl + url;
             target = UrlUtils.smartDownload(targetUrl, target);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load relative css resource: " + url, e);
+            throw new IllegalStateException("Failed to load relative css resource: " + targetUrl + " (" + url + ")", e);
         }
         file = target;
         this.target = FileUtils.relative(css.getFile(), file);

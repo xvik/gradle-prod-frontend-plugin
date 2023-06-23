@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.core.util.minify;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
@@ -42,6 +43,7 @@ public class CssMinifier implements ResourceMinifier {
      * @param sourceMaps true to generate source map
      * @return minification result
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @Override
     public MinifyResult minify(final File file, final boolean sourceMaps) {
         final File target = new File(file.getParentFile(), FileUtils.getMinName(file.getName()));
@@ -82,9 +84,9 @@ public class CssMinifier implements ResourceMinifier {
 
     private File copyCsso(final File target) throws IOException {
         final File localCsso = new File(target.getParentFile(), LOCAL_CSSO);
-        final InputStream in = CssMinifier.class.getResourceAsStream("/csso.js");
-        Files.write(localCsso.toPath(), in.readAllBytes());
-        in.close();
+        try (InputStream in = CssMinifier.class.getResourceAsStream("/csso.js")) {
+            Files.write(localCsso.toPath(), in.readAllBytes());
+        }
         return localCsso;
     }
 

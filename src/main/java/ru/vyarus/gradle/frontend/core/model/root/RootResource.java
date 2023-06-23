@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.core.model.root;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
 import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
@@ -189,6 +190,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
     /**
      * Minify file, if it's not already minified (has no ".min" in its name).
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void minify() {
         if (isIgnored() || file.getName().toLowerCase().contains(".min.")) {
             // already minified
@@ -273,6 +275,21 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
      */
     protected abstract ResourceMinifier getMinifier();
 
+    /**
+     * Change local file.
+     *
+     * @param file new file
+     */
+    protected void changeFile(final File file) {
+        if (!this.file.equals(file)) {
+            // assuming files are in the same directory
+            final String url = getTarget().replace(this.file.getName(), file.getName());
+            this.file = file;
+            changeTarget(url);
+        }
+    }
+
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     private void download(final String target) {
         remote = true;
         if (getSettings().isDownloadResources()) {
@@ -313,15 +330,6 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
             }
         } else {
             ignore("remote resource");
-        }
-    }
-
-    private void changeFile(final File file) {
-        if (!this.file.equals(file)) {
-            // assuming files are in the same directory
-            final String url = getTarget().replace(this.file.getName(), file.getName());
-            this.file = file;
-            changeTarget(url);
         }
     }
 

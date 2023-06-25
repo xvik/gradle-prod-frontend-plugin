@@ -24,7 +24,7 @@ class FileUtilsTest extends AbstractTest {
         res.size() == 2
         res[0].name == 'sample.html'
         res[1].name == 'sample.html'
-        res[1].parentFile.name == 'sub'
+        res[1].parentFile.name == 'sub' || res[0].parentFile.name == 'sub'
 
         when: "searching for jsp"
         res = FileUtils.findHtmls(testProjectDir, ['jsp'])
@@ -33,7 +33,7 @@ class FileUtilsTest extends AbstractTest {
         res.size() == 2
         res[0].name == 'sample.jsp'
         res[1].name == 'sample.jsp'
-        res[1].parentFile.name == 'sub'
+        res[1].parentFile.name == 'sub' || res[0].parentFile.name == 'sub'
     }
 
     def "Check select not existing"() {

@@ -81,6 +81,7 @@ class ProdFrontendPluginTest extends AbstractTest {
                 sourceDir = 'web'
                 jsDir = 'jss'
                 cssDir = 'csss'
+                htmlExtensions = ['jsp', 'jtl']
 
                 download {
                     enabled = false
@@ -109,6 +110,7 @@ class ProdFrontendPluginTest extends AbstractTest {
         prodFrontend.sourceDir == 'web'
         prodFrontend.jsDir == 'jss'
         prodFrontend.cssDir == 'csss'
+        prodFrontend.htmlExtensions == ['jsp', 'jtl']
         prodFrontend.download.enabled == false
         prodFrontend.download.preferMin == false
         prodFrontend.download.sourceMaps == false
@@ -128,6 +130,7 @@ class ProdFrontendPluginTest extends AbstractTest {
         task.sourceDir.get().toString().endsWith('/web')
         task.jsDir.get() == 'jss'
         task.cssDir.get() == 'csss'
+        task.getHtmlExtensions().get() == ['jsp', 'jtl']
         task.downloadResources.get() == false
         task.preferMinDownload.get() == false
         task.downloadSourceMaps.get() == false

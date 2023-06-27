@@ -12,7 +12,7 @@ Download https://unpkg.com/vue@2.7.14/dist/vue.min.js, took 413ms (104 KB)
 	Minified version found and downloaded
 	No source map file reference found
 WARNING: js/unknown.js (referenced from index.html) not found: optimizations would not be applied
-         (/home/xvik/projects/xvik/gradle-prod-frontend-plugin/examples/vue/build/webapp/js/unknown.js)
+         (/home/xvik/projects/gradle-prod-frontend-plugin/examples/vue/build/webapp/js/unknown.js)
 
 Download https://cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css, took 1.08s (108 KB)
 Download https://cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css.map, took 714ms (87 KB)
@@ -35,7 +35,7 @@ Download https://cdn.materialdesignicons.com/2.5.94/fonts/materialdesignicons-we
 Download https://cdn.materialdesignicons.com/2.5.94/fonts/materialdesignicons-webfont.ttf?v=2.5.94, took 856ms (365 KB)
 Download https://cdn.materialdesignicons.com/2.5.94/fonts/materialdesignicons-webfont.svg?v=2.5.94#materialdesigniconsregular, took 1.18s (2 MB)
 WARNING: css/unknown.css  (referenced from index.html) not found: optimizations would not be applied
-         (/home/xvik/projects/xvik/gradle-prod-frontend-plugin/examples/vue/build/webapp/css/unknown.css )
+         (/home/xvik/projects/gradle-prod-frontend-plugin/examples/vue/build/webapp/css/unknown.css )
 
 Minify index.html, 30% size increase(!)
 Gzip index.html, 24% size decrease

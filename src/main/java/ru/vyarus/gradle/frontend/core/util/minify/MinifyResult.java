@@ -35,14 +35,6 @@ public class MinifyResult {
     }
 
     /**
-     * @param original original file
-     * @return true if minified file differ, false otherwise
-     */
-    public boolean isChanged(final File original) {
-        return !original.equals(minified);
-    }
-
-    /**
      * @return additional log messages (some minifiers provide additional logs)
      */
     public String getExtraLog() {

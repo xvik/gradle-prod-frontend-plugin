@@ -2,11 +2,13 @@ package ru.vyarus.gradle.frontend
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.IgnoreIf
 
 /**
  * @author Vyacheslav Rusakov
  * @since 26.06.2023
  */
+@IgnoreIf({ !jvm.java11 })
 class LegacyKitTest extends AbstractKitTest {
 
     String GRADLE_VERSION = '6.2'

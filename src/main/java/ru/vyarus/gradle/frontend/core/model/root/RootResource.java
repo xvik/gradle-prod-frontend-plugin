@@ -3,10 +3,10 @@ package ru.vyarus.gradle.frontend.core.model.root;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jsoup.nodes.Element;
 import ru.vyarus.gradle.frontend.core.OptimizationFlow;
+import ru.vyarus.gradle.frontend.core.info.SizeType;
 import ru.vyarus.gradle.frontend.core.info.resources.root.ResourceInfo;
 import ru.vyarus.gradle.frontend.core.model.HtmlPage;
 import ru.vyarus.gradle.frontend.core.model.OptimizedEntity;
-import ru.vyarus.gradle.frontend.core.info.SizeType;
 import ru.vyarus.gradle.frontend.core.util.DigestUtils;
 import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.ResourceLoader;
@@ -160,14 +160,6 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
                         + "\n         (" + file.getAbsolutePath() + ")\n");
 
                 ignore("not found");
-            } else if (getIntegrity() != null) {
-                // validate local integrity
-                if (!DigestUtils.validateSriToken(file, getIntegrity())) {
-                    final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
-                    throw new IllegalStateException("Integrity check failed for file " + target
-                            + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + DigestUtils.buildSri(file, alg));
-                }
-                System.out.println("Integrity check for " + target + " OK");
             }
         }
 

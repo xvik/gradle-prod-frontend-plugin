@@ -30,6 +30,8 @@ class ManualJsMinCoreTest extends AbstractCoreTest {
             element.attr('integrity').length() > 0
             gzip != null
             file != null
+            // just for coverage
+            subResources.empty
         }
 
         when: "running on already processed"

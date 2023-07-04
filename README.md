@@ -69,9 +69,8 @@ Plugin suppose to be used for situations when *nodejs tools is an overkill*. If 
 use nodejs, then this plugin is useless for you.
 
 For example, small SPA application (e.g. vue.js based) or used bootstrap. 
-In such cases, links to CDN used instead of local resources (bootstrap "getting started" doc 
-[propose](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-integrity tags usage for verification, but they are not required):
+In such cases, links to CDN used instead of local resources (integrity attributes are not required, 
+but [proposes](https://getbootstrap.com/docs/5.3/getting-started/introduction/) by bootstrap "getting started" doc):
 
 ```html
 <!doctype html>
@@ -297,13 +296,15 @@ With this you can configure *forever* cache for such resources on http server.
 IMPORTANT: root html file cache should be reduced, or avoid cache at all (otherwise, 
 obviously, hashes would not work properly).
 
+Read more about cache in [this article](https://imagekit.io/blog/ultimate-guide-to-http-caching-for-static-assets/)
+
 #### Integrity
 
 Integrity attribute declares SRI token for downloaded resource. Browser could use
 this token to compare just loaded resource with declared token. This way you can shield
 from "in-the-middle" resources modification attack.
 
-Read more: [integrity attribute docs](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
+Read more: [subresource integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
 
 By default, plugin generates such attribute for processed resources.
 
@@ -318,7 +319,7 @@ Note that gzip option just generates gzipped file versions for all resources. Fo
 
 Gzipped files size is used in stats, so you can estimate the gain of gzipping.
 
-Also, you can configure your http server to serve pre-generated gzip files instead of
+Also, you can [configure your http server](https://www.christianroessler.net/tech/2015/apache-and-mod-deflate-serve-pre-compressed-content-instead-of-deflate-on-every-request.html) to serve pre-generated gzip files instead of
 hot gzipping.
 
 Gzip executed with maximum compression level.

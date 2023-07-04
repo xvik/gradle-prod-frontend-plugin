@@ -319,8 +319,11 @@ Note that gzip option just generates gzipped file versions for all resources. Fo
 
 Gzipped files size is used in stats, so you can estimate the gain of gzipping.
 
-Also, you can [configure your http server](https://www.christianroessler.net/tech/2015/apache-and-mod-deflate-serve-pre-compressed-content-instead-of-deflate-on-every-request.html) to serve pre-generated gzip files instead of
-hot gzipping.
+Also, you can configure your http server to serve pre-generated gzip files instead of
+hot gzipping. 
+
+* [Example Apache config](https://www.christianroessler.net/tech/2015/apache-and-mod-deflate-serve-pre-compressed-content-instead-of-deflate-on-every-request.html)
+* [Apache config example with explanations](https://damien.pobel.fr/post/precompress-brotli-gzip-static-site/)
 
 Gzip executed with maximum compression level.
 

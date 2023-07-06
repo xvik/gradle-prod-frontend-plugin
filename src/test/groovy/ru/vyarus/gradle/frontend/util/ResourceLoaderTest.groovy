@@ -17,43 +17,46 @@ class ResourceLoaderTest extends AbstractTest {
     def "Check resource load"() {
 
         when: "load resource as-is"
-        File res = ResourceLoader.download('https://cdn.jsdelivr.net/npm/@mdi/font@2.5.94/css/materialdesignicons.css', false, false, tmp)
+        ResourceLoader.LoadResult res = ResourceLoader.download('https://cdn.jsdelivr.net/npm/@mdi/font@2.5.94/css/materialdesignicons.css', false, false, tmp)
 
         then: "loaded"
-        res != null
-        res.name == 'materialdesignicons.css'
+        res.file != null
+        res.file.name == 'materialdesignicons.css'
+        res.sourceMap == null
 
         when: "load min resource"
-        res.delete()
+        res.file.delete()
         res = ResourceLoader.download('https://cdn.jsdelivr.net/npm/@mdi/font@2.5.94/css/materialdesignicons.css', true, false, tmp)
 
         then: "loaded"
-        res != null
-        res.name == 'materialdesignicons.min.css'
-        !new File(tmp, 'vue.min.js.map').exists()
+        res.file != null
+        res.file.name == 'materialdesignicons.min.css'
+        res.sourceMap == null
 
         when: "load min resource with source map"
-        res.delete()
+        res.file.delete()
         res = ResourceLoader.download('https://cdn.jsdelivr.net/npm/@mdi/font@2.5.94/css/materialdesignicons.css', true, true, tmp)
 
         then: "loaded"
-        res != null
-        res.name == 'materialdesignicons.min.css'
-        File source = new File(tmp, 'materialdesignicons.min.css.map')
-        source.exists()
+        res.file != null
+        res.file.name == 'materialdesignicons.min.css'
+        res.sourceMap != null
+        res.sourceMap.name == 'materialdesignicons.min.css.map'
+        res.sourceMap.exists()
 
         and: "sources embedded"
-        !SourceMapUtils.parse(source).getSourcesContent().isEmpty()
+        !SourceMapUtils.parse(res.sourceMap).getSourcesContent().isEmpty()
     }
 
     def "Check source map not exists"() {
 
         when: "load min resource with source map"
-        File res = ResourceLoader.download('https://unpkg.com/vue@2.7.14/dist/vue.js', true, true, tmp)
+        ResourceLoader.LoadResult res = ResourceLoader.download('https://unpkg.com/vue@2.7.14/dist/vue.js', true, true, tmp)
 
         then: "loaded, but source map not found"
-        res != null
-        res.name == 'vue.min.js'
+        res.file != null
+        res.file.name == 'vue.min.js'
+        res.sourceMap == null
         File source = new File(tmp, 'vue.min.js.map')
         !source.exists()
 

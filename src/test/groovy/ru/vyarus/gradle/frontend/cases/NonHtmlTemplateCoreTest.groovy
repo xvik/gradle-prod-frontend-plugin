@@ -46,6 +46,8 @@ class NonHtmlTemplateCoreTest extends AbstractCoreTest {
         res.getHtmls().size() == 1
         HtmlInfo html = res.getHtmls()[0]
         html.file.name == 'index.jsp'
+        !html.pureHtml
+        html.parsedDocument != null
         html.changes == ['changed links']
         html.js.size() == 2
         html.css.size() == 2

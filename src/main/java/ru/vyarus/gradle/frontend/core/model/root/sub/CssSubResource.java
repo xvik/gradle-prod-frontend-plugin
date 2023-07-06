@@ -146,7 +146,7 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
         remote = true;
         if (download) {
             file = ResourceLoader.download(target, false, false,
-                    new File(css.getFile().getParentFile(), "resources"));
+                    new File(css.getFile().getParentFile(), "resources")).getFile();
             if (file == null) {
                 // leave link as is - no optimizations
                 System.out.println("WARNING: failed to download resource " + target);

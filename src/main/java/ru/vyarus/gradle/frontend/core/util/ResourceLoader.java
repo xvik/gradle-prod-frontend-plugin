@@ -23,12 +23,13 @@ public final class ResourceLoader {
      * @param preferMinified true to load minified version first
      * @param sourceMaps     true to load source map for minified version
      * @param targetDir      target directory to store loaded files
-     * @return local file representing loaded resource or null if load failed
+     * @return resulting object with local file representing loaded resource or null if load failed and source map
+     * if it was loaded
      */
-    public static File download(final String url,
-                                final boolean preferMinified,
-                                final boolean sourceMaps,
-                                final File targetDir) {
+    public static LoadResult download(final String url,
+                                      final boolean preferMinified,
+                                      final boolean sourceMaps,
+                                      final File targetDir) {
         // check redirects only when target file is unknown (folder references)
         final String realUrl = UrlUtils.hasExtension(url) ? url : UrlUtils.followRedirects(url);
         final String name = UrlUtils.getFileName(realUrl);
@@ -43,10 +44,11 @@ public final class ResourceLoader {
             res = tryLoad(realUrl, name, targetDir);
         }
 
+        File sourceMap = null;
         if (res != null && sourceMaps) {
-            loadSourceMap(res, realUrl);
+            sourceMap = loadSourceMap(res, realUrl);
         }
-        return res;
+        return new LoadResult(res, sourceMap);
     }
 
     private static File tryLoadMin(final String url, final String name, final File targetDir) {
@@ -73,7 +75,8 @@ public final class ResourceLoader {
         }
     }
 
-    private static void loadSourceMap(final File resource, final String downloadUrl) {
+    private static File loadSourceMap(final File resource, final String downloadUrl) {
+        File res = null;
         final String sourceMapUrl = SourceMapUtils.getSourceMapReference(resource);
         if (sourceMapUrl == null) {
             System.out.println("\tNo source map file reference found");
@@ -87,14 +90,42 @@ public final class ResourceLoader {
             final String targetUrl = urlBase + sourceMapUrl;
             try {
                 // will override existing file (assuming it would be downloaded AFTER main file
-                final File mapFile = new File(resource.getParent(), fileName);
-                UrlUtils.download(targetUrl, mapFile);
+                res = new File(resource.getParent(), fileName);
+                UrlUtils.download(targetUrl, res);
                 // load and append sources inside source map file
-                SourceMapUtils.includeRemoteSources(mapFile, urlBase);
+                SourceMapUtils.includeRemoteSources(res, urlBase);
             } catch (Exception ex) {
                 System.out.println("ERROR: Failed to load source mapping file '" + targetUrl + "': "
                         + ex.getMessage() + ". Skipping");
             }
+        }
+        return res;
+    }
+
+    /**
+     * Download result.
+     */
+    public static class LoadResult {
+        private final File file;
+        private final File sourceMap;
+
+        public LoadResult(final File file, final File sourceMap) {
+            this.file = file;
+            this.sourceMap = sourceMap;
+        }
+
+        /**
+         * @return downloaded file or null if file was not loaded
+         */
+        public File getFile() {
+            return file;
+        }
+
+        /**
+         * @return loaded source map or null
+         */
+        public File getSourceMap() {
+            return sourceMap;
         }
     }
 }

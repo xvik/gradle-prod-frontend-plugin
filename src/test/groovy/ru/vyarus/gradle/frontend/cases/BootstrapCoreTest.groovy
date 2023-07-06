@@ -20,6 +20,8 @@ class BootstrapCoreTest extends AbstractCoreTest {
         HtmlInfo html = res.getHtmls()[0]
         html.changes == ['changed links', 'minified']
         html.js.size() == 1
+        html.pureHtml
+        html.parsedDocument != null
         with(html.js[0]) {
             remote
             changes.size() == 5
@@ -29,6 +31,7 @@ class BootstrapCoreTest extends AbstractCoreTest {
             element.attr('crossorigin').length() == 0
             gzip != null
             file != null
+            sourceMap != null
         }
         html.css.size() == 1
         with(html.css[0]) {
@@ -59,6 +62,7 @@ class BootstrapCoreTest extends AbstractCoreTest {
 //            element.attr('integrity') != null
             gzip != null
             file != null
+            sourceMap != null
         }
         html2.css.size() == 1
         with(html2.css[0]) {

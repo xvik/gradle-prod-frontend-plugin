@@ -160,6 +160,16 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
                         + "\n         (" + file.getAbsolutePath() + ")\n");
 
                 ignore("not found");
+            } else {
+                final String sourceMapName = SourceMapUtils.getSourceMapReference(file);
+                if (sourceMapName != null) {
+                    sourceMap = new File(file.getParent(), sourceMapName);
+                    if (!sourceMap.exists()) {
+                        System.out.println(file.getName() + " references not existing source map file: "
+                                + sourceMapName);
+                        sourceMap = null;
+                    }
+                }
             }
         }
 
@@ -286,8 +296,10 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         remote = true;
         if (getSettings().isDownloadResources()) {
             // url - just downloading it to local directory here (as-is)
-            file = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
+            final ResourceLoader.LoadResult load = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
                     getSettings().isDownloadSourceMaps(), dir);
+            file = load.getFile();
+            sourceMap = load.getSourceMap();
             if (file == null) {
                 // leave link as is - no optimizations
                 System.out.println("WARNING: failed to download resource " + target);

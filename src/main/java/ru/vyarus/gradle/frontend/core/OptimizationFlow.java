@@ -117,13 +117,9 @@ public final class OptimizationFlow implements OptimizationInfo {
         final List<File> files = FileUtils.findHtmls(settings.getBaseDir(), settings.getHtmlExtensions()
                 .stream().map(String::toLowerCase).collect(Collectors.toList()));
         for (File file : files) {
-            try {
-                final HtmlPage html = new HtmlPage(settings, file);
-                htmls.add(html);
-                html.findResources();
-            } catch (Exception ex) {
-                throw new IllegalStateException("Failed to parse html " + file.getAbsolutePath(), ex);
-            }
+            final HtmlPage html = new HtmlPage(settings, file);
+            htmls.add(html);
+            html.findResources();
         }
         return this;
     }

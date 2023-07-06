@@ -43,6 +43,7 @@ public final class HtmlParser {
             final Parser parser = Parser.htmlParser();
             // required to extract exact source location
             parser.setTrackPosition(true);
+            // without parser.setTrackErrors() parser will NEVER fail with error
             final Document doc = Jsoup.parse(file, StandardCharsets.UTF_8.name(), file.getAbsolutePath(), parser);
             final List<SourceElement> css = new ArrayList<>();
             // ignore icon links

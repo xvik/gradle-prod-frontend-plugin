@@ -54,4 +54,25 @@ index.html                                                             503 bytes
                                                                        269 KB         269 KB         49 KB""")
         !result.output.contains('Gzip index.html')
     }
+
+    def "Check plugin execution for not existing folder"() {
+        setup:
+        build """
+            plugins {
+                id 'ru.vyarus.prod-frontend'
+            }
+            
+            prodFrontend {
+                sourceDir = 'web'
+            }
+        """
+
+        when: "run task"
+        BuildResult result = runFailed('prodFrontend')
+
+        then: "task successful"
+        result.task(':prodFrontend').outcome == TaskOutcome.FAILED
+        result.output.contains("Webapp directory does not exists:")
+
+    }
 }

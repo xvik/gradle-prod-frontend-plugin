@@ -43,6 +43,7 @@ class BootstrapCoreTest extends AbstractCoreTest {
             element.attr('crossorigin').length() == 0
             gzip != null
             file != null
+            sourceMap != null
         }
 
         when: "running on already processed"

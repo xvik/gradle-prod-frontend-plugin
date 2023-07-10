@@ -33,6 +33,7 @@ class HttpCssSubLinksCoreTest extends AbstractCoreTest {
             // one duplicate resource, but with different source url
             getSubResources().size() == 6
             getSubResources()[0].target.startsWith('resources/materialdesignicons-webfont.eot?')
+            getSubResources()[0].gzip != null
 
             file('webapp/resources/materialdesignicons-webfont.eot').exists()
             file('webapp/materialdesignicons.min.css').text.contains('url("resources/materialdesignicons-webfont.eot?')

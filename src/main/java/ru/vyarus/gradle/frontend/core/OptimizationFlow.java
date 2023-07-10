@@ -449,7 +449,7 @@ public final class OptimizationFlow implements OptimizationInfo {
          * @return builder instance
          */
         public Builder htmlExtensions(final List<String> extensions) {
-            if (!extensions.isEmpty()) {
+            if (extensions != null && !extensions.isEmpty()) {
                 settings.htmlExtensions = extensions;
             }
             return this;

@@ -13,8 +13,10 @@ class NullSafetyCoreTest extends AbstractCoreTest {
         fileFromClasspath('webapp/index.html', '/cases/bootstrap.html')
 
         when: "processing bootstrap application"
-        def res = run(builder('webapp').
-                downloadResources(null)
+        def res = run(builder('webapp')
+                .jsDir(null)
+                .cssDir(null)
+                .downloadResources(null)
                 .preferMinDownload(null)
                 .downloadSourceMaps(null)
                 .minifyCss(null)
@@ -25,8 +27,10 @@ class NullSafetyCoreTest extends AbstractCoreTest {
                 .applyAntiCache(null)
                 .applyIntegrity(null)
                 .htmlExtensions(null)
+                .htmlExtensions([])
                 .generateSourceMaps(null)
-                .gzip(null))
+                .gzip(null)
+                .debug(null))
 
         then: "optimization done"
         res.getHtmls().size() == 1

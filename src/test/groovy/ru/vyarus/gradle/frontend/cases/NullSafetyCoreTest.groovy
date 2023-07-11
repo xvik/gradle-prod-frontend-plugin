@@ -14,8 +14,10 @@ class NullSafetyCoreTest extends AbstractCoreTest {
 
         when: "processing bootstrap application"
         def res = run(builder('webapp')
-                .jsDir(null)
-                .cssDir(null)
+                .jsDir((File) null)
+                .jsDir((String) null)
+                .cssDir((File) null)
+                .cssDir((String) null)
                 .downloadResources(null)
                 .preferMinDownload(null)
                 .downloadSourceMaps(null)

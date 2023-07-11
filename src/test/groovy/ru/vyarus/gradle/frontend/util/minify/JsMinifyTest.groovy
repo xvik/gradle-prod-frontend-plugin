@@ -70,4 +70,20 @@ class JsMinifyTest extends AbstractTest {
             sourcesContent == null
         }
     }
+
+    def "Check minification without source map"() {
+
+        setup:
+        File file = fileFromClasspath('bootstrap.bundle.js', '/min/bootstrap.bundle.js')
+        long size = file.length()
+
+        when: "minifying"
+        def res = new JsMinifier().minify(file, false)
+        println res.extraLog
+
+        then: "minified"
+        res.minified.name == 'bootstrap.bundle.min.js'
+        res.minified.length() < size
+        res.sourceMap == null
+    }
 }

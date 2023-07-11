@@ -108,7 +108,7 @@ public class CssMinifier implements ResourceMinifier {
 
     private String formatOutput(final ByteArrayOutputStream stream) {
         String out = stream.toString(StandardCharsets.UTF_8);
-        if (out.isEmpty()) {
+        if (!out.isEmpty()) {
             out = Arrays.stream(out.split("\n"))
                     .map(s -> "\t" + s).collect(Collectors.joining("\n"));
         }

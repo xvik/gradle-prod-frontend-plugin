@@ -62,4 +62,19 @@ class CssMinifyTest extends AbstractTest {
         res.sourceMap.exists()
         res.sourceMap.name == 'materialdesignicons.min.css.map'
     }
+
+    def "Check minification without source map"() {
+
+        setup:
+        File file = fileFromClasspath('bootstrap.css', '/min/bootstrap.css')
+        long size = file.length()
+
+        when: "minifying"
+        def res = new CssMinifier().minify(file, false)
+
+        then: "minified"
+        res.minified.name == 'bootstrap.min.css'
+        res.minified.length() < size
+        res.sourceMap == null
+    }
 }

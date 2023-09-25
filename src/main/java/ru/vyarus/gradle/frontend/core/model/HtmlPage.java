@@ -244,7 +244,8 @@ public class HtmlPage extends OptimizedEntity implements HtmlInfo {
                 }
                 content = content.replace(source, actualSource);
             } else {
-                System.out.println("WARNING: can't replace resource declaration in html file:\n\t" + source);
+                throw new IllegalStateException("Can't replace resource declaration in "
+                        + FileUtils.relative(js.getHtml().getBaseDir(), js.getHtml().getFile()) + ": \n\t" + source);
             }
         }
         return content;
@@ -273,7 +274,7 @@ public class HtmlPage extends OptimizedEntity implements HtmlInfo {
             content = HtmlMinifier.minify(content, settings.isMinifyHtmlCss(), settings.isMinifyHtmlJs());
             // html size MIGHT increase due to added integrity tags (if overall html was very small)
             System.out.println(", " + SizeFormatter.formatChangePercent(size, content.length()));
-            if (size != content.length()) {
+            if (!content.equals(html)) {
                 recordChange("minified");
             }
         }

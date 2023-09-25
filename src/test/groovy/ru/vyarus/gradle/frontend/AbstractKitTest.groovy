@@ -42,7 +42,13 @@ abstract class AbstractKitTest extends Specification {
         File target = file(toFile)
         target.parentFile.mkdirs()
         target.withOutputStream {
-            it.write((getClass().getResourceAsStream(source) ?: getClass().classLoader.getResourceAsStream(source)).bytes)
+            def bytes = (getClass().getResourceAsStream(source) ?: getClass().classLoader.getResourceAsStream(source)).bytes
+            if (isWin) {
+                // remove CR to unify length win linux
+                bytes = (bytes as List).findAll { it != 13} as byte[]
+            }
+            println "writing $bytes.length bytes into $target.name"
+            it.write(bytes)
         }
         target
     }
@@ -94,5 +100,6 @@ abstract class AbstractKitTest extends Specification {
         return input
                 // cleanup win line break for simpler comparisons
                 .replace("\r", '')
+                .replace('\\', '/')
     }
 }

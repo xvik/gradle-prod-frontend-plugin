@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.frontend.cases
 
+import org.apache.tools.ant.taskdefs.condition.Os
 import ru.vyarus.gradle.frontend.core.OptimizationFlow
 import ru.vyarus.gradle.frontend.core.info.OptimizationInfo
 import spock.lang.Specification
@@ -10,6 +11,8 @@ import spock.lang.TempDir
  * @since 25.04.2023
  */
 abstract class AbstractCoreTest extends Specification {
+
+    boolean isWin = Os.isFamily(Os.FAMILY_WINDOWS)
 
     @TempDir
     File testDir
@@ -57,8 +60,23 @@ abstract class AbstractCoreTest extends Specification {
     File fileFromClasspath(String toFile, String source) {
         File target = file(toFile)
         target.parentFile.mkdirs()
+        // on windows it would use \r\n, on linux \n
         target.withOutputStream {
             it.write((getClass().getResourceAsStream(source) ?: getClass().classLoader.getResourceAsStream(source)).bytes)
+        }
+        target
+    }
+
+    File fileFromClasspathLF(String toFile, String source) {
+        File target = file(toFile)
+        target.parentFile.mkdirs()
+        target.withOutputStream {
+            def bytes = (getClass().getResourceAsStream(source) ?: getClass().classLoader.getResourceAsStream(source)).bytes
+            if (isWin) {
+                // remove CR to unify length win linux
+                bytes = (bytes as List).findAll { it != 13} as byte[]
+            }
+            it.write(bytes)
         }
         target
     }
@@ -67,5 +85,6 @@ abstract class AbstractCoreTest extends Specification {
         return input
         // cleanup win line break for simpler comparisons
                 .replace("\r", '')
+                .replace('\\', '/')
     }
 }

@@ -36,7 +36,23 @@ abstract class AbstractTest extends Specification {
     File fileFromClasspath(String toFile, String source) {
         File target = file(toFile)
         target.parentFile.mkdirs()
-        target << getClass().getResourceAsStream(source).text
+        target.withOutputStream {
+            def bytes = (getClass().getResourceAsStream(source) ?: getClass().classLoader.getResourceAsStream(source)).bytes
+            if (isWin) {
+                // remove CR to unify length win linux
+                bytes = (bytes as List).findAll { it != 13} as byte[]
+            }
+            println "writing $bytes.length bytes into $target.name"
+            it.write(bytes)
+        }
+        target
+    }
+
+    protected String unifyString(String input) {
+        return input
+        // cleanup win line break for simpler comparisons
+                .replace("\r", '')
+                .replace('\\', '/')
     }
 
     static class ExtendedProjectBuilder {

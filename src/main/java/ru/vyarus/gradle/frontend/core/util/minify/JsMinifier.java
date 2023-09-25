@@ -89,7 +89,10 @@ public class JsMinifier implements ResourceMinifier {
             options.setSourceMapOutputPath(sourceMap.getAbsolutePath());
             // avoid absolute paths in source map
             options.setSourceMapLocationMappings(List.of(
-                    new SourceMap.PrefixLocationMapping(target.getParentFile().getAbsolutePath() + "/", "")));
+                    new SourceMap.PrefixLocationMapping(
+                            // ok to reverse path separators in windows because incoming file path would be already
+                            // reversed, and the following reverse is required for proper matching
+                            target.getParentFile().getAbsolutePath().replace("\\", "/") + "/", "")));
         }
 
         return options;

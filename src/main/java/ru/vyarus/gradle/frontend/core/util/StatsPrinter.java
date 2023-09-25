@@ -32,7 +32,7 @@ public final class StatsPrinter {
     @SuppressWarnings("checkstyle:MultipleStringLiterals")
     public static String print(final OptimizationInfo result) {
         final File baseDir = result.getSettings().getBaseDir();
-        final String basePath = baseDir.getAbsolutePath() + "/";
+        final String basePath = baseDir.getAbsolutePath() + File.separator;
         final String line = repeat('-', 70 + 15 * 3 + 1) + "\n";
         final String sumLine = repeat('-', 15 * 3) + "\n";
         final StringBuilder res = new StringBuilder("\n");
@@ -79,7 +79,7 @@ public final class StatsPrinter {
     private static String formatSizes(final Map<SizeType, Long> stats, final SizeType... sequence) {
         final StringBuilder res = new StringBuilder();
         for (SizeType stat : sequence) {
-            // use whitespace to keep table columns for files without minifiction
+            // use whitespace to keep table columns for files without minification
             res.append(String.format("%-15s", stats.containsKey(stat)
                     ? FileUtils.byteCountToDisplaySize(stats.get(stat)) : ""));
         }

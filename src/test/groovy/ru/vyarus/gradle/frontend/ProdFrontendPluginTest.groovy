@@ -53,7 +53,7 @@ class ProdFrontendPluginTest extends AbstractTest {
         and: "task configured accordingly"
         OptimizeFrontendTask task = project.tasks.getByName('prodFrontend')
         task.debug.get() == false
-        task.sourceDir.get().toString().endsWith('build/webapp')
+        unifyString(task.sourceDir.get().toString()).endsWith('build/webapp')
         task.jsDir.get() == 'js'
         task.cssDir.get() == 'css'
         task.downloadResources.get() == true
@@ -127,7 +127,7 @@ class ProdFrontendPluginTest extends AbstractTest {
         and: "task configured accordingly"
         OptimizeFrontendTask task = project.tasks.getByName('prodFrontend')
         task.debug.get() == true
-        task.sourceDir.get().toString().endsWith('/web')
+        unifyString(task.sourceDir.get().toString()).endsWith('/web')
         task.jsDir.get() == 'jss'
         task.cssDir.get() == 'csss'
         task.getHtmlExtensions().get() == ['jsp', 'jtl']

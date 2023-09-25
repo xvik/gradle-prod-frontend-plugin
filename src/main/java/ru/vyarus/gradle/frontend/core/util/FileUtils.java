@@ -99,22 +99,32 @@ public final class FileUtils {
     /**
      * Computes relative path for file, relative to some other file (base dir). Used to compute local paths for
      * downloaded files, relative to html page.
+     * <p>
+     * Converts windows line separators into unix backslashes (for universal output).
      *
      * @param from base file to compute path relative to its directory
      * @param file file to build relative path for
      * @return relative path from directory containing base file
      */
     public static String relative(final File from, final File file) {
-        return (from.isDirectory() ? from : from.getParentFile()).toPath().relativize(file.toPath()).toString();
+        final String path = (from.isDirectory() ? from : from.getParentFile())
+                .toPath().relativize(file.toPath()).toString();
+        // convert windows separators into unix style backslashes to unify outputs
+        return path.replace('\\', '/');
     }
 
     /**
+     * Method overwrites file line separators with system separator. It may seem weird, but it is important
+     * because js or css declaration could be multi-line and without such unification replacement could be
+     * impossible (it is possible to properly extract resource declaration with exact line separators, but
+     * simpler to just unify; see how declarations extracted in {@link HtmlParser#parse(File)}).
+     *
      * @param file file to read
      * @return file content as string
      */
     public static String readFile(final File file) {
-        try {
-            return Files.readString(file.toPath());
+        try (Stream<String> lines = Files.lines(file.toPath(), StandardCharsets.UTF_8)) {
+            return lines.collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read file content", e);
         }
@@ -156,6 +166,7 @@ public final class FileUtils {
      *
      * @param file     downloaded file to check for duplicates
      * @param existing existing file
+     * @param prefix   console output prefix
      * @return true if duplicate file removed, false otherwise
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")

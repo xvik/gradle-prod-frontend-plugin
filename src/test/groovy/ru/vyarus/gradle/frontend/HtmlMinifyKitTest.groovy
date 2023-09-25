@@ -37,7 +37,7 @@ string</pre>
 
         then: "task successful"
         result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS
-        file('webapp/index.html').text == """<!doctype html><html><head><body><pre>sample body
+        unifyString(file('webapp/index.html').text) == """<!doctype html><html><head><body><pre>sample body
 string</pre>"""
     }
 }

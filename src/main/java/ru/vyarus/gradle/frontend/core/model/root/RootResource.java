@@ -121,7 +121,8 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
 
     @Override
     public String getTarget() {
-        return element.attr(attr);
+        // trim just in case for unwanted spaces in attribute value (ok in html)
+        return element.attr(attr).trim();
     }
 
     @Override

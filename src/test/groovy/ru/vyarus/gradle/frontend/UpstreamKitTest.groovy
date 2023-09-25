@@ -29,7 +29,7 @@ class UpstreamKitTest extends AbstractKitTest {
 
         then: "task successful"
         result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS
-        result.output.contains("""
+        unifyString(result.output).contains("""
                                                                        original       minified       gzipped        
 --------------------------------------------------------------------------------------------------------------------
 index.html                                                             651 bytes      503 bytes      397 bytes      
@@ -46,7 +46,7 @@ index.html                                                             651 bytes
         then: "task executed"
         result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS
         file('web/index.html').lastModified() == modified
-        result.output.contains("""
+        unifyString(result.output).contains("""
                                                                        original       minified       gzipped        
 --------------------------------------------------------------------------------------------------------------------
 index.html                                                             503 bytes      503 bytes      397 bytes      

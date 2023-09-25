@@ -63,15 +63,16 @@ class HtmlParserTest extends Specification {
         res.document != null
         res.css.size() == 1
         res.js.size() == 1
-        res.css[0].source == """<link rel="stylesheet" 
+        unifyString(res.css[0].source) == """<link rel="stylesheet" 
             href="1.css">"""
-        res.js[0].source == '<script   src="1.js">' // without </script> !!
+        unifyString(res.js[0].source) == '<script   src="1.js">' // without </script> !!
 
 
         def text = index.text
         and:
-        text.contains(res.css[0].source)
-        text.contains(res.js[0].source)
+        // text would be read as LF, but html parser would parse it as CRLF - test-only issue
+        text.contains(unifyString(res.css[0].source))
+        text.contains(unifyString(res.js[0].source))
     }
 
     def "Check jsp support"() {
@@ -154,5 +155,12 @@ class HtmlParserTest extends Specification {
         text.contains(res.js[0].source)
         text.contains(res.js[1].source)
 
+    }
+
+    protected String unifyString(String input) {
+        return input
+        // cleanup win line break for simpler comparisons
+                .replace("\r", '')
+                .replace('\\', '/')
     }
 }

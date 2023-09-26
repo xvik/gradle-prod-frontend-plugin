@@ -78,7 +78,11 @@ class FileUtilsTest extends AbstractTest {
         FileUtils.relative(testProjectDir, file('js.js')) == 'js.js'
         FileUtils.relative(file('index.html'), file('sub/js.js')) == 'sub/js.js'
         FileUtils.relative(file('sub/index.html'), file('js.js')) == '../js.js'
-        FileUtils.relative(file('sub\\index.html'), file('js.js')) == '../js.js'
+
+        if (isWin) {
+            // on linux it would be single file name
+            FileUtils.relative(file('sub\\index.html'), file('js.js')) == '../js.js'
+        }
     }
 
     def "Check file read-write"() {

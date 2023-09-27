@@ -72,11 +72,13 @@ public class ProdFrontendPlugin implements Plugin<Project> {
             task.getJsDir().convention(extension.getJsDir());
             task.getCssDir().convention(extension.getCssDir());
             task.getHtmlExtensions().convention(extension.getHtmlExtensions());
+            task.getIgnore().convention(extension.getIgnore());
 
             final ProdFrontendExtension.Download download = extension.getDownload();
             task.getDownloadResources().convention(download.isEnabled());
             task.getPreferMinDownload().convention(download.isPreferMin());
             task.getDownloadSourceMaps().convention(download.isSourceMaps());
+            task.getDownloadIgnore().convention(download.getIgnore());
 
             final ProdFrontendExtension.Minify minify = extension.getMinify();
             task.getMinifyHtml().convention(minify.isHtml());
@@ -85,6 +87,7 @@ public class ProdFrontendPlugin implements Plugin<Project> {
             task.getMinifyHtmlJs().convention(minify.isHtmlJs());
             task.getMinifyHtmlCss().convention(minify.isHtmlJs());
             task.getGenerateSourceMaps().convention(minify.isGenerateSourceMaps());
+            task.getMinifyIgnore().convention(minify.getIgnore());
 
             task.getApplyAntiCache().convention(extension.isApplyAntiCache());
             task.getApplyIntegrity().convention(extension.isApplyIntegrity());

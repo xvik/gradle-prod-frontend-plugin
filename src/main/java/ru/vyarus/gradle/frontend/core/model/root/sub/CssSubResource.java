@@ -100,6 +100,7 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
         } else if (baseUrl != null) {
             // NOTE: no-download flag not checked gere because relative url for remote file would appear only if
             // root css was downloaded and so this one would need to be downloaded too
+            // Also: relative urls not affected with downloadIngore settings (for the same reason)
             downloadRelative(baseUrl);
         } else {
             // local file
@@ -145,6 +146,11 @@ public class CssSubResource extends OptimizedEntity implements SubResourceInfo {
     private void download(final boolean download) {
         remote = true;
         if (download) {
+            if (UrlUtils.isIgnored(target, getCss().getSettings().getDownloadIgnore())) {
+                System.out.println("Ignored css sub resource url: " + target);
+                ignore("ignored");
+                return;
+            }
             file = ResourceLoader.download(target, false, false,
                     new File(css.getFile().getParentFile(), "resources")).getFile();
             if (file == null) {

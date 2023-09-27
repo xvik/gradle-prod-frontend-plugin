@@ -72,6 +72,14 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
     public abstract ListProperty<String> getHtmlExtensions();
 
     /**
+     * NOTE: separate ignores also available for download and minification (only).
+     *
+     * @return file globs to ignore processing
+     */
+    @Input
+    public abstract ListProperty<String> getIgnore();
+
+    /**
      * Default: true.
      *
      * @return true to download remote js and css links (e.g. cdn links)
@@ -94,6 +102,12 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
      */
     @Input
     public abstract Property<Boolean> getDownloadSourceMaps();
+
+    /**
+     * @return regexps to ignore download remote resources
+     */
+    @Input
+    public abstract ListProperty<String> getDownloadIgnore();
 
     /**
      * Default: true.
@@ -146,6 +160,12 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
     public abstract Property<Boolean> getMinifyHtmlCss();
 
     /**
+     * @return file globs to ignore minification
+     */
+    @Input
+    public abstract ListProperty<String> getMinifyIgnore();
+
+    /**
      * Default: true.
      * This allows to configure forever caching for static resources (except root html).
      *
@@ -185,15 +205,21 @@ public abstract class OptimizeFrontendTask extends DefaultTask {
                 .jsDir(getJsDir().get())
                 .cssDir(getCssDir().get())
                 .htmlExtensions(getHtmlExtensions().get())
+                .ignore(getIgnore().get())
+
                 .downloadResources(getDownloadResources().get())
                 .preferMinDownload(getPreferMinDownload().get())
                 .downloadSourceMaps(getDownloadSourceMaps().get())
+                .downloadIgnore(getDownloadIgnore().get())
+
                 .minifyJs(getMinifyJs().get())
                 .minifyCss(getMinifyCss().get())
-                .generateSourceMaps(getGenerateSourceMaps().get())
                 .minifyHtml(getMinifyHtml().get())
                 .minifyHtmlCss(getMinifyHtmlCss().get())
                 .minifyHtmlJs(getMinifyHtmlJs().get())
+                .generateSourceMaps(getGenerateSourceMaps().get())
+                .minifyIgnore(getMinifyIgnore().get())
+                
                 .applyAntiCache(getApplyAntiCache().get())
                 .applyIntegrity(getApplyIntegrity().get())
                 .gzip(getGzip().get())

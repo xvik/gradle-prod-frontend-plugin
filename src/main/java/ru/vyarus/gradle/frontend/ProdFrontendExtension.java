@@ -13,7 +13,8 @@ import java.util.List;
  * @author Vyacheslav Rusakov
  * @since 28.01.2023
  */
-@SuppressWarnings({"checkstyle:AvoidFieldNameMatchingMethodName", "PMD.AvoidFieldNameMatchingMethodName"})
+@SuppressWarnings({"checkstyle:AvoidFieldNameMatchingMethodName", "PMD.AvoidFieldNameMatchingMethodName",
+"PMD.ExcessivePublicCount"})
 public class ProdFrontendExtension {
 
     /**
@@ -40,6 +41,38 @@ public class ProdFrontendExtension {
      * File extensions to recognize as html files.
      */
     private List<String> htmlExtensions = new ArrayList<>(Arrays.asList("html", "htm"));
+
+    /**
+     * Ignore processing for local resources (globs). Might also affect downloaded resource to prevent further
+     * processing.
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>*.html - all html files in root dir</li>
+     *     <li>*.{html,htm,js} - all html, htm and js files in root dir</li>
+     *     <li>**.html - all html files</li>
+     *     <li>*\/*.html - all html files in first level directories</li>
+     *     <li>**\/*.html - all html files in any sub directory</li>
+     *     <li>index.??? - all files in root directory with name index and 3-chars extension</li>
+     * </ul>
+     * <p>
+     * Rules:
+     * <ul>
+     *     <li>* It matches zero , one or more than one characters. While matching, it will not cross directories
+     *     boundaries.</li>
+     *     <li>** It does the same as * but it crosses the directory boundaries.</li>
+     *     <li>? It matches only one character for the given name.</li>
+     *     <li>\ It helps to avoid characters to be interpreted as special characters.</li>
+     *     <li>[] In a set of characters, only single character is matched. If (-) hyphen is used then, it matches a
+     *     range of characters. Example: [efg] matches "e","f" or "g" . [a-d] matches a range from a to d.</li>
+     *     <li>{} It helps to matches the group of sub patterns.</li>
+     * </ul>
+     *
+     * @see <a href=
+     * "https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-">
+     * docs (for "glob:" prefix)</a>
+     */
+    private final List<String> ignore = new ArrayList<>();
 
     private final Download download = new Download();
 
@@ -130,6 +163,29 @@ public class ProdFrontendExtension {
         this.htmlExtensions = htmlExtensions;
     }
 
+    /**
+     * @return globs for ignored files (html and linked resources)
+     */
+    public List<String> getIgnore() {
+        return ignore;
+    }
+
+    /**
+     * @param ignore globs to ignore processing files (html and resources)
+     */
+    public void setIgnore(final List<String> ignore) {
+        overwriteList(this.ignore, ignore, "local files ignore configuration overridden");
+    }
+
+    /**
+     * Might be called multiple times.
+     *
+     * @param globs file globs to ignore processing files (html and resources)
+     */
+    public void ignore(final String... globs) {
+        ignore.addAll(Arrays.asList(globs));
+    }
+
     @Nested
     public Download getDownload() {
         return download;
@@ -192,6 +248,17 @@ public class ProdFrontendExtension {
         this.applyIntegrity = applyIntegrity;
     }
 
+    @SuppressWarnings("PMD.SystemPrintln")
+    private static void overwriteList(final List<String> source, final List<String> target, final String err) {
+        if (!source.isEmpty()) {
+            System.out.println("WARNING: " + err + ": \n\tfrom: "
+                    + String.join(",", source) + " \n\tto: "
+                    + String.join(",", target));
+        }
+        source.clear();
+        source.addAll(target);
+    }
+
     /**
      * Remote resources download related options.
      */
@@ -211,6 +278,12 @@ public class ProdFrontendExtension {
          * Load source maps (and source content) for minified versions.
          */
         private boolean sourceMaps = true;
+
+        /**
+         * Remote URL regexps to prevent downloading of certain files. Use in cases when some remote links must
+         * be preserved.
+         */
+        private final List<String> ignore = new ArrayList<>();
 
         /**
          * @return true to download remote js and css links (e.g. cdn links)
@@ -253,6 +326,30 @@ public class ProdFrontendExtension {
         public void setSourceMaps(final boolean sourceMaps) {
             this.sourceMaps = sourceMaps;
         }
+
+        /**
+         * @return remote URL regexps for ignored links
+         */
+        public List<String> getIgnore() {
+            return ignore;
+        }
+
+        /**
+         * @param ignore URL regexps to prevent downloading remote resources
+         */
+        public void setIgnore(final List<String> ignore) {
+            overwriteList(this.ignore, ignore, "download ignore configuration overridden");
+        }
+
+        /**
+         * Might be called multiple times. Applied for all downloaded resources: root links and css sub-links.
+         * Case-insensitive match.
+         *
+         * @param regex URL regexps to ignore downloading
+         */
+        public void ignore(final String... regex) {
+            ignore.addAll(Arrays.asList(regex));
+        }
     }
 
     /**
@@ -289,6 +386,11 @@ public class ProdFrontendExtension {
          * Generate source maps for minified resources.
          */
         private boolean generateSourceMaps = true;
+
+        /**
+         * Ignore minification for resources (globs).
+         */
+        private final List<String> ignore = new ArrayList<>();
 
         /**
          * @return true to minify html
@@ -372,6 +474,29 @@ public class ProdFrontendExtension {
          */
         public void setGenerateSourceMaps(final boolean generateSourceMaps) {
             this.generateSourceMaps = generateSourceMaps;
+        }
+
+        /**
+         * @return globs for ignored files (html and linked resources)
+         */
+        public List<String> getIgnore() {
+            return ignore;
+        }
+
+        /**
+         * @param ignore globs to ignore processing files (html and resources)
+         */
+        public void setIgnore(final List<String> ignore) {
+            overwriteList(this.ignore, ignore, "local files minification ignore configuration overridden");
+        }
+
+        /**
+         * Might be called multiple times.
+         *
+         * @param globs file globs to ignore minifying files (html and resources)
+         */
+        public void ignore(final String... globs) {
+            ignore.addAll(Arrays.asList(globs));
         }
     }
 }

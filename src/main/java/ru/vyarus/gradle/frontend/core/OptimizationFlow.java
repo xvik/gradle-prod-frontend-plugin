@@ -6,9 +6,12 @@ import ru.vyarus.gradle.frontend.core.util.FileUtils;
 import ru.vyarus.gradle.frontend.core.util.StatsPrinter;
 
 import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -117,9 +120,14 @@ public final class OptimizationFlow implements OptimizationInfo {
         final List<File> files = FileUtils.findHtmls(settings.getBaseDir(), settings.getHtmlExtensions()
                 .stream().map(String::toLowerCase).collect(Collectors.toList()));
         for (File file : files) {
-            final HtmlPage html = new HtmlPage(settings, file);
-            htmls.add(html);
-            html.findResources();
+            if (FileUtils.isIgnored(file, getSettings().getBaseDir(), getSettings().getIgnore())) {
+                System.out.println("Html file ignored: " + FileUtils.relative(getSettings().getBaseDir(), file));
+                // ignored html files are not even registered for simplicity!
+            } else {
+                final HtmlPage html = new HtmlPage(settings, file);
+                htmls.add(html);
+                html.findResources();
+            }
         }
         return this;
     }
@@ -234,17 +242,20 @@ public final class OptimizationFlow implements OptimizationInfo {
         private File jsDir;
         private File cssDir;
         private List<String> htmlExtensions = Arrays.asList("html", "htm");
+        private final List<PathMatcher> ignore = new ArrayList<>();
         private boolean downloadResources;
         private boolean preferMinDownload;
         private boolean downloadSourceMaps;
+        private final List<Pattern> downloadIgnore = new ArrayList<>();
         private boolean minifyJs;
         private boolean minifyCss;
         private boolean minifyHtml;
         private boolean minifyHtmlCss;
         private boolean minifyHtmlJs;
+        private boolean generateSourceMaps;
+        private final List<PathMatcher> minifyIgnore = new ArrayList<>();
         private boolean applyAntiCache;
         private boolean applyIntegrity;
-        private boolean generateSourceMaps;
         private boolean gzip;
         private boolean debug;
 
@@ -283,6 +294,13 @@ public final class OptimizationFlow implements OptimizationInfo {
         }
 
         /**
+         * @return matchers to ignore local resources processing (also affects downloaded files)
+         */
+        public List<PathMatcher> getIgnore() {
+            return ignore;
+        }
+
+        /**
          * @return true to download remote js and css links (e.g. cdn links)
          */
         public boolean isDownloadResources() {
@@ -301,6 +319,13 @@ public final class OptimizationFlow implements OptimizationInfo {
          */
         public boolean isDownloadSourceMaps() {
             return downloadSourceMaps;
+        }
+
+        /**
+         * @return patterns for remote links to ignore downloading
+         */
+        public List<Pattern> getDownloadIgnore() {
+            return downloadIgnore;
         }
 
         /**
@@ -339,6 +364,20 @@ public final class OptimizationFlow implements OptimizationInfo {
         }
 
         /**
+         * @return true to generate source maps for minified resources
+         */
+        public boolean isGenerateSourceMaps() {
+            return generateSourceMaps;
+        }
+
+        /**
+         * @return matchers for ignored resources (html or resources)
+         */
+        public List<PathMatcher> getMinifyIgnore() {
+            return minifyIgnore;
+        }
+
+        /**
          * @return true to apply MD5 hashes into all file urls (inside html and css)
          */
         public boolean isApplyAntiCache() {
@@ -351,13 +390,6 @@ public final class OptimizationFlow implements OptimizationInfo {
          */
         public boolean isApplyIntegrity() {
             return applyIntegrity;
-        }
-
-        /**
-         * @return true to generate source maps for minified resources
-         */
-        public boolean isGenerateSourceMaps() {
-            return generateSourceMaps;
         }
 
         /**
@@ -456,6 +488,31 @@ public final class OptimizationFlow implements OptimizationInfo {
         }
 
         /**
+         * Ignore local files processing. Also affects downloaded files further processing.
+         *
+         * @param globs glob values to match ignored files
+         * @return builder instance
+         */
+        public Builder ignore(final String... globs) {
+            return ignore(Arrays.asList(globs));
+        }
+
+        /**
+         * Ignore local files processing. Also affects downloaded files further processing.
+         *
+         * @param globs glob values to match ignored files
+         * @return builder instance
+         */
+        public Builder ignore(final List<String> globs) {
+            if (globs != null && !globs.isEmpty()) {
+                for (String glob : globs) {
+                    settings.ignore.add(glob(glob));
+                }
+            }
+            return this;
+        }
+
+        /**
          * @param download true to download remote js and css links
          * @return builder instance
          */
@@ -516,6 +573,31 @@ public final class OptimizationFlow implements OptimizationInfo {
          */
         public Builder downloadSourceMaps() {
             return downloadSourceMaps(true);
+        }
+
+        /**
+         * Ignore downloading remote resources.
+         *
+         * @param regexps regexps to match ignored urls
+         * @return builder instance
+         */
+        public Builder downloadIgnore(final String... regexps) {
+            return downloadIgnore(Arrays.asList(regexps));
+        }
+
+        /**
+         * Ignore downloading remote resources.
+         *
+         * @param regexps regexps to match ignored urls
+         * @return builder instance
+         */
+        public Builder downloadIgnore(final List<String> regexps) {
+            if (regexps != null && !regexps.isEmpty()) {
+                for (String regex : regexps) {
+                    settings.downloadIgnore.add(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
+                }
+            }
+            return this;
         }
 
         /**
@@ -619,6 +701,54 @@ public final class OptimizationFlow implements OptimizationInfo {
         }
 
         /**
+         * NOTE: source maps generated only for manually minified resources (source map for minified resources
+         * downloaded from cdn is impossible to build)!
+         *
+         * @param generateSourceMaps true to generate source maps for minified resources
+         * @return builder instance
+         */
+        public Builder generateSourceMaps(final Boolean generateSourceMaps) {
+            if (generateSourceMaps != null) {
+                settings.generateSourceMaps = generateSourceMaps;
+            }
+            return this;
+        }
+
+        /**
+         * Shortcut for {@link #generateSourceMaps(Boolean)}.
+         *
+         * @return builder instance
+         */
+        public Builder generateSourceMaps() {
+            return generateSourceMaps(true);
+        }
+
+        /**
+         * Ignore minification.
+         *
+         * @param globs glob values to match ignored files
+         * @return builder instance
+         */
+        public Builder minifyIgnore(final String... globs) {
+            return minifyIgnore(Arrays.asList(globs));
+        }
+
+        /**
+         * Ignore minification.
+         *
+         * @param globs glob values to match ignored files
+         * @return builder instance
+         */
+        public Builder minifyIgnore(final List<String> globs) {
+            if (globs != null && !globs.isEmpty()) {
+                for (String glob : globs) {
+                    settings.minifyIgnore.add(glob(glob));
+                }
+            }
+            return this;
+        }
+
+        /**
          * This allows to configure forever caching for static resources (except root html).
          *
          * @param antiCache true to apply MD5 hashes into all file urls (inside html and css)
@@ -661,29 +791,6 @@ public final class OptimizationFlow implements OptimizationInfo {
          */
         public Builder applyIntegrity() {
             return applyIntegrity(true);
-        }
-
-        /**
-         * NOTE: source maps generated only for manually minified resources (source map for minified resources
-         * downloaded from cdn is impossible to build)!
-         *
-         * @param generateSourceMaps true to generate source maps for minified resources
-         * @return builder instance
-         */
-        public Builder generateSourceMaps(final Boolean generateSourceMaps) {
-            if (generateSourceMaps != null) {
-                settings.generateSourceMaps = generateSourceMaps;
-            }
-            return this;
-        }
-
-        /**
-         * Shortcut for {@link #generateSourceMaps(Boolean)}.
-         *
-         * @return builder instance
-         */
-        public Builder generateSourceMaps() {
-            return generateSourceMaps(true);
         }
 
         /**
@@ -745,6 +852,10 @@ public final class OptimizationFlow implements OptimizationInfo {
 
                     .updateHtml()
                     .generateGzip();
+        }
+
+        private PathMatcher glob(final String glob) {
+            return FileSystems.getDefault().getPathMatcher("glob:" + glob);
         }
     }
 }

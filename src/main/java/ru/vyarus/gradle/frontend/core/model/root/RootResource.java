@@ -171,6 +171,10 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
                         sourceMap = null;
                     }
                 }
+                if (FileUtils.isIgnored(file, getSettings().getBaseDir(), getSettings().getIgnore())) {
+                    System.out.println("File ignored: " + FileUtils.relative(getSettings().getBaseDir(), file));
+                    ignore("ignored");
+                }
             }
         }
 
@@ -195,8 +199,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void minify() {
-        if (isIgnored() || file.getName().toLowerCase().contains(".min.")) {
-            // already minified
+        if (isIgnoreMinify()) {
             return;
         }
         final long size = file.length();
@@ -292,10 +295,14 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
         }
     }
 
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     private void download(final String target) {
         remote = true;
         if (getSettings().isDownloadResources()) {
+            if (UrlUtils.isIgnored(target, getSettings().getDownloadIgnore())) {
+                System.out.println("Ignored url: " + target);
+                ignore("ignored");
+                return;
+            }
             // url - just downloading it to local directory here (as-is)
             final ResourceLoader.LoadResult load = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
                     getSettings().isDownloadSourceMaps(), dir);
@@ -306,35 +313,46 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
                 System.out.println("WARNING: failed to download resource " + target);
                 ignore("download fail");
             } else {
-                // if integrity tag specified - validate loaded file
-                if (getIntegrity() != null) {
-                    if (!DigestUtils.validateSriToken(file, getIntegrity())) {
-                        final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
-                        final String validSri = DigestUtils.buildSri(file, alg);
-                        System.out.println("Loaded file deleted because of integrity tag validation fail: "
-                                + file.getAbsolutePath());
-                        // delete invalid file
-                        file.delete();
-                        throw new IllegalStateException("Integrity check failed for downloaded file " + target
-                                + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + validSri);
-                    }
-                    System.out.println("Integrity check for " + target + " OK");
-                }
-                // update target
-                changeTarget(FileUtils.relative(html.getFile(), file));
-
-                // removing crossorigin and integrity attributes (e.g. bootstrap example suggest using them)
-                if (element.hasAttr(CROSSORIGIN_ATTR)) {
-                    element.removeAttr(CROSSORIGIN_ATTR);
-                    recordChange("crossorigin removed");
-                }
-                if (element.hasAttr(INTEGRITY_ATTR)) {
-                    element.removeAttr(INTEGRITY_ATTR);
-                    recordChange("integrity removed");
-                }
+                postProcessDownloaded(target);
             }
         } else {
             ignore("remote resource");
+        }
+    }
+
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    private void postProcessDownloaded(final String target) {
+        // if integrity tag specified - validate loaded file
+        if (getIntegrity() != null) {
+            if (!DigestUtils.validateSriToken(file, getIntegrity())) {
+                final String alg = DigestUtils.parseSri(getIntegrity()).getAlg();
+                final String validSri = DigestUtils.buildSri(file, alg);
+                System.out.println("Loaded file deleted because of integrity tag validation fail: "
+                        + file.getAbsolutePath());
+                // delete invalid file
+                file.delete();
+                throw new IllegalStateException("Integrity check failed for downloaded file " + target
+                        + ":\n\tdeclared: " + getIntegrity() + "\n\tactual: " + validSri);
+            }
+            System.out.println("Integrity check for " + target + " OK");
+        }
+        // update target
+        changeTarget(FileUtils.relative(html.getFile(), file));
+
+        // removing crossorigin and integrity attributes (e.g. bootstrap example suggest using them)
+        if (element.hasAttr(CROSSORIGIN_ATTR)) {
+            element.removeAttr(CROSSORIGIN_ATTR);
+            recordChange("crossorigin removed");
+        }
+        if (element.hasAttr(INTEGRITY_ATTR)) {
+            element.removeAttr(INTEGRITY_ATTR);
+            recordChange("integrity removed");
+        }
+        // downloaded file might match general ignore patterns
+        if (FileUtils.isIgnored(file, getSettings().getBaseDir(), getSettings().getIgnore())) {
+            System.out.println("Downloaded file ignored: "
+                    + FileUtils.relative(getSettings().getBaseDir(), file));
+            ignore("downloaded ignored");
         }
     }
 
@@ -343,5 +361,15 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
             this.sourceMap = file;
             recordChange("source map generated: " + file.getName());
         }
+    }
+
+    private boolean isIgnoreMinify() {
+        // already minified
+        boolean ignore = isIgnored() || file.getName().toLowerCase().contains(".min.");
+        if (!ignore && FileUtils.isIgnored(file, getSettings().getBaseDir(), getSettings().getMinifyIgnore())) {
+            System.out.println("Ignore minification: " + FileUtils.relative(getSettings().getBaseDir(), file));
+            ignore = true;
+        }
+        return ignore;
     }
 }

@@ -267,6 +267,11 @@ public class HtmlPage extends OptimizedEntity implements HtmlInfo {
     private String minifyHtml(final String html) {
         String content = html;
         if (getSettings().isMinifyHtml()) {
+            if (FileUtils.isIgnored(file, getSettings().getBaseDir(), getSettings().getMinifyIgnore())) {
+                System.out.println("Html minification ignored: "
+                        + FileUtils.relative(getSettings().getBaseDir(), file));
+                return content;
+            }
             // using file length because content would contain DIFFERENT output and on consequent runs result could
             // be the same
             final long size = file.length();

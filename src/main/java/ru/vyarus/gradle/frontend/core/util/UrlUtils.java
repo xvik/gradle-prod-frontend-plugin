@@ -232,4 +232,21 @@ public final class UrlUtils {
             throw ex;
         }
     }
+
+    /**
+     * Validates if url matches provided ignore regexps.
+     *
+     * @param url    url to validate
+     * @param ignore ignore regexps
+     * @return true if url must be ignored, false otherwise
+     */
+    public static boolean isIgnored(final String url, final List<Pattern> ignore) {
+        for (Pattern pattern : ignore) {
+            // partial match!
+            if (pattern.matcher(url).find()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

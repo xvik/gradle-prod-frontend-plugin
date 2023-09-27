@@ -39,6 +39,9 @@ public final class StatsPrinter {
         if (!result.getHtmls().isEmpty()) {
             res.append(String.format("%-70s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
             res.append(line);
+        } else {
+            res.append("No optimizations performed\n");
+            res.append(line);
         }
         for (HtmlInfo html : result.getHtmls()) {
             res.append(String.format("%-70s %s%n",

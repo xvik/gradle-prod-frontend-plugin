@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +23,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-@SuppressWarnings("PMD.SystemPrintln")
+@SuppressWarnings({"PMD.SystemPrintln", "PMD.GodClass"})
 public final class FileUtils {
 
     private FileUtils() {
@@ -252,6 +253,27 @@ public final class FileUtils {
             throw new IllegalStateException("Failed to read last file line " + file.getAbsolutePath(), e);
         }
         return null;
+    }
+
+    /**
+     * Validates if file matches glob patters.
+     *
+     * @param file   file to validate
+     * @param base   base directory
+     * @param ignore ignore globs
+     * @return true if file must be ignored, false otherwise
+     */
+    public static boolean isIgnored(final File file, final File base, final List<PathMatcher> ignore) {
+        if (!ignore.isEmpty()) {
+            // using path, relative to base dir
+            final Path path = base.toPath().relativize(file.toPath());
+            for (PathMatcher matcher : ignore) {
+                if (matcher.matches(path)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

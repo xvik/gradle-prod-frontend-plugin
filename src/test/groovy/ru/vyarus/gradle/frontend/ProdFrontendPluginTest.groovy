@@ -82,11 +82,13 @@ class ProdFrontendPluginTest extends AbstractTest {
                 jsDir = 'jss'
                 cssDir = 'csss'
                 htmlExtensions = ['jsp', 'jtl']
+                ignore = ['**/*.js']
 
                 download {
                     enabled = false
                     preferMin = false
                     sourceMaps = false
+                    ignore = ['.*somedomain\\.com.*']
                 }
 
                 minify {
@@ -96,6 +98,7 @@ class ProdFrontendPluginTest extends AbstractTest {
                     js = false
                     css = false
                     generateSourceMaps = false
+                    ignore = ['**/*.css']
                 }
 
                 applyAntiCache = false
@@ -111,15 +114,18 @@ class ProdFrontendPluginTest extends AbstractTest {
         prodFrontend.jsDir == 'jss'
         prodFrontend.cssDir == 'csss'
         prodFrontend.htmlExtensions == ['jsp', 'jtl']
+        prodFrontend.ignore == ['**/*.js']
         prodFrontend.download.enabled == false
         prodFrontend.download.preferMin == false
         prodFrontend.download.sourceMaps == false
+        prodFrontend.download.ignore == ['.*somedomain\\.com.*']
         prodFrontend.minify.html == false
         prodFrontend.minify.htmlJs == false
         prodFrontend.minify.htmlCss == false
         prodFrontend.minify.js == false
         prodFrontend.minify.css == false
         prodFrontend.minify.generateSourceMaps == false
+        prodFrontend.minify.ignore == ['**/*.css']
         prodFrontend.applyAntiCache == false
         prodFrontend.applyIntegrity == false
         prodFrontend.gzip == false
@@ -130,16 +136,19 @@ class ProdFrontendPluginTest extends AbstractTest {
         unifyString(task.sourceDir.get().toString()).endsWith('/web')
         task.jsDir.get() == 'jss'
         task.cssDir.get() == 'csss'
-        task.getHtmlExtensions().get() == ['jsp', 'jtl']
+        task.htmlExtensions.get() == ['jsp', 'jtl']
+        task.ignore.get() == ['**/*.js']
         task.downloadResources.get() == false
         task.preferMinDownload.get() == false
         task.downloadSourceMaps.get() == false
+        task.downloadIgnore.get() == ['.*somedomain\\.com.*']
         task.minifyHtml.get() == false
         task.minifyHtmlJs.get() == false
         task.minifyHtmlCss.get() == false
         task.minifyJs.get() == false
         task.minifyCss.get() == false
         task.generateSourceMaps.get() == false
+        task.minifyIgnore.get() == ['**/*.css']
         task.applyAntiCache.get() == false
         task.applyIntegrity.get() == false
         task.gzip.get() == false

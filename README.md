@@ -173,6 +173,128 @@ There is no way to directly integrate plugin into war plugin flow. Instead, you'
 have to split war "source" generation somewhere in build dir, run optimization on it
 and only after that run war building on optimized folder.
 
+#### Exclusions
+
+It might not be desirable to fully process all resources. In such cases exclusions could be specified.
+There are 3 levels of exclusion:
+
+* Global exclusions (`ignore`, GLOB) - affects html files search and local resource files processing
+* Download exclusions (`download.ignore`, REGEX) - prevents remote resources download
+* Minification exclusions (`minify.ignore`, GLOB) - avoid minification for some files
+
+All ignored files would be mentioned in console log.
+
+##### Global exclusions
+
+* When some html files must be excluded from processing
+* When some local (or downloaded) resources must not be processed
+
+Example declaration:
+
+```groovy
+prodFrontend.ignore = ['**.htm', 'inner/*.js']
+```
+
+or as method
+
+```groovy
+prodFrontend.ignore '**.htm', 'inner/*.js'
+```
+
+Here all "htm" files and all js files inside 'inner' directory would be ignored.
+
+* Glob syntax used ([native java globs](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-))
+* Path root is in configured source dir (where plugin search for html files)
+* Setting affects also just downloaded resources (in this case all further operations on file skipped)
+
+WARNING: be careful with css files, because if defined pattern would match just downloaded
+css file, then all css sub links would not be downloaded (and these could be relative links, useless for local file).
+
+Glob examples:
+
+* `*.html` - all html files in root dir
+* `*.{html,htm,js}` - all html, htm and js files in root dir
+* `**.html` - all html files
+* `*/*.html` - all html files in first level directories
+* `**/*.html` - all html files in any sub directory (any level)
+* `index.???` - all files in root directory with name index and 3-chars extension
+
+Special characters:
+
+* `*` It matches zero , one or more than one characters. While matching, it will not cross directories
+boundaries.
+* `**` It does the same as * but it crosses the directory boundaries.
+* `?` It matches only one character for the given name.
+* `\` It helps to avoid characters to be interpreted as special characters.
+* `[]` In a set of characters, only single character is matched. If (-) hyphen is used then, it matches a
+range of characters. Example: `[efg]` matches "e","f" or "g" . `[a-d]` matches a range from a to d.
+* `{}` It helps to match the group of sub patterns.
+
+[More syntax examples](https://mincong.io/2019/04/16/glob-expression-understanding/)
+
+##### Download exclusions
+
+* When some remote links should remain (including css sub resources)
+
+Example declaration:
+
+```groovy
+prodFrontend.download.ignore = ['cdn.jsdelivr.net', '.*/bootstrap.*']
+```
+
+or as method
+
+```groovy
+prodFrontend.ignore 'cdn.jsdelivr.net', '.*/bootstrap.*'
+```
+
+Here all links from jsdelivr would be ignored and boostrap links:
+
+`<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"`
+`<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"`
+
+* Java regexps used
+* Match is partial (`Matcher.find()`), so no need to cover entire url with pattern
+* Match is case-insensitive (flag set automatically)
+* Also affects css sub resource links (but not relative links!) 
+
+For example, if css file declares web-fonts with absolute links:
+
+```css
+@font-face {
+    font-family: "Material Design Icons";
+    src: url("https://cdn.materialdesignicons.com/2.5.94/fonts/materialdesignicons-webfont.eot?v=2.5.94");
+}
+```
+
+Then ignore like this would prevent download (even if root css was downloaded): 
+`prodFrontend.download.ignore '.*/fonts/.*'`
+
+##### Minification exclusions
+
+* When some resources should not be minified 
+
+Example declaration:
+
+```groovy
+prodFrontend.minify.ignore = ['index.html', 'inner/*.js']
+```
+
+or as method
+
+```groovy
+prodFrontend.ignore 'index.html', 'inner/*.js'
+```
+
+Here `index.html` (located in root dir) would not be minified and all js files in "inner" directory
+
+* Use glob syntax (same as global `prodFrontend.ignore`)
+* Affects html files and their resources (js, css)
+
+NOTE: manual minification would not be performed for files with ".min." in its name
+(e.g. downloaded min version from cdn).
+
+
 ### Performed optimizations
 
 * Load remote resources (if cdn links used). Tries to load minified version (with source maps)
@@ -228,6 +350,11 @@ prodFrontend {
    * File extensions to recognize as html files.
    */
   htmlExtensions = ['html', 'htm']
+  /**
+   * Glob patterns (relative to base dir) to ignore files processing 
+   * (applies to html and resource files). 
+   */
+  ignore = []
 
   download {
     /**
@@ -242,6 +369,10 @@ prodFrontend {
      * Load source maps (and source content) for minified versions.
      */
     sourceMaps = true
+    /**
+     * Regex patterns to not download remote resources (or css sub resources with absolute urls). 
+     */
+    ignore = []
   }
 
   minify {
@@ -269,6 +400,11 @@ prodFrontend {
      * Generate source maps for minified resources.
      */
     generateSourceMaps = true
+    /**
+     * Glob patterns (relative to base dir) to ignore files minification 
+     * (applies to html and resource files). 
+     */
+    ignore = []
   }
 
   /**

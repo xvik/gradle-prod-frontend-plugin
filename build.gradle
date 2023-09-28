@@ -1,5 +1,5 @@
 plugins {
-    id 'com.gradle.plugin-publish' version '0.21.0'
+    id 'com.gradle.plugin-publish' version '1.2.1'
     id 'java-gradle-plugin'
     id 'groovy'
     id 'jacoco'
@@ -22,7 +22,7 @@ wrapper {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    compileOnly 'com.google.code.findbugs:annotations:3.0.1'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.7.3'
 
     implementation 'org.jsoup:jsoup:1.16.1'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.10.8'
@@ -78,21 +78,14 @@ gradlePlugin {
         productionFrontendPlugin {
             id = 'ru.vyarus.prod-frontend'
             displayName = project.description
+            description = 'Optimize static resources for production'
+            tags.set(['html', 'js', 'css', 'frontend', 'minify', 'optimization'])
             implementationClass = 'ru.vyarus.gradle.frontend.ProdFrontendPlugin'
         }
     }
 }
-pluginBundle {
-    description = 'Optimize static resources for production'
-    tags = ['html', 'js', 'css', 'frontend', 'minify']
 
-    mavenCoordinates {
-        groupId = project.group
-        artifactId = project.name
-    }
-}
-
-// release.git.requireBranch.set('master')  // default is main
+release.git.requireBranch.set('master')  // default is main
 
 afterReleaseBuild {
     dependsOn = [

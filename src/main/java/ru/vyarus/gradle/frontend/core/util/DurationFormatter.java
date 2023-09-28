@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.frontend.core.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Copy of gradle's internal {@link org.gradle.internal.time.TimeFormatting} class, which become internal in
@@ -54,9 +55,10 @@ public final class DurationFormatter {
         boolean secs = false;
         if (remain >= MILLIS_PER_SECOND) {
             // if only secs, show rounded value, otherwise get rid of ms
-            final int secondsScale = result.length() == 0 ? 2 : 0;
-            append(result, BigDecimal.valueOf(remain).divide(BigDecimal.valueOf(MILLIS_PER_SECOND))
-                    .setScale(secondsScale, 4).stripTrailingZeros().toPlainString(), "s");
+            final int secondsScale = result.isEmpty() ? 2 : 0;
+            append(result, BigDecimal.valueOf(remain)
+                    .divide(BigDecimal.valueOf(MILLIS_PER_SECOND))
+                    .setScale(secondsScale, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString(), "s");
             secs = true;
             remain %= MILLIS_PER_SECOND;
         }

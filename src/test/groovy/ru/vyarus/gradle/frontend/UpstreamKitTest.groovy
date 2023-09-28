@@ -9,7 +9,7 @@ import org.gradle.testkit.runner.TaskOutcome
  */
 class UpstreamKitTest extends AbstractKitTest {
 
-    String GRADLE_VERSION = '8.1.1'
+    String GRADLE_VERSION = '8.3'
 
     def "Check plugin execution"() {
         setup:
@@ -25,7 +25,7 @@ class UpstreamKitTest extends AbstractKitTest {
         fileFromClasspath('web/index.html', '/cases/bootstrap.html')
 
         when: "run task"
-        BuildResult result = runVer(GRADLE_VERSION, 'prodFrontend')
+        BuildResult result = runVer(GRADLE_VERSION, 'prodFrontend', '--warning-mode', 'all')
 
         then: "task successful"
         result.task(':prodFrontend').outcome == TaskOutcome.SUCCESS

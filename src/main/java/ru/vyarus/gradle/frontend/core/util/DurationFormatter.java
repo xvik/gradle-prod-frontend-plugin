@@ -55,7 +55,7 @@ public final class DurationFormatter {
         boolean secs = false;
         if (remain >= MILLIS_PER_SECOND) {
             // if only secs, show rounded value, otherwise get rid of ms
-            final int secondsScale = result.isEmpty() ? 2 : 0;
+            final int secondsScale = result.length() == 0 ? 2 : 0;
             append(result, BigDecimal.valueOf(remain)
                     .divide(BigDecimal.valueOf(MILLIS_PER_SECOND))
                     .setScale(secondsScale, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString(), "s");

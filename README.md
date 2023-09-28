@@ -65,7 +65,7 @@ Gradle | Version
 
 ### Usage
 
-Plugin suppose to be used for situations when *nodejs tools is an overkill*. If you already
+Plugin suppose to be used for situations when *nodejs is an overkill*. If you already
 use nodejs, then this plugin is useless for you.
 
 For example, small SPA application (e.g. vue.js based) or used bootstrap. 
@@ -114,15 +114,15 @@ index.html                                                             767 bytes
 
 Note that minified versions were *downloaded* and no manual js or css minification were performed.
 
-You **can try** this and other examples in sample project:
+You **can try** this and other examples in sample projects:
 
-* [bootstrap](examples/bootstrap) - this sample
+* [bootstrap](examples/bootstrap) - bootstrap example (from above)
 * [buefyjs](examples/buefy) - vuejs application with buefy components (bulma based)
 * [vuejs](examples/vue) - pure vuejs app (with unknown css to show how plugin handles it)
 
 #### Required setup
 
-Plugin searches all html files in target directory and optimize files **in this directory**.
+Plugin searches for html files in target directory and optimize files **in this directory**.
 
 Normally, you should have some delivery task which collects all html-related resources in one
 build directory. You just need to run production optimization on this directory, before zipping it
@@ -164,8 +164,8 @@ prodFrontend {
 }
 ```
 
-NOTE: you **may** need to disable html minification for templates with `minify.html=false`
-because minification **could** damage template specific constructs 
+NOTE: you **may** need to disable html minification for templates with `minify.html=false` 
+(or using exclusion: `minify.ignore = [**.jsp]`) because minification **could** damage template specific constructs 
 
 #### War plugin
 

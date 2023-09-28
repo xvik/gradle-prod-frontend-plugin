@@ -9,7 +9,7 @@
     "projectVersion": "0.1.0",
     "projectDesc": "Optimize static resources for production",
     "pluginPortalDesc": "Optimize static resources for production",
-    "pluginPortalTags": "html, js, css, frontend, minify",
+    "pluginPortalTags": "html, js, css, frontend, minify, optimization",
     "centralPublish": true,
     "pluginPortalUseCustomGroup": true,
     "usedGeneratorVersion": "2.1.0"

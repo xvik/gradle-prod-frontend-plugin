@@ -29,7 +29,7 @@ dependencies {
     implementation 'commons-io:commons-io:2.14.0'
     implementation 'com.google.javascript:closure-compiler:v20230802'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
-    implementation 'org.graalvm.js:js:22.3.3'
+    implementation 'org.graalvm.js:js:22.3.4'
 
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
 }

@@ -1,5 +1,5 @@
 plugins {
-    id 'ru.vyarus.prod-frontend' version '1.0.0-SNAPSHOT'
+    id 'ru.vyarus.prod-frontend' version '1.0.1'
 }
 
 wrapper {

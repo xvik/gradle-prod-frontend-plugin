@@ -61,6 +61,15 @@ class UrlUtilsTest extends Specification {
         UrlUtils.getFileName('http:\\\\some.com:225\\somewhere\\file.txt') == 'file.txt'
     }
 
+    def "Check filename selection from host"() {
+
+        expect:
+        UrlUtils.selectFilename('https://fonts.googleapis.com/css?family=Roboto', 'css') == 'fonts.googleapis.css'
+        UrlUtils.selectFilename('https://fonts/css?family=Roboto', 'css') == 'fonts.css'
+        UrlUtils.selectFilename('https://fonts.com/style.css?family=Roboto', 'css') == 'style.css'
+        UrlUtils.selectFilename('https://fonts.com/style?family=Roboto', 'css') == 'style.css'
+    }
+
     def "Smart download test"() {
 
         setup:

@@ -96,6 +96,11 @@ public class CssResource extends RootResource {
         return new CssMinifier();
     }
 
+    @Override
+    protected String getFileExtension() {
+        return "css";
+    }
+
     private void resolveSubLinks(final String url) {
         // css could link other css (@import), fonts and images
         CssUtils.findLinks(file).forEach(link -> urls.add(new CssSubResource(this, link)));

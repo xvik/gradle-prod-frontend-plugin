@@ -35,5 +35,10 @@ public class JsResource extends RootResource {
     protected ResourceMinifier getMinifier() {
         return new JsMinifier();
     }
+
+    @Override
+    protected String getFileExtension() {
+        return "js";
+    }
 }
 

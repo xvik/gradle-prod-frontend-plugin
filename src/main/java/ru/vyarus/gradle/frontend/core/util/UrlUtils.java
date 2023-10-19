@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -127,7 +128,8 @@ public final class UrlUtils {
     }
 
     /**
-     * Extracts file name from url.
+     * Extracts file name from url. Naive attempt, possibly leading to not correct result.
+     * It's better to use {@link #selectFilename(String, String)} which guarantees correct filename.
      *
      * @param url url to extract file name
      * @return file name
@@ -141,6 +143,40 @@ public final class UrlUtils {
             // not url, direct file name
             return url;
         }
+    }
+
+    /**
+     * Selects filename for url. In most cases, would simply extract file name from url.
+     * In case when filename with correct extension can't be resolved - file would be named by host name,
+     * without 1st level (e.g. for "sub.domian.com" would be "sub.domian.extension").
+     *
+     * @param url       url to select filename for
+     * @param extension target file extension
+     * @return selected file name
+     */
+    public static String selectFilename(final String url, final String extension) {
+        String res = getFileName(url);
+        final String ext = "." + extension.toLowerCase();
+        if (!res.toLowerCase().endsWith(ext)) {
+            if (res.length() > 4 && res.indexOf('.') < 0) {
+                // trying to guess case when file name is correct, but extension was not specified
+                res += ext;
+            } else {
+                try {
+                    final URL target = new URL(url);
+                    res = target.getHost();
+                    final int idx = res.lastIndexOf('.');
+                    if (idx > 0) {
+                        // cut off 1st level domain
+                        res = res.substring(0, idx);
+                    }
+                    return res + "." + extension;
+                } catch (MalformedURLException e) {
+                    throw new IllegalStateException("Failed to parse url: " + url, e);
+                }
+            }
+        }
+        return res;
     }
 
     /**

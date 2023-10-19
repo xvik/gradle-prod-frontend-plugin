@@ -3,6 +3,8 @@ package ru.vyarus.gradle.frontend.cases
 import ru.vyarus.gradle.frontend.core.info.resources.HtmlInfo
 
 /**
+ * Case when remote link does not contain extension, but link redirects to actual file with extension.
+ *
  * @author Vyacheslav Rusakov
  * @since 02.05.2023
  */

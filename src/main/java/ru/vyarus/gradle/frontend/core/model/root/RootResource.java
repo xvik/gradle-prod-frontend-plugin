@@ -282,6 +282,14 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
     protected abstract ResourceMinifier getMinifier();
 
     /**
+     * Required to properly resolve file name from urls (or generate correct file name when exact name can't be
+     * resolved).
+     *
+     * @return expected file extension for resource
+     */
+    protected abstract String getFileExtension();
+
+    /**
      * Change local file.
      *
      * @param file new file
@@ -305,7 +313,7 @@ public abstract class RootResource extends OptimizedEntity implements ResourceIn
             }
             // url - just downloading it to local directory here (as-is)
             final ResourceLoader.LoadResult load = ResourceLoader.download(target, getSettings().isPreferMinDownload(),
-                    getSettings().isDownloadSourceMaps(), dir);
+                    getSettings().isDownloadSourceMaps(), dir, getFileExtension());
             file = load.getFile();
             sourceMap = load.getSourceMap();
             if (file == null) {

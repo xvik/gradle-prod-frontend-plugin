@@ -19,10 +19,10 @@ public final class ResourceLoader {
      * common ".min" pattern) and its source map. Source map is loaded together with related sources (referenced
      * sources loaded and embedded inside source map).
      *
-     * @param url            remote resource url
-     * @param preferMinified true to load minified version first
-     * @param sourceMaps     true to load source map for minified version
-     * @param targetDir      target directory to store loaded files
+     * @param url               remote resource url
+     * @param preferMinified    true to load minified version first
+     * @param sourceMaps        true to load source map for minified version
+     * @param targetDir         target directory to store loaded files
      * @return resulting object with local file representing loaded resource or null if load failed and source map
      * if it was loaded
      */
@@ -30,14 +30,43 @@ public final class ResourceLoader {
                                       final boolean preferMinified,
                                       final boolean sourceMaps,
                                       final File targetDir) {
+        return download(url, preferMinified, sourceMaps, targetDir, null);
+    }
+
+    /**
+     * Load remote resource into local directory. For CDN link, could load minified resource version (following
+     * common ".min" pattern) and its source map. Source map is loaded together with related sources (referenced
+     * sources loaded and embedded inside source map).
+     * <p>
+     * When target extension is provided, validates downloaded file correctness and, when required, generates
+     * custom name with correct extension (required for cases when link does not contain actual file name).
+     *
+     * @param url               remote resource url
+     * @param preferMinified    true to load minified version first
+     * @param sourceMaps        true to load source map for minified version
+     * @param targetDir         target directory to store loaded files
+     * @param requiredExtension required target extension (might be null)
+     * @return resulting object with local file representing loaded resource or null if load failed and source map
+     * if it was loaded
+     */
+    public static LoadResult download(final String url,
+                                      final boolean preferMinified,
+                                      final boolean sourceMaps,
+                                      final File targetDir,
+                                      final String requiredExtension) {
         // check redirects only when target file is unknown (folder references)
         final String realUrl = UrlUtils.hasExtension(url) ? url : UrlUtils.followRedirects(url);
-        final String name = UrlUtils.getFileName(realUrl);
-        final String minName = FileUtils.getMinName(name);
+        final String name = requiredExtension != null
+                ? UrlUtils.selectFilename(realUrl, requiredExtension) : UrlUtils.getFileName(realUrl);
         File res = null;
-        if (!name.equals(minName) && preferMinified) {
-            // trying to load min version directly (for many cdns .min.js|.min.css is a common convention)
-            res = tryLoadMin(realUrl.replace(name, minName), minName, targetDir);
+        // don't try to download min version if file name was generated (could be if url does not contain extension,
+        // like google fonts: https://fonts.googleapis.com/css?family=Roboto
+        if (realUrl.contains(name)) {
+            final String minName = FileUtils.getMinName(name);
+            if (!name.equals(minName) && preferMinified) {
+                // trying to load min version directly (for many cdns .min.js|.min.css is a common convention)
+                res = tryLoadMin(realUrl.replace(name, minName), minName, targetDir);
+            }
         }
         if (res == null) {
             // try to load as-is (load failure is OK)
@@ -83,7 +112,7 @@ public final class ResourceLoader {
 
             // source maps file might be embedded!
         } else if (!sourceMapUrl.startsWith("data:")) {
-            final String fileName = UrlUtils.getFileName(sourceMapUrl);
+            final String fileName = UrlUtils.selectFilename(sourceMapUrl, "map");
             // jsdeliver links sourcemaps to server root instead of relative to file
             final String urlBase = sourceMapUrl.startsWith("/") ? UrlUtils.getServerRoot(downloadUrl)
                     : UrlUtils.getBaseUrl(downloadUrl);

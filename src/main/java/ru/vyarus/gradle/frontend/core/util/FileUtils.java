@@ -85,16 +85,22 @@ public final class FileUtils {
     }
 
     /**
+     * In case when provided name does not contain extension - applied at the end.
+     *
      * @param name   fila name
      * @param append postfix to append before extension (after file name)
-     * @return file name with appended paer (before extension)
+     * @return modified file (with addition before extension)
      */
     public static String appendBeforeExtension(final String name, final String append) {
         final int dotIdx = name.lastIndexOf('.');
-        if (dotIdx <= 0) {
-            throw new IllegalStateException("Can't find extension in file name: " + name);
+        final String res;
+        if (dotIdx > 0) {
+            res = name.substring(0, dotIdx) + append + name.substring(dotIdx);
+        } else {
+            // if extension not found, simply apply at the end
+            res = name + append;
         }
-        return name.substring(0, dotIdx) + append + name.substring(dotIdx);
+        return res;
     }
 
     /**

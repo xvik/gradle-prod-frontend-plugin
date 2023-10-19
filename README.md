@@ -36,7 +36,7 @@ processed resources (resources modification prevention)
 
 ```groovy
 plugins {
-    id 'ru.vyarus.prod-frontend' version '1.0.0'
+    id 'ru.vyarus.prod-frontend' version '1.0.1'
 }
 ```
 
@@ -48,7 +48,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'ru.vyarus:gradle-prod-frontend-plugin:1.0.0'
+        classpath 'ru.vyarus:gradle-prod-frontend-plugin:1.0.1'
     }
 }
 apply plugin: 'ru.vyarus.prod-frontend'
@@ -60,7 +60,7 @@ NOTE: Java 11 or above is required.
 
 Gradle | Version
 --------|-------
-6.2-8   | 1.0.0
+6.2-8   | 1.0.1
 
 
 ### Usage
@@ -119,6 +119,7 @@ You **can try** this and other examples in sample projects:
 * [bootstrap](examples/bootstrap) - bootstrap example (from above)
 * [buefyjs](examples/buefy) - vuejs application with buefy components (bulma based)
 * [vuejs](examples/vue) - pure vuejs app (with unknown css to show how plugin handles it)
+* [Static site optimization example](https://github.com/xvik/vyarus.ru/blob/master/build.gradle) - completely static site being optimized before netlify publication 
 
 #### Required setup
 
@@ -152,6 +153,21 @@ prodFrontend {
 
 NOTE: it would be **a bad idea** to run plugin on folder inside sources simply because 
 plugin *modifies files*
+
+#### CSS imports
+
+WARNING: Be careful with css imports (`@import url('http://somewhere.com/style.css')`) - in current implementation
+such relative css files would be downloaded, but *would not be checked for links inside it* (not processed as root css files). 
+So, if such imported file would contain relative links, they will not work properly (no problems with absolute links).
+
+There are two easy workarounds: 
+
+1. Move such css import inside html file (declare it as root resource) 
+2. Add url to download exclusions (to preserve resource loading from remote url) 
+
+Of course, it is possible to implement complete css processing, but I don't see much need in it now. If you require
+it, please create a new issue with situation description.
+
 
 #### Templates
 

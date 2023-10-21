@@ -5,3 +5,5 @@ plugins {
 wrapper {
     gradleVersion = '7.6'
 }
+
+tasks.named('prodFrontend') {enabled = false }

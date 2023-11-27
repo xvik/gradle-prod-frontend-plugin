@@ -24,7 +24,7 @@ repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
     compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.1'
 
-    implementation 'org.jsoup:jsoup:1.16.2'
+    implementation 'org.jsoup:jsoup:1.17.1'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.10.8'
     implementation 'commons-io:commons-io:2.15.0'
     implementation 'com.google.javascript:closure-compiler:v20231112'

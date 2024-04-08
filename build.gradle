@@ -22,7 +22,7 @@ wrapper {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.3'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.4'
 
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.15.0'

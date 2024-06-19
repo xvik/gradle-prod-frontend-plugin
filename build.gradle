@@ -7,23 +7,23 @@ plugins {
     id 'net.researchgate.release' version '3.0.2'
     id 'ru.vyarus.quality' version '5.0.0'
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
-    id 'ru.vyarus.java-lib' version '2.4.0'
+    id 'ru.vyarus.java-lib' version '3.0.0'
     id 'ru.vyarus.github-info' version '2.0.0'
     id 'com.github.ben-manes.versions' version '0.51.0'
     id "pl.droidsonroids.jacoco.testkit" version "1.0.12"
 }
 
-// because of closure-stylesheets compiled for 11
-sourceCompatibility = '11'
+java {
+    sourceCompatibility = "11"
+}
 
 wrapper {
-    gradleVersion = '7.6'
+    gradleVersion = '8.7'
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.3'
-
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.15.0'
     implementation 'commons-io:commons-io:2.16.1'
@@ -42,12 +42,12 @@ github {
     license 'MIT'
 }
 
-pom {
+maven.pom {
     developers {
         developer {
-            id 'xvik'
-            name 'Vyacheslav Rusakov'
-            email 'vyarus@gmail.com'
+            id = 'xvik'
+            name = 'Vyacheslav Rusakov'
+            email = 'vyarus@gmail.com'
         }
     }
 }

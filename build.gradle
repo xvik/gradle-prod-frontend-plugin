@@ -24,7 +24,7 @@ wrapper {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    implementation 'org.jsoup:jsoup:1.17.2'
+    implementation 'org.jsoup:jsoup:1.18.1'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.15.0'
     implementation 'commons-io:commons-io:2.16.1'
     implementation 'com.google.javascript:closure-compiler:v20240317'

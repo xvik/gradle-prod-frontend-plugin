@@ -41,7 +41,6 @@ public final class UrlUtils {
      */
     public static String followRedirects(final String url) {
         try {
-            String res = url;
             // remove ../ parts in url
             final URL target = new URI(url).normalize().toURL();
             final HttpURLConnection conn = (HttpURLConnection) target.openConnection();
@@ -53,6 +52,7 @@ public final class UrlUtils {
             conn.getInputStream().close();
             conn.disconnect();
 
+            String res = url;
             if (redirect) {
                 res = conn.getHeaderField("Location");
                 if (!res.startsWith("http")) {

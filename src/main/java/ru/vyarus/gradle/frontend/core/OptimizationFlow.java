@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-@SuppressWarnings({"PMD.ExcessivePublicCount", "PMD.SystemPrintln"})
+@SuppressWarnings("PMD.SystemPrintln")
 public final class OptimizationFlow implements OptimizationInfo {
 
     private final Settings settings;

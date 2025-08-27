@@ -55,6 +55,7 @@ public class HtmlPage extends OptimizedEntity implements HtmlInfo {
      */
     private final boolean pureHtml;
 
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     public HtmlPage(final OptimizationFlow.Settings settings, final File file) {
         this.settings = settings;
         this.file = file;

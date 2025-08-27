@@ -24,7 +24,7 @@ import java.io.File;
  * @author Vyacheslav Rusakov
  * @since 30.01.2023
  */
-@SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.SystemPrintln"})
+@SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.SystemPrintln", "PMD.GodClass"})
 public abstract class RootResource extends OptimizedEntity implements ResourceInfo {
 
     /**

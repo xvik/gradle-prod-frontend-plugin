@@ -35,13 +35,13 @@ public final class StatsPrinter {
         final String basePath = baseDir.getAbsolutePath() + File.separator;
         final String line = repeat('-', 70 + 15 * 3 + 1) + "\n";
         final String sumLine = repeat('-', 15 * 3) + "\n";
-        final StringBuilder res = new StringBuilder("\n");
+        final StringBuilder res = new StringBuilder(200).append('\n');
         if (!result.getHtmls().isEmpty()) {
-            res.append(String.format("%-70s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"));
-            res.append(line);
+            res.append(String.format("%-70s %-15s%-15s%-15s%n", "", "original", "minified", "gzipped"))
+                    .append(line);
         } else {
-            res.append("No optimizations performed\n");
-            res.append(line);
+            res.append("No optimizations performed\n")
+                    .append(line);
         }
         for (HtmlInfo html : result.getHtmls()) {
             res.append(String.format("%-70s %s%n",
@@ -64,9 +64,11 @@ public final class StatsPrinter {
             }
 
             if (!html.getCss().isEmpty() || html.getJs().isEmpty()) {
-                res.append(String.format("%-70s %s", "", sumLine));
-                res.append(String.format("%-70s %-15s%-15s%-15s%n", "",
-                        sum(html, SizeType.ORIGINAL), sum(html, SizeType.MODIFIED), sum(html, SizeType.GZIPPED)));
+                res.append(String.format("%-70s %s", "", sumLine))
+                        .append(String.format("%-70s %-15s%-15s%-15s%n", "",
+                                sum(html, SizeType.ORIGINAL),
+                                sum(html, SizeType.MODIFIED),
+                                sum(html, SizeType.GZIPPED)));
             }
         }
         return res.toString();

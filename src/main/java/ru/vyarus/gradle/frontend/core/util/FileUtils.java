@@ -66,7 +66,7 @@ public final class FileUtils {
         while (new File(dir, target).exists()) {
             // use this scheme to preserve .min. in file name (used for minified file detection)
             final String append = "." + (++attempt);
-            target = FileUtils.appendBeforeExtension(name, append);
+            target = appendBeforeExtension(name, append);
         }
         return new File(dir, target);
     }

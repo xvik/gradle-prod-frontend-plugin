@@ -4,7 +4,7 @@ import ru.vyarus.gradle.frontend.core.info.SizeType;
 import ru.vyarus.gradle.frontend.core.info.resources.OptimizedEntityInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public abstract class OptimizedEntity implements OptimizedEntityInfo {
     /**
      * Resource size stats (original, minified, gzipped).
      */
-    private final Map<SizeType, Long> stats = new HashMap<>();
+    private final Map<SizeType, Long> stats = new EnumMap<>(SizeType.class);
     /**
      * True if resource ignored (e.g. local file not found or can't load remote resource).
      */

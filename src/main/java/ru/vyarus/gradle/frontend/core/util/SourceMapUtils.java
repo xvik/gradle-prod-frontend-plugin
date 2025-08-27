@@ -111,6 +111,7 @@ public final class SourceMapUtils {
      *
      * @param sourceMap source map file
      */
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
     public static void includeSources(final File sourceMap) {
         final SourceMap map = parse(sourceMap);
         if (map.getSourcesContent() != null && !map.getSourcesContent().isEmpty()) {

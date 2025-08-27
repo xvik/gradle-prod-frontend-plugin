@@ -13,8 +13,7 @@ import java.util.List;
  * @author Vyacheslav Rusakov
  * @since 28.01.2023
  */
-@SuppressWarnings({"checkstyle:AvoidFieldNameMatchingMethodName", "PMD.AvoidFieldNameMatchingMethodName",
-"PMD.ExcessivePublicCount"})
+@SuppressWarnings({"checkstyle:AvoidFieldNameMatchingMethodName", "PMD.AvoidFieldNameMatchingMethodName"})
 public class ProdFrontendExtension {
 
     /**

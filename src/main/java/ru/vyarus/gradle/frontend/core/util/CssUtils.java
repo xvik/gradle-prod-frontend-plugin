@@ -52,7 +52,8 @@ public final class CssUtils {
         final Matcher matcher = URL_PATTERN.matcher(content);
         while (matcher.find()) {
             final String url = matcher.group("url");
-            if (!url.startsWith("data:")) {
+            // for example, buefy 3 contains "url(checkmark(var(...))"
+            if (!url.startsWith("data:") && !url.contains("(")) {
                 res.add(url.trim());
             }
         }

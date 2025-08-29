@@ -32,7 +32,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
     implementation 'org.graalvm.js:js:22.3.5'
 
-    testImplementation 'org.spockframework:spock-core:2.4-M6-groovy-3.0'
+    testImplementation 'org.spockframework:spock-core:2.4-M6-groovy-4.0'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

@@ -1,3 +1,4 @@
+### 1.0.2 (2025-09-03)
 * Ignore css urls with functions
 
 ### 1.0.1 (2023-10-20)

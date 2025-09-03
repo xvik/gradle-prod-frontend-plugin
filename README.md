@@ -36,7 +36,7 @@ processed resources (resources modification prevention)
 
 ```groovy
 plugins {
-    id 'ru.vyarus.prod-frontend' version '1.0.1'
+    id 'ru.vyarus.prod-frontend' version '1.0.2'
 }
 ```
 
@@ -48,7 +48,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'ru.vyarus:gradle-prod-frontend-plugin:1.0.1'
+        classpath 'ru.vyarus:gradle-prod-frontend-plugin:1.0.2'
     }
 }
 apply plugin: 'ru.vyarus.prod-frontend'

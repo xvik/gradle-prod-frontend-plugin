@@ -45,6 +45,8 @@ github {
     license = 'MIT'
 }
 
+quality.enabled = !System.getenv('APPVEYOR')
+
 maven.pom {
     developers {
         developer {

@@ -28,7 +28,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.22.1'
     implementation 'in.wilsonl.minifyhtml:minify-html:0.15.0'
     implementation 'commons-io:commons-io:2.21.0'
-    implementation 'com.google.javascript:closure-compiler:v20240317'
+    implementation 'com.google.javascript:closure-compiler:v20260119'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.0'
     implementation 'org.graalvm.js:js:22.3.5'
 
